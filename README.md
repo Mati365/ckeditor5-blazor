@@ -11,6 +11,11 @@ The fastest way to add CKEditor 5 to your Blazor app. Zero-config installation, 
 > [!IMPORTANT]
 > This integration is unofficial and not maintained by CKSource. For official CKEditor 5 documentation, visit [ckeditor.com](https://ckeditor.com/docs/ckeditor5/latest/). If you encounter any issues in editor, please report them on the [GitHub repository](https://github.com/ckeditor/ckeditor5/issues).
 
+<!-- markdownlint-disable MD033 -->
+<p align="center">
+  <img src="docs/intro-classic-editor.png" alt="CKEditor 5 Classic Editor in .NET / Blazor application">
+</p>
+
 ## Under construction 🚧
 
 This project is currently under active development. In the meantime the author might be watching cat videos, brewing coffee, and negotiating with npm packages - PRs and snacks are welcome. Here's a silly cat+coffee picture for motivation:
