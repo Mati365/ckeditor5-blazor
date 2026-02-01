@@ -15,7 +15,7 @@ The fastest way to add CKEditor 5 to your Blazor app. Zero-config installation, 
 
 This project is currently under active development. In the meantime the author might be watching cat videos, brewing coffee, and negotiating with npm packages - PRs and snacks are welcome. Here's a silly cat+coffee picture for motivation:
 
-[Cat and Coffee](https://i.makeagif.com/media/6-02-2015/ipXidH.gif)
+![Cat and Coffee](https://i.makeagif.com/media/6-02-2015/ipXidH.gif)
 
 ## Psst... 👀
 
