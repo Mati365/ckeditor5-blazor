@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@8.15.0",
+  "packageManager": "pnpm@10.0.0",
   "scripts": {
     "typecheck": "pnpm run npm_package:typecheck && pnpm run playground:typecheck",
     "playground:typecheck": "pnpm -F ckeditor5-blazor-playground run typecheck",
