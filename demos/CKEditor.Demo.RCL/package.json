@@ -1,10 +1,12 @@
 {
   "name": "ckeditor5-blazor-playground",
+  "type": "module",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "build:css": "tailwindcss -i ./wwwroot/app.css -o ./wwwroot/app.min.css --minify",
-    "watch:css": "tailwindcss -i ./wwwroot/app.css -o ./wwwroot/app.min.css --watch"
+    "watch:css": "tailwindcss -i ./wwwroot/app.css -o ./wwwroot/app.min.css --watch",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1"
