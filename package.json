@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@8.15.0",
+  "scripts": {
+    "typecheck": "pnpm run npm_package:typecheck && pnpm run playground:typecheck",
+    "playground:typecheck": "pnpm -F ckeditor5-blazor-playground run typecheck",
+    "dotnet:server": "concurrently -n \"tailwind,server\" -c \"cyan,green\" \"pnpm:tailwind:watch\" \"pnpm:server:watch\"",
+    "dotnet:wasm": "concurrently -n \"tailwind,wasm\" -c \"cyan,magenta\" \"pnpm:tailwind:watch\" \"pnpm:wasm:watch\"",
+    "dotnet:all": "concurrently -n \"tailwind,server,wasm\" -c \"cyan,green,magenta\" \"pnpm:tailwind:watch\" \"pnpm:server:watch\" \"pnpm:wasm:watch\"",
+    "tailwind:watch": "pnpm -F ckeditor5-blazor-playground run watch:css",
+    "server:watch": "cd demos/CKEditor.Demo.Server && dotnet watch",
+    "wasm:watch": "cd demos/CKEditor.Demo.Wasm && dotnet watch",
+    "npm_package:typecheck": "pnpm -F ckeditor5-blazor run typecheck",
+    "npm_package:watch": "pnpm -F ckeditor5-blazor run watch",
+    "npm_package:build": "pnpm -F ckeditor5-blazor run build",
+    "npm_package:test": "pnpm -F ckeditor5-blazor run test",
+    "npm_package:test:watch": "pnpm -F ckeditor5-blazor run test:watch"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^7.3.0",
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.37.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "typescript": "^5.9.3"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,yml,yaml,json,css,scss,html}": [
+      "eslint --fix"
+    ]
+  }
+}

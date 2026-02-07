@@ -1,0 +1,68 @@
+import path from 'node:path';
+
+import antfu from '@antfu/eslint-config';
+
+export default antfu({
+  react: false,
+  ignores: [
+    'dist',
+    'build',
+    '**/*/dist',
+    '**/*/build',
+    'node_modules',
+    'vendor',
+    'playground/vendor',
+    'playground/assets/vendor',
+    'playground/assets/controllers.json',
+  ],
+  languageOptions: {
+    parserOptions: {
+      project: path.join(import.meta.dirname, 'tsconfig.eslint.json'),
+    },
+  },
+  typescript: {
+    overrides: {
+      'ts/no-unsafe-function-type': 0,
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      '@typescript-eslint/no-floating-promises': 'error',
+    },
+  },
+  stylistic: {
+    semi: true,
+    overrides: {
+      'style/member-delimiter-style': [
+        'error',
+        {
+          multiline: {
+            delimiter: 'semi',
+            requireLast: true,
+          },
+          singleline: {
+            delimiter: 'semi',
+            requireLast: true,
+          },
+          multilineDetection: 'brackets',
+        },
+      ],
+    },
+  },
+})
+  .override('antfu/imports/rules', {
+    rules: {
+      'unused-imports/no-unused-imports': 'error',
+    },
+  })
+  .overrideRules({
+    'dot-notation': 'off',
+    'antfu/no-top-level-await': 'off',
+    'perfectionist/sort-imports': ['error', {
+      groups: [
+        'side-effect',
+        'type',
+        'builtin',
+        'external',
+        'internal',
+        ['parent', 'sibling', 'index'],
+      ],
+    }],
+  });

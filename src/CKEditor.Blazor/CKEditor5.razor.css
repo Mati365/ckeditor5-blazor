@@ -1,0 +1,11 @@
+.ckeditor-wrapper {
+    width: 100%;
+}
+
+.ckeditor-container {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    min-height: 200px;
+}

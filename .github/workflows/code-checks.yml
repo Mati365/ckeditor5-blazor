@@ -1,0 +1,30 @@
+name: Code checks
+
+on:
+  push:
+
+jobs:
+  js_checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run ESLint
+        run: npx eslint .
+
+      - name: Build npm package
+        run: pnpm run npm_package:build
+
+      - name: Run TypeScript type check
+        run: pnpm run typecheck
+
+      - name: Run tests
+        run: pnpm run npm_package:test

@@ -1,0 +1,15 @@
+﻿<Router AppAssembly="@typeof(App).Assembly"
+        AdditionalAssemblies="new[] { typeof(CKEditor.Demo.RCL._Imports).Assembly }">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(CKEditor.Demo.RCL.Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(CKEditor.Demo.RCL.Layout.MainLayout)">
+            <div class="p-6 text-center">
+                <p class="text-gray-600 text-xl" role="alert">Sorry, there's nothing at this address.</p>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>

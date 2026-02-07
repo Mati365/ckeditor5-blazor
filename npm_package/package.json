@@ -1,0 +1,50 @@
+{
+  "name": "ckeditor5-blazor",
+  "version": "0.1.0",
+  "description": "CKEditor 5 integration for Blazor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mati365/ckeditor5-blazor.git"
+  },
+  "keywords": [
+    "ckeditor",
+    "blazor",
+    "editor"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "prepare": "pnpm run build",
+    "build": "pnpm run clean && vite build && node ./scripts/check-dist-imports.mjs",
+    "watch": "vite build --watch",
+    "dev": "vite build --watch",
+    "typecheck": "tsc --noEmit --pretty",
+    "test": "vitest --coverage",
+    "test:watch": "vitest --watch --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.18",
+    "ckeditor5": "^47.4.0",
+    "ckeditor5-premium-features": "^47.4.0",
+    "happy-dom": "^20.5.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.5.4",
+    "vite-tsconfig-paths": "^6.0.5",
+    "vitest": "^4.0.18"
+  }
+}

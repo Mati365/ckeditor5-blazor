@@ -1,0 +1,28 @@
+@namespace CKEditor.Blazor
+
+<div class="ckeditor-wrapper">
+    <div class="ckeditor-container @ContainerClass">
+        <p>CKEditor 5 - @EditorType</p>
+        <p>Editor will be initialized here...</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string EditorType { get; set; } = "classic";
+
+    [Parameter]
+    public string ContainerClass { get; set; } = "";
+
+    [Parameter]
+    public string InitialData { get; set; } = "<p>Hello from CKEditor 5!</p>";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // TODO: Initialize CKEditor 5 here via JS Interop
+            await Task.CompletedTask;
+        }
+    }
+}
