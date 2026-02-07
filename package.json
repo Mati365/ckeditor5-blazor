@@ -5,6 +5,8 @@
     "dev": "pnpm run dotnet:all",
     "typecheck": "pnpm run npm_package:typecheck && pnpm run dotnet:typecheck",
     "dotnet:typecheck": "pnpm -F ckeditor5-blazor-playground run typecheck",
+    "dotnet:format": "dotnet format",
+    "dotnet:format:check": "dotnet format --verify-no-changes",
     "dotnet:server": "concurrently -n \"tailwind,server\" -c \"cyan,green\" \"pnpm:dotnet:tailwind:watch\" \"pnpm:dotnet:server:watch\"",
     "dotnet:wasm": "concurrently -n \"tailwind,wasm\" -c \"cyan,magenta\" \"pnpm:dotnet:tailwind:watch\" \"pnpm:dotnet:wasm:watch\"",
     "dotnet:all": "concurrently -n \"tailwind,server,wasm\" -c \"cyan,green,magenta\" \"pnpm:dotnet:tailwind:watch\" \"pnpm:dotnet:server:watch\" \"pnpm:dotnet:wasm:watch\"",
@@ -30,6 +32,9 @@
   "lint-staged": {
     "*.{ts,js,mjs,yml,yaml,json,css,scss,html}": [
       "eslint --fix"
+    ],
+    "*.{cs,razor}": [
+      "dotnet format --include"
     ]
   }
 }
