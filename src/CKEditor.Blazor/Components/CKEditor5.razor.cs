@@ -1,5 +1,5 @@
 using System.Text.Json;
-using CKEditor.Blazor.Models;
+using CKEditor.Blazor.Preset;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -119,7 +119,7 @@ public partial class CKEditor5 : ComponentBase
         Id ??= $"cke5-{Guid.NewGuid():N}";
     }
 
-    private Preset ResolvePreset()
+    private PresetConfig ResolvePreset()
     {
         var preset = ConfigManager.ResolvePreset(Preset ?? "default");
 
@@ -131,22 +131,22 @@ public partial class CKEditor5 : ComponentBase
         return preset;
     }
 
-    private Preset ApplyConfigOverride(Preset preset)
+    private PresetConfig ApplyConfigOverride(PresetConfig preset)
     {
         return Config == null ? preset : preset.OfConfig(Config);
     }
 
-    private Preset ApplyConfigMerge(Preset preset)
+    private PresetConfig ApplyConfigMerge(PresetConfig preset)
     {
         return MergeConfig == null ? preset : preset.OfMergedConfig(MergeConfig);
     }
 
-    private Preset ApplyCustomTranslations(Preset preset)
+    private PresetConfig ApplyCustomTranslations(PresetConfig preset)
     {
         return CustomTranslations == null ? preset : preset.OfCustomTranslations(CustomTranslations);
     }
 
-    private Preset ApplyEditorTypeOverride(Preset preset)
+    private PresetConfig ApplyEditorTypeOverride(PresetConfig preset)
     {
         if (string.IsNullOrWhiteSpace(EditorType))
         {
@@ -176,7 +176,8 @@ public partial class CKEditor5 : ComponentBase
     private bool IsDecoupledOrMultiroot()
     {
         var preset = ResolvePreset();
-        return preset.EditorType is Models.EditorType.Multiroot or Models.EditorType.Decoupled;
+
+        return preset.EditorType == Blazor.Preset.EditorType.Multiroot || preset.EditorType == Blazor.Preset.EditorType.Decoupled;
     }
 
     private Dictionary<string, object> GetAdditionalAttributes()

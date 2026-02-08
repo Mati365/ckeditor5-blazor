@@ -1,4 +1,4 @@
-namespace CKEditor.Blazor.Models;
+namespace CKEditor.Blazor.Preset;
 
 /// <summary>
 /// Represents language configuration for CKEditor.

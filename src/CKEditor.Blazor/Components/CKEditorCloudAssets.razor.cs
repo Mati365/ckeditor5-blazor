@@ -1,5 +1,7 @@
 using System.Text.Json;
-using CKEditor.Blazor.Models;
+using CKEditor.Blazor.Cloud;
+using CKEditor.Blazor.Cloud.Bundle;
+using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace CKEditor.Blazor.Components;
@@ -35,6 +37,9 @@ public partial class CKEditorCloudAssets : ComponentBase
     [Parameter]
     public Dictionary<string, string> CustomImportMap { get; set; } = [];
 
+    [Inject]
+    private ConfigManager ConfigManager { get; set; } = default!;
+
     private List<JSAsset> EsmAssets { get; set; } = [];
 
     private List<JSAsset> UmdAssets { get; set; } = [];
@@ -43,18 +48,28 @@ public partial class CKEditorCloudAssets : ComponentBase
 
     private Dictionary<string, string> ImportMap { get; set; } = [];
 
-    private string ImportMapJson => JsonSerializer.Serialize(ImportMap);
+    private string ImportMapJson => JsonSerializer.Serialize(new { imports = ImportMap });
 
     protected override void OnInitialized()
     {
-        // TODO: Load cloud configuration and build bundle
-        LoadCloudAssets();
+        var preset = ConfigManager.ResolvePresetOrThrow(Preset);
+
+        if (preset.Cloud == null)
+        {
+            return;
+        }
+
+        LoadCloudAssets(preset.Cloud);
     }
 
-    private void LoadCloudAssets()
+    private void LoadCloudAssets(CloudConfig cloud)
     {
-        // TODO: Implement proper cloud asset loading logic
-        // This should load from configuration and build the asset bundle
+        var bundle = CloudBundleBuilder.Build(cloud);
+
+        EsmAssets = [.. bundle.Js.Where(asset => asset.Type == JSAssetType.ESM)];
+        UmdAssets = [.. bundle.Js.Where(asset => asset.Type == JSAssetType.UMD)];
+        CssUrls = [.. bundle.Css.Distinct(StringComparer.OrdinalIgnoreCase)];
+
         var generatedImportMap = new Dictionary<string, string>();
 
         // Group JS assets by type
@@ -64,9 +79,12 @@ public partial class CKEditorCloudAssets : ComponentBase
         }
 
         // Merge with custom import map
-        ImportMap = generatedImportMap
-            .Concat(CustomImportMap)
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        ImportMap = new Dictionary<string, string>(generatedImportMap);
+
+        foreach (var (key, value) in CustomImportMap)
+        {
+            ImportMap[key] = value;
+        }
     }
 
     private Dictionary<string, object> GetNonceAttribute()

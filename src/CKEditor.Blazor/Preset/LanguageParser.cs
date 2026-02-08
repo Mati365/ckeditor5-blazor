@@ -1,6 +1,4 @@
-using CKEditor.Blazor.Models;
-
-namespace CKEditor.Blazor.Services;
+namespace CKEditor.Blazor.Preset;
 
 /// <summary>
 /// Parser for language configurations.

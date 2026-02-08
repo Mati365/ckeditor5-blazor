@@ -1,4 +1,11 @@
-﻿<Router AppAssembly="@typeof(App).Assembly"
+﻿@using CKEditor.Blazor.Components
+
+<HeadContent>
+    <CKEditorCloudAssets Preset="default" EmitImportMap="true" />
+    <script type="module" src="_content/CKEditor.Blazor/ckeditor5-blazor/index.mjs"></script>
+</HeadContent>
+
+<Router AppAssembly="@typeof(App).Assembly"
         AdditionalAssemblies="new[] { typeof(CKEditor.Demo.RCL._Imports).Assembly }">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(CKEditor.Demo.RCL.Layout.MainLayout)" />

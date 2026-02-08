@@ -1,9 +1,11 @@
-namespace CKEditor.Blazor.Models;
+using CKEditor.Blazor.Cloud;
+
+namespace CKEditor.Blazor.Preset;
 
 /// <summary>
 /// Represents a CKEditor preset configuration.
 /// </summary>
-public class Preset
+public class PresetConfig
 {
     /// <summary>
     /// The editor type for this preset.
@@ -30,9 +32,9 @@ public class Preset
     /// </summary>
     /// <param name="config">The configuration to apply.</param>
     /// <returns>A new preset with the specified configuration.</returns>
-    public Preset OfConfig(Dictionary<string, object> config)
+    public PresetConfig OfConfig(Dictionary<string, object> config)
     {
-        return new Preset
+        return new()
         {
             EditorType = EditorType,
             Config = config,
@@ -46,7 +48,7 @@ public class Preset
     /// </summary>
     /// <param name="mergeConfig">The configuration to merge.</param>
     /// <returns>A new preset with merged configuration.</returns>
-    public Preset OfMergedConfig(Dictionary<string, object> mergeConfig)
+    public PresetConfig OfMergedConfig(Dictionary<string, object> mergeConfig)
     {
         var newConfig = new Dictionary<string, object>(Config);
 
@@ -55,7 +57,7 @@ public class Preset
             newConfig[key] = value;
         }
 
-        return new Preset
+        return new()
         {
             EditorType = EditorType,
             Config = newConfig,
@@ -69,9 +71,9 @@ public class Preset
     /// </summary>
     /// <param name="translations">The custom translations to apply.</param>
     /// <returns>A new preset with custom translations.</returns>
-    public Preset OfCustomTranslations(Dictionary<string, string> translations)
+    public PresetConfig OfCustomTranslations(Dictionary<string, string> translations)
     {
-        return new Preset
+        return new()
         {
             EditorType = EditorType,
             Config = Config,
@@ -85,9 +87,9 @@ public class Preset
     /// </summary>
     /// <param name="editorType">The editor type to use.</param>
     /// <returns>A new preset with the specified editor type.</returns>
-    public Preset OfEditorType(EditorType editorType)
+    public PresetConfig OfEditorType(EditorType editorType)
     {
-        return new Preset
+        return new()
         {
             EditorType = editorType,
             Config = Config,

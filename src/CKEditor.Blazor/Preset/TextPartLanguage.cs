@@ -1,4 +1,4 @@
-namespace CKEditor.Blazor.Models;
+namespace CKEditor.Blazor.Preset;
 
 /// <summary>
 /// Represents a text part language configuration.

@@ -4,9 +4,7 @@
 @if (EmitImportMap && ImportMap.Count > 0)
 {
     <script type="importmap" @attributes="GetNonceAttribute()">
-    {
-        "imports": @ImportMapJson
-    }
+        @((MarkupString)ImportMapJson)
     </script>
 }
 

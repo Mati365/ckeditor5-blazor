@@ -1,9 +1,9 @@
-namespace CKEditor.Blazor.Models;
+namespace CKEditor.Blazor.Context;
 
 /// <summary>
 /// Represents a CKEditor context configuration.
 /// </summary>
-public class Context
+public class ContextConfig
 {
     /// <summary>
     /// The context configuration object.

@@ -1,4 +1,4 @@
-namespace CKEditor.Blazor.Models;
+namespace CKEditor.Blazor.Cloud.Bundle;
 
 /// <summary>
 /// Represents a JavaScript asset in a CKEditor cloud bundle.
