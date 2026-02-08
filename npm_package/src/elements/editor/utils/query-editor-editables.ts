@@ -58,7 +58,7 @@ function queryAllEditorEditables(editorId: EditorId) {
 
   const editor = document.querySelector<HTMLElement>(`cke5-editor[data-cke-editor-id="${editorId}"]`);
 
-  /* v8 ignore next 3 */
+  /* v8 ignore next -- @preserve */
   if (!editor) {
     return acc;
   }

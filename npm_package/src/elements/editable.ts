@@ -29,7 +29,7 @@ export class EditableComponentElement extends HTMLElement {
     const content = this.getAttribute('data-cke-content');
     const saveDebounceMs = Number.parseInt(this.getAttribute('data-cke-save-debounce-ms')!, 10);
 
-    /* v8 ignore next 3 */
+    /* v8 ignore next if -- @preserve */
     if (!editorId || !rootName) {
       throw new CKEditor5BlazorError('Editor ID or Root Name is missing.');
     }
@@ -109,6 +109,7 @@ export class EditableComponentElement extends HTMLElement {
     if (editor && editor.state !== 'destroyed' && rootName) {
       const root = editor.model.document.getRoot(rootName);
 
+      /* v8 ignore else -- @preserve */
       if (root && 'detachEditable' in editor) {
         try {
           editor.detachEditable(root);

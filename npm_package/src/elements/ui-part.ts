@@ -21,7 +21,7 @@ export class UIPartComponentElement extends HTMLElement {
     const editorId = this.getAttribute('data-cke-editor-id') || queryAllEditorIds()[0]!;
     const name = this.getAttribute('data-cke-name');
 
-    /* v8 ignore next 3 */
+    /* v8 ignore next if -- @preserve */
     if (!editorId || !name) {
       return;
     }
@@ -38,7 +38,7 @@ export class UIPartComponentElement extends HTMLElement {
       const uiViewName = mapUIPartView(name);
       const uiPart = (ui.view as any)[uiViewName!];
 
-      /* v8 ignore next 3 */
+      /* v8 ignore next if -- @preserve */
       if (!uiPart) {
         throw new CKEditor5BlazorError(`Unknown UI part name: "${name}". Supported names are "toolbar" and "menubar".`);
       }
@@ -77,7 +77,7 @@ function mapUIPartView(name: string): string | null {
     case 'menubar':
       return 'menuBarView';
 
-    /* v8 ignore next 3 */
+    /* v8 ignore next -- @preserve */
     default:
       return null;
   }

@@ -49,6 +49,7 @@ export class EditorComponentElement extends HTMLElement {
 
       // Do not even try to broadcast about the registration of the editor
       // if hook was immediately destroyed.
+      /* v8 ignore else -- @preserve */
       if (this.isConnected) {
         EditorsRegistry.the.register(editorId, editor);
 
@@ -58,12 +59,13 @@ export class EditorComponentElement extends HTMLElement {
           }
         });
       }
-      /* v8 ignore next 6 */
     }
     catch (error: any) {
+      /* v8 ignore start -- @preserve */
       console.error(`Error initializing CKEditor5 instance with ID "${editorId}":`, error);
       this.editorPromise = null;
       EditorsRegistry.the.error(editorId, error);
+      /* v8 ignore end */
     }
   }
 
@@ -79,7 +81,7 @@ export class EditorComponentElement extends HTMLElement {
     try {
       const editor = await this.editorPromise;
 
-      /* v8 ignore next 3 */
+      /* v8 ignore next -- @preserve */
       if (!editor) {
         return;
       }
