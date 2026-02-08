@@ -22,6 +22,16 @@ This project is currently under active development. In the meantime the author m
 
 ![Cat and Coffee](https://i.makeagif.com/media/6-02-2015/ipXidH.gif)
 
+## Development ⚙️
+
+To start the development environment, run:
+
+```bash
+pnpm run dev
+```
+
+The playground app will be available at [http://localhost:8000](http://localhost:8000).
+
 ## Psst... 👀
 
 If you're looking for similar stuff, check these out:
