@@ -26,10 +26,11 @@ public partial class CKEditorCloudAssets : ComponentBase
     public string? Nonce { get; set; }
 
     /// <summary>
-    /// Whether to emit the import map script tag.
+    /// Whether to emit the import map script tag. Default is true.
+    /// Set to false if you want to manage the import map yourself.
     /// </summary>
     [Parameter]
-    public bool EmitImportMap { get; set; } = false;
+    public bool EmitImportMap { get; set; } = true;
 
     /// <summary>
     /// Custom import map entries to merge with the generated import map.
