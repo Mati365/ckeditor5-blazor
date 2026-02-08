@@ -1,0 +1,29 @@
+@namespace CKEditor.Blazor.Components
+
+@* 1. Importmap for ESM assets *@
+@if (EmitImportMap && ImportMap.Count > 0)
+{
+    <script type="importmap" @attributes="GetNonceAttribute()">
+    {
+        "imports": @ImportMapJson
+    }
+    </script>
+}
+
+@* 2. Module preload for ESM assets *@
+@foreach (var asset in EsmAssets)
+{
+    <link rel="modulepreload" href="@asset.Url" crossorigin="anonymous" @attributes="GetNonceAttribute()">
+}
+
+@* 3. Stylesheets *@
+@foreach (var cssUrl in CssUrls)
+{
+    <link rel="stylesheet" href="@cssUrl" crossorigin="anonymous" @attributes="GetNonceAttribute()">
+}
+
+@* 4. UMD scripts *@
+@foreach (var asset in UmdAssets)
+{
+    <script src="@asset.Url" @attributes="GetNonceAttribute()"></script>
+}

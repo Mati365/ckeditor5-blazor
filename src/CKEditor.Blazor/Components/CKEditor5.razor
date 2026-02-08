@@ -1,0 +1,26 @@
+@namespace CKEditor.Blazor
+@using CKEditor.Blazor.Components
+
+<cke5-editor
+    class="@Class"
+    style="@StyleValue"
+    data-cke-editor-id="@Id"
+    data-cke-preset="@PresetJson"
+    data-cke-content="@ContentJson"
+    data-cke-language="@LanguageJson"
+    @attributes="GetAdditionalAttributes()"
+    data-turbo-temporary>
+
+    @if (ShowInput)
+    {
+        <div id="@($"{Id}_editor")"></div>
+    }
+
+    @if (!string.IsNullOrEmpty(Name))
+    {
+        <CKEditorHiddenInput
+            Name="@Name"
+            Id="@($"{Id}_input")"
+            Required="@Required" />
+    }
+</cke5-editor>

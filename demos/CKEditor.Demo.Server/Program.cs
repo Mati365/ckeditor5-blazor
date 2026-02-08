@@ -1,8 +1,11 @@
+using CKEditor.Blazor.Extensions;
 using CKEditor.Demo.Server.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCKEditor();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 

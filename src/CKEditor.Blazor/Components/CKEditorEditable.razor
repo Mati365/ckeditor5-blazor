@@ -1,0 +1,26 @@
+@namespace CKEditor.Blazor.Components
+
+<cke5-editable
+    id="@Id"
+    class="@Class"
+    style="@StyleValue"
+    data-cke-editor-id="@EditorId"
+    data-cke-root-name="@RootName"
+    data-cke-content="@Content"
+    data-cke-save-debounce-ms="@SaveDebounceMs"
+    data-turbo-temporary>
+
+    <div
+        class="@InnerClass"
+        style="@InnerStyle"
+        data-cke-editable-content>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Name))
+    {
+        <CKEditorHiddenInput
+            Name="@Name"
+            Id="@($"{Id}_input")"
+            Required="@Required" />
+    }
+</cke5-editable>
