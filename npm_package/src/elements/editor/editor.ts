@@ -1,0 +1,278 @@
+import type { EditorId, EditorLanguage, EditorPreset } from './typings';
+import type { EditorCreator } from './utils';
+import type { Editor } from 'ckeditor5';
+
+import { isEmptyObject, waitFor, waitForDOMReady } from '../../shared';
+import { ContextsRegistry } from '../context';
+import { EditorsRegistry } from './editors-registry';
+import { createSyncEditorWithInputPlugin } from './plugins';
+import {
+  createEditorInContext,
+  isSingleRootEditor,
+  loadAllEditorTranslations,
+  loadEditorConstructor,
+  loadEditorPlugins,
+  normalizeCustomTranslations,
+  queryEditablesElements,
+  queryEditablesSnapshotContent,
+  resolveEditorConfigElementReferences,
+  setEditorEditableHeight,
+  unwrapEditorContext,
+  unwrapEditorWatchdog,
+  wrapWithWatchdog,
+} from './utils';
+
+/**
+ * The Blazor hook that manages the lifecycle of CKEditor5 instances.
+ */
+export class EditorComponentElement extends HTMLElement {
+  /**
+   * The promise that resolves to the editor instance.
+   */
+  private editorPromise: Promise<Editor> | null = null;
+
+  /**
+   * Mounts the editor component.
+   */
+  async connectedCallback(): Promise<void> {
+    await waitForDOMReady();
+
+    const editorId = this.getAttribute('data-cke-editor-id')!;
+
+    EditorsRegistry.the.resetErrors(editorId);
+
+    try {
+      this.style.display = 'block';
+      this.editorPromise = this.createEditor();
+
+      const editor = await this.editorPromise;
+
+      // Do not even try to broadcast about the registration of the editor
+      // if hook was immediately destroyed.
+      if (this.isConnected) {
+        EditorsRegistry.the.register(editorId, editor);
+
+        editor.once('destroy', () => {
+          if (EditorsRegistry.the.hasItem(editorId)) {
+            EditorsRegistry.the.unregister(editorId);
+          }
+        });
+      }
+      /* v8 ignore next 6 */
+    }
+    catch (error: any) {
+      console.error(`Error initializing CKEditor5 instance with ID "${editorId}":`, error);
+      this.editorPromise = null;
+      EditorsRegistry.the.error(editorId, error);
+    }
+  }
+
+  /**
+   * Destroys the editor instance when the component is destroyed.
+   * This is important to prevent memory leaks and ensure that the editor is properly cleaned up.
+   */
+  async disconnectedCallback() {
+    // Let's hide the element during destruction to prevent flickering.
+    this.style.display = 'none';
+
+    // Let's wait for the mounted promise to resolve before proceeding with destruction.
+    try {
+      const editor = await this.editorPromise;
+
+      /* v8 ignore next 3 */
+      if (!editor) {
+        return;
+      }
+
+      const editorContext = unwrapEditorContext(editor);
+      const watchdog = unwrapEditorWatchdog(editor);
+
+      if (editorContext) {
+        // If context is present, make sure it's not in unmounting phase, as it'll kill the editors.
+        // If it's being destroyed, don't do anything, as the context will take care of it.
+        if (editorContext.state !== 'unavailable') {
+          await editorContext.context.remove(editorContext.editorContextId);
+        }
+      }
+      else if (watchdog) {
+        await watchdog.destroy();
+      }
+      else {
+        await editor.destroy();
+      }
+    }
+    finally {
+      this.editorPromise = null;
+    }
+  }
+
+  /**
+   * Creates the CKEditor instance.
+   */
+  private async createEditor() {
+    const editorId = this.getAttribute('data-cke-editor-id')!;
+    const preset = JSON.parse(this.getAttribute('data-cke-preset')!) as EditorPreset;
+    const contextId = this.getAttribute('data-cke-context-id');
+    const editableHeight = this.getAttribute('data-cke-editable-height') ? Number.parseInt(this.getAttribute('data-cke-editable-height')!, 10) : null;
+    const saveDebounceMs = Number.parseInt(this.getAttribute('data-cke-save-debounce-ms')!, 10);
+    const language = JSON.parse(this.getAttribute('data-cke-language')!) as EditorLanguage;
+    const watchdog = this.hasAttribute('data-cke-watchdog');
+    const content = JSON.parse(this.getAttribute('data-cke-content')!) as Record<string, string>;
+
+    const {
+      customTranslations,
+      editorType,
+      licenseKey,
+      config: { plugins, ...config },
+    } = preset;
+
+    // Wrap editor creator with watchdog if needed.
+    let Constructor: EditorCreator = await loadEditorConstructor(editorType);
+    const context = await (
+      contextId
+        ? ContextsRegistry.the.waitFor(contextId)
+        : null
+    );
+
+    // Do not use editor specific watchdog if context is attached, as the context is by default protected.
+    if (watchdog && !context) {
+      const wrapped = await wrapWithWatchdog(Constructor);
+
+      ({ Constructor } = wrapped);
+      wrapped.watchdog.on('restart', () => {
+        const newInstance = wrapped.watchdog.editor!;
+
+        this.editorPromise = Promise.resolve(newInstance);
+
+        EditorsRegistry.the.register(editorId, newInstance);
+      });
+    }
+
+    const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins);
+
+    if (isSingleRootEditor(editorType)) {
+      loadedPlugins.push(
+        await createSyncEditorWithInputPlugin(saveDebounceMs),
+      );
+    }
+
+    // Mix custom translations with loaded translations.
+    const loadedTranslations = await loadAllEditorTranslations(language, hasPremium);
+    const mixedTranslations = [
+      ...loadedTranslations,
+      normalizeCustomTranslations(customTranslations || {}),
+    ]
+      .filter(translations => !isEmptyObject(translations));
+
+    // Let's query all elements, and create basic configuration.
+    let initialData: string | Record<string, string> = {
+      ...content,
+      ...queryEditablesSnapshotContent(editorId),
+    };
+
+    if (isSingleRootEditor(editorType)) {
+      initialData = initialData['main'] || '';
+    }
+
+    // Depending of the editor type, and parent lookup for nearest context or initialize it without it.
+    const editor = await (async () => {
+      let sourceElementOrData: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId);
+
+      // Handle special case when user specified `initialData` of several root elements, but editable components
+      // are not yet present in the DOM. In other words - editor is initialized before attaching root elements.
+      if (!sourceElementOrData['main']) {
+        const requiredRoots = (
+          isSingleRootEditor(editorType)
+            ? ['main']
+            : Object.keys(initialData as Record<string, string>)
+        );
+
+        if (!checkIfAllRootsArePresent(sourceElementOrData, requiredRoots)) {
+          sourceElementOrData = await waitForAllRootsToBePresent(editorId, requiredRoots);
+          initialData = {
+            ...content,
+            ...queryEditablesSnapshotContent(editorId),
+          };
+        }
+      }
+
+      // If single root editor, unwrap the element from the object.
+      if (isSingleRootEditor(editorType) && 'main' in sourceElementOrData) {
+        sourceElementOrData = sourceElementOrData['main'];
+      }
+
+      // Construct parsed config.
+      const parsedConfig = {
+        ...resolveEditorConfigElementReferences(config),
+        initialData,
+        licenseKey,
+        plugins: loadedPlugins,
+        language,
+        ...mixedTranslations.length && {
+          translations: mixedTranslations,
+        },
+      };
+
+      if (!context || !(sourceElementOrData instanceof HTMLElement)) {
+        return Constructor.create(sourceElementOrData as any, parsedConfig);
+      }
+
+      const result = await createEditorInContext({
+        context,
+        element: sourceElementOrData,
+        creator: Constructor,
+        config: parsedConfig,
+      });
+
+      return result.editor;
+    })();
+
+    if (isSingleRootEditor(editorType) && editableHeight) {
+      setEditorEditableHeight(editor, editableHeight);
+    }
+
+    return editor;
+  };
+}
+
+/**
+ * Checks if all required root elements are present in the elements object.
+ *
+ * @param elements The elements object mapping root IDs to HTMLElements.
+ * @param requiredRoots The list of required root IDs.
+ * @returns True if all required roots are present, false otherwise.
+ */
+function checkIfAllRootsArePresent(elements: Record<string, HTMLElement>, requiredRoots: string[]): boolean {
+  return requiredRoots.every(rootId => elements[rootId]);
+}
+
+/**
+ * Waits for all required root elements to be present in the DOM.
+ *
+ * @param editorId The editor's ID.
+ * @param requiredRoots The list of required root IDs.
+ * @returns A promise that resolves to the record of root elements.
+ */
+async function waitForAllRootsToBePresent(
+  editorId: EditorId,
+  requiredRoots: string[],
+): Promise<Record<string, HTMLElement>> {
+  return waitFor(
+    () => {
+      const elements = queryEditablesElements(editorId) as unknown as Record<string, HTMLElement>;
+
+      if (!checkIfAllRootsArePresent(elements, requiredRoots)) {
+        throw new Error(
+          'It looks like not all required root elements are present yet.\n'
+          + '* If you want to wait for them, ensure they are registered before editor initialization.\n'
+          + '* If you want lazy initialize roots, consider removing root values from the `initialData` config '
+          + 'and assign initial data in editable components.\n'
+          + `Missing roots: ${requiredRoots.filter(rootId => !elements[rootId]).join(', ')}.`,
+        );
+      }
+
+      return elements;
+    },
+    { timeOutAfter: 2000, retryAfter: 100 },
+  );
+}

@@ -31,7 +31,7 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
       },
-      name: 'CKEditor5Symfony',
+      name: 'CKEditor5Blazor',
       formats: ['es', 'cjs'],
       fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
