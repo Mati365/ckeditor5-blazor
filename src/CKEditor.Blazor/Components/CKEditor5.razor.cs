@@ -21,7 +21,7 @@ public partial class CKEditor5 : ComponentBase
     /// The preset name or object to use (default: 'default').
     /// </summary>
     [Parameter]
-    public object? Preset { get; set; }
+    public object? Preset { get; set; } = "default";
 
     /// <summary>
     /// Whether to enable the watchdog feature (default: true).
@@ -104,58 +104,64 @@ public partial class CKEditor5 : ComponentBase
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
 
-    private string StyleValue => $"position: relative;{(string.IsNullOrEmpty(Style) ? string.Empty : $" {Style}")}";
+    private string? StyleValue { get; set; }
 
-    private string PresetJson => JsonSerializer.Serialize(ResolvePreset());
+    private string? PresetJson { get; set; }
 
-    private string ContentJson => JsonSerializer.Serialize(NormalizeContent());
+    private string? ContentJson { get; set; }
 
-    private string LanguageJson => JsonSerializer.Serialize(ParseLanguage());
+    private string? LanguageJson { get; set; }
 
-    private bool ShowInput => !IsDecoupledOrMultiroot();
+    private bool ShowInput { get; set; }
+
+    private Dictionary<string, object> AdditionalAttributes { get; set; } = new();
 
     protected override void OnInitialized()
     {
         Id ??= $"cke5-{Guid.NewGuid():N}";
     }
 
+    protected override void OnParametersSet()
+    {
+        var preset = ResolvePreset();
+
+        StyleValue = $"position: relative; {Style}";
+        PresetJson = JsonSerializer.Serialize(preset);
+        ShowInput = !EditorTypeExtensions.IsDecoupledOrMultiroot(preset.EditorType);
+
+        ContentJson = JsonSerializer.Serialize(NormalizeContent());
+        LanguageJson = JsonSerializer.Serialize(LanguageParser.Parse(Language));
+
+        AdditionalAttributes = GetAttributes();
+    }
+
     private PresetConfig ResolvePreset()
     {
-        var preset = ConfigManager.ResolvePreset(Preset ?? "default");
+        var preset = ConfigManager.ResolvePreset(Preset);
 
-        preset = ApplyConfigOverride(preset);
-        preset = ApplyConfigMerge(preset);
-        preset = ApplyCustomTranslations(preset);
-        preset = ApplyEditorTypeOverride(preset);
-
-        return preset;
-    }
-
-    private PresetConfig ApplyConfigOverride(PresetConfig preset)
-    {
-        return Config == null ? preset : preset.OfConfig(Config);
-    }
-
-    private PresetConfig ApplyConfigMerge(PresetConfig preset)
-    {
-        return MergeConfig == null ? preset : preset.OfMergedConfig(MergeConfig);
-    }
-
-    private PresetConfig ApplyCustomTranslations(PresetConfig preset)
-    {
-        return CustomTranslations == null ? preset : preset.OfCustomTranslations(CustomTranslations);
-    }
-
-    private PresetConfig ApplyEditorTypeOverride(PresetConfig preset)
-    {
-        if (string.IsNullOrWhiteSpace(EditorType))
+        if (Config != null)
         {
-            return preset;
+            preset = preset.OfConfig(Config);
         }
 
-        return Enum.TryParse<EditorType>(EditorType, true, out var editorType)
-            ? preset.OfEditorType(editorType)
-            : preset;
+        if (MergeConfig != null)
+        {
+            preset = preset.OfMergedConfig(MergeConfig);
+        }
+
+        if (CustomTranslations != null)
+        {
+            preset = preset.OfCustomTranslations(CustomTranslations);
+        }
+
+        if (!string.IsNullOrWhiteSpace(EditorType))
+        {
+            var editorType = EditorTypeExtensions.Parse(EditorType);
+
+            preset = preset.OfEditorType(editorType);
+        }
+
+        return preset;
     }
 
     private object NormalizeContent()
@@ -168,19 +174,7 @@ public partial class CKEditor5 : ComponentBase
         };
     }
 
-    private Language ParseLanguage()
-    {
-        return LanguageParser.Parse(Language);
-    }
-
-    private bool IsDecoupledOrMultiroot()
-    {
-        var preset = ResolvePreset();
-
-        return preset.EditorType == Blazor.Preset.EditorType.Multiroot || preset.EditorType == Blazor.Preset.EditorType.Decoupled;
-    }
-
-    private Dictionary<string, object> GetAdditionalAttributes()
+    private Dictionary<string, object> GetAttributes()
     {
         var attributes = new Dictionary<string, object>();
 

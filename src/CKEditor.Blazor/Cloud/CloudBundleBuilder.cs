@@ -40,7 +40,7 @@ public static class CloudBundleBuilder
             var ckboxBundle = CKBoxCloudBundleBuilder.Build(
                 cloud.CKBox.Version,
                 translations,
-                cloud.CKBox.Theme ?? "theme");
+                cloud.CKBox.Theme ?? "lark");
 
             editorBundle = editorBundle.Merge(ckboxBundle);
         }
