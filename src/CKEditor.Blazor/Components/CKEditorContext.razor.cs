@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CKEditor.Blazor.Preset;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -39,7 +38,7 @@ public partial class CKEditorContext : ComponentBase
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
 
-    private string LanguageJson => JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
+    private string LanguageJson => JsonSerializer.Serialize(Preset.Language.Parse(Language), _jsonOptions);
 
     private string ContextJson => JsonSerializer.Serialize(ConfigManager.ResolveContext(ContextPreset ?? "default"), _jsonOptions);
 

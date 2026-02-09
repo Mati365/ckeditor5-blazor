@@ -4,7 +4,7 @@ using CKEditor.Blazor.Preset;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace CKEditor.Blazor;
+namespace CKEditor.Blazor.Components;
 
 /// <summary>
 /// CKEditor 5 Main Component.
@@ -133,11 +133,11 @@ public partial class CKEditor5 : ComponentBase
         var preset = ResolvePreset();
 
         StyleValue = $"position: relative; {Style}";
-        ShowInput = !EditorTypeExtensions.IsDecoupledOrMultiroot(preset.EditorType);
+        ShowInput = !preset.EditorType.IsDecoupledOrMultiroot();
 
         PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
         ContentJson = JsonSerializer.Serialize(NormalizeContent(), _jsonOptions);
-        LanguageJson = JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
+        LanguageJson = JsonSerializer.Serialize(Blazor.Preset.Language.Parse(Language), _jsonOptions);
 
         AdditionalAttributes = GetAttributes();
     }
@@ -163,7 +163,7 @@ public partial class CKEditor5 : ComponentBase
 
         if (!string.IsNullOrWhiteSpace(EditorType))
         {
-            var editorType = EditorTypeExtensions.Parse(EditorType);
+            var editorType = Blazor.Preset.EditorType.Parse(EditorType);
 
             preset = preset.OfEditorType(editorType);
         }
