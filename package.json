@@ -2,7 +2,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm run dotnet:all",
+    "dev": "pnpm run npm_package:build && concurrently -n \"dist,dotnet\" -c \"blue,yellow\" \"pnpm:watch:dist\" \"pnpm:dotnet:all\"",
+    "watch:dist": "concurrently -n \"npm,copy\" -c \"cyan,blue\" \"pnpm:npm_package:watch\" \"node ./scripts/watch-dist.mjs\"",
     "typecheck": "pnpm run npm_package:typecheck && pnpm run dotnet:typecheck",
     "dotnet:typecheck": "pnpm -F ckeditor5-blazor-playground run typecheck",
     "dotnet:format": "dotnet format",
@@ -23,6 +24,7 @@
     "@antfu/eslint-config": "^7.3.0",
     "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^20.4.1",
+    "chokidar": "^5.0.0",
     "concurrently": "^8.2.2",
     "eslint": "^9.37.0",
     "husky": "^9.1.7",

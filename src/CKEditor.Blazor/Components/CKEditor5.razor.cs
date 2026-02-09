@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using CKEditor.Blazor.Preset;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
@@ -11,6 +12,12 @@ namespace CKEditor.Blazor;
 /// </summary>
 public partial class CKEditor5 : ComponentBase
 {
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
+
     /// <summary>
     /// The initial content of the editor. Can be a string or a dictionary for multiroot editors.
     /// </summary>
@@ -126,11 +133,11 @@ public partial class CKEditor5 : ComponentBase
         var preset = ResolvePreset();
 
         StyleValue = $"position: relative; {Style}";
-        PresetJson = JsonSerializer.Serialize(preset);
         ShowInput = !EditorTypeExtensions.IsDecoupledOrMultiroot(preset.EditorType);
 
-        ContentJson = JsonSerializer.Serialize(NormalizeContent());
-        LanguageJson = JsonSerializer.Serialize(LanguageParser.Parse(Language));
+        PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
+        ContentJson = JsonSerializer.Serialize(NormalizeContent(), _jsonOptions);
+        LanguageJson = JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
 
         AdditionalAttributes = GetAttributes();
     }

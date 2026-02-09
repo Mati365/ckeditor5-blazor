@@ -1,7 +1,6 @@
-using CKEditor.Blazor.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CKEditor.Blazor.Extensions;
+namespace CKEditor.Blazor.Services;
 
 /// <summary>
 /// Extension methods for registering CKEditor services.

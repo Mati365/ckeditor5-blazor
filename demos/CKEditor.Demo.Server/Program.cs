@@ -1,4 +1,4 @@
-using CKEditor.Blazor.Extensions;
+using CKEditor.Blazor.Services;
 using CKEditor.Demo.Server.Components;
 
 var builder = WebApplication.CreateBuilder(args);

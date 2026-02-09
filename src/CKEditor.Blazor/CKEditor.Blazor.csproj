@@ -20,18 +20,9 @@
     </PackageReference>
   </ItemGroup>
 
-  <Target Name="BuildNpmPackage" BeforeTargets="Build" Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(NpmPackageDir)/package.json')">
-    <Exec Command="pnpm -C &quot;$(NpmPackageDir)&quot; build" />
-  </Target>
-
-  <Target Name="CopyNpmPackageDist" AfterTargets="BuildNpmPackage" Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(NpmPackageDist)')">
-    <RemoveDir Directories="$(NpmPackageWwwroot)" />
-    <ItemGroup>
-      <NpmPackageDistFiles Include="$(NpmPackageDist)/**" />
-    </ItemGroup>
-    <Copy
-      SourceFiles="@(NpmPackageDistFiles)"
-      DestinationFiles="@(NpmPackageDistFiles->'$(NpmPackageWwwroot)/%(RecursiveDir)%(Filename)%(Extension)')"
-      SkipUnchangedFiles="true" />
-  </Target>
+  <!-- 
+    Note: NPM package build and copy is handled by the watch-dist.mjs script when running 'pnpm run dev'.
+    This prevents race conditions when multiple projects build simultaneously.
+    For production builds, run 'pnpm run npm_package:build' before dotnet build.
+  -->
 </Project>

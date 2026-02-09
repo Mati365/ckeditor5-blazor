@@ -1,4 +1,4 @@
-using CKEditor.Blazor.Extensions;
+using CKEditor.Blazor.Services;
 using CKEditor.Demo.Wasm;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
