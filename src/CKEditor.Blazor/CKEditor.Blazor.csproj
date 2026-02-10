@@ -3,6 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NpmPackageDir>$(MSBuildProjectDirectory)/../../npm_package</NpmPackageDir>
     <NpmPackageDist>$(NpmPackageDir)/dist</NpmPackageDist>
     <NpmPackageWwwroot>$(MSBuildProjectDirectory)/wwwroot/ckeditor5-blazor</NpmPackageWwwroot>
@@ -14,15 +15,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.23" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <!-- 
-    Note: NPM package build and copy is handled by the watch-dist.mjs script when running 'pnpm run dev'.
-    This prevents race conditions when multiple projects build simultaneously.
-    For production builds, run 'pnpm run npm_package:build' before dotnet build.
-  -->
 </Project>

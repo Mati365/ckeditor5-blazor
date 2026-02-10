@@ -1,4 +1,5 @@
 using CKEditor.Blazor.Cloud;
+using CKEditor.Blazor.License;
 
 namespace CKEditor.Blazor.Preset;
 
@@ -23,9 +24,30 @@ public class PresetConfig
     public CloudConfig? Cloud { get; set; }
 
     /// <summary>
+    /// License key for this preset.
+    /// </summary>
+    public LicenseKey LicenseKey { get; set; } = LicenseKey.OfGPL();
+
+    /// <summary>
     /// Custom translations dictionary.
     /// </summary>
     public Dictionary<string, string>? Translations { get; set; }
+
+    /// <summary>
+    /// Creates a shallow copy of the preset configuration.
+    /// </summary>
+    /// <returns>A new preset instance with the same property values.</returns>
+    public PresetConfig Clone()
+    {
+        return new()
+        {
+            EditorType = EditorType,
+            Config = Config,
+            Cloud = Cloud,
+            LicenseKey = LicenseKey,
+            Translations = Translations
+        };
+    }
 
     /// <summary>
     /// Creates a new preset with the specified configuration.
@@ -34,13 +56,9 @@ public class PresetConfig
     /// <returns>A new preset with the specified configuration.</returns>
     public PresetConfig OfConfig(Dictionary<string, object> config)
     {
-        return new()
-        {
-            EditorType = EditorType,
-            Config = config,
-            Cloud = Cloud,
-            Translations = Translations
-        };
+        var clone = Clone();
+        clone.Config = config;
+        return clone;
     }
 
     /// <summary>
@@ -57,13 +75,9 @@ public class PresetConfig
             newConfig[key] = value;
         }
 
-        return new()
-        {
-            EditorType = EditorType,
-            Config = newConfig,
-            Cloud = Cloud,
-            Translations = Translations
-        };
+        var clone = Clone();
+        clone.Config = newConfig;
+        return clone;
     }
 
     /// <summary>
@@ -73,13 +87,9 @@ public class PresetConfig
     /// <returns>A new preset with custom translations.</returns>
     public PresetConfig OfCustomTranslations(Dictionary<string, string> translations)
     {
-        return new()
-        {
-            EditorType = EditorType,
-            Config = Config,
-            Cloud = Cloud,
-            Translations = translations
-        };
+        var clone = Clone();
+        clone.Translations = translations;
+        return clone;
     }
 
     /// <summary>
@@ -89,12 +99,8 @@ public class PresetConfig
     /// <returns>A new preset with the specified editor type.</returns>
     public PresetConfig OfEditorType(EditorType editorType)
     {
-        return new()
-        {
-            EditorType = editorType,
-            Config = Config,
-            Cloud = Cloud,
-            Translations = Translations
-        };
+        var clone = Clone();
+        clone.EditorType = editorType;
+        return clone;
     }
 }

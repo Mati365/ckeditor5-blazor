@@ -27,7 +27,7 @@ public partial class CKEditorContext : ComponentBase
     /// The context preset name or configuration object to use (default: 'default').
     /// </summary>
     [Parameter]
-    public object? ContextPreset { get; set; } = null;
+    public object? ContextPreset { get; set; }
 
     /// <summary>
     /// Optional ID for the context instance.

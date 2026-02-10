@@ -1,6 +1,8 @@
 using CKEditor.Blazor.Cloud;
 using CKEditor.Blazor.Context;
+using CKEditor.Blazor.License;
 using CKEditor.Blazor.Preset;
+using Microsoft.Extensions.Options;
 
 namespace CKEditor.Blazor.Services;
 
@@ -15,10 +17,139 @@ public class ConfigManager
     /// <summary>
     /// Initializes a new instance of the <see cref="ConfigManager"/> class.
     /// </summary>
-    public ConfigManager()
+    /// <param name="options">The CKEditor options.</param>
+    public ConfigManager(IOptions<CKEditorOptions> options)
     {
-        // Register default preset
-        RegisterPreset("default", new PresetConfig
+        var licenseKey = options.Value.GetParsedLicenseKey();
+
+        RegisterPreset("default", CreateDefaultPreset(licenseKey));
+        RegisterContext("default", CreateDefaultContext());
+    }
+
+    /// <summary>
+    /// Registers a preset with the specified name.
+    /// </summary>
+    /// <param name="name">The name of the preset.</param>
+    /// <param name="preset">The preset to register.</param>
+    /// <returns>The current instance for method chaining.</returns>
+    public ConfigManager RegisterPreset(string name, PresetConfig preset)
+    {
+        _presets[name] = preset;
+        return this;
+    }
+
+    /// <summary>
+    /// Registers a context with the specified name.
+    /// </summary>
+    /// <param name="name">The name of the context.</param>
+    /// <param name="context">The context to register.</param>
+    /// <returns>The current instance for method chaining.</returns>
+    public ConfigManager RegisterContext(string name, ContextConfig context)
+    {
+        _contexts[name] = context;
+        return this;
+    }
+
+    /// <summary>
+    /// Resolves a preset by name or returns the provided preset object.
+    /// </summary>
+    /// <param name="preset">The preset name or preset object.</param>
+    /// <returns>The resolved preset.</returns>
+    public PresetConfig ResolvePreset(object? preset)
+    {
+        return preset switch
+        {
+            null => _presets.GetValueOrDefault("default") ?? new PresetConfig(),
+            string presetName => _presets.GetValueOrDefault(presetName) ?? throw new InvalidOperationException($"Unknown preset: {presetName}"),
+            PresetConfig presetObj => presetObj,
+            _ => throw new ArgumentException("Invalid preset type", nameof(preset))
+        };
+    }
+
+    /// <summary>
+    /// Resolves a preset by name or throws an exception if not found.
+    /// </summary>
+    /// <param name="presetName">The name of the preset.</param>
+    /// <returns>The resolved preset.</returns>
+    public PresetConfig ResolvePresetOrThrow(string presetName)
+    {
+        if (!_presets.TryGetValue(presetName, out var preset))
+        {
+            throw new InvalidOperationException($"Unknown preset: {presetName}");
+        }
+
+        return preset;
+    }
+
+    /// <summary>
+    /// Resolves a context by name or returns the provided context object.
+    /// </summary>
+    /// <param name="context">The context name or context object.</param>
+    /// <returns>The resolved context.</returns>
+    public ContextConfig ResolveContext(object? context)
+    {
+        return context switch
+        {
+            null => _contexts.GetValueOrDefault("default") ?? new ContextConfig(),
+            string contextName => _contexts.GetValueOrDefault(contextName) ?? throw new InvalidOperationException($"Unknown context: {contextName}"),
+            ContextConfig contextObj => contextObj,
+            _ => throw new ArgumentException("Invalid context type", nameof(context))
+        };
+    }
+
+    /// <summary>
+    /// Resolves a context by name or throws an exception if not found.
+    /// </summary>
+    /// <param name="contextName">The name of the context.</param>
+    /// <returns>The resolved context.</returns>
+    public ContextConfig ResolveContextOrThrow(string contextName)
+    {
+        if (!_contexts.TryGetValue(contextName, out var context))
+        {
+            throw new InvalidOperationException($"Unknown context: {contextName}");
+        }
+
+        return context;
+    }
+
+    /// <summary>
+    /// Gets all registered presets.
+    /// </summary>
+    /// <returns>A read-only dictionary of all registered presets.</returns>
+    public IReadOnlyDictionary<string, PresetConfig> GetPresets()
+    {
+        return _presets;
+    }
+
+    /// <summary>
+    /// Gets all registered contexts.
+    /// </summary>
+    /// <returns>A read-only dictionary of all registered contexts.</returns>
+    public IReadOnlyDictionary<string, ContextConfig> GetContexts()
+    {
+        return _contexts;
+    }
+
+    /// <summary>
+    /// Creates a default context configuration.
+    /// </summary>
+    /// <returns>The default context configuration.</returns>
+    private static ContextConfig CreateDefaultContext()
+    {
+        return new ContextConfig
+        {
+            Config = []
+        };
+    }
+
+    /// <summary>
+    ///  Creates a default preset configuration with optional license key.
+    /// </summary>
+    /// <param name="licenseKey">The license key to use for the preset.</param>
+    /// <returns>The default preset configuration.</returns>
+    private static PresetConfig CreateDefaultPreset(LicenseKey? licenseKey = null)
+    {
+        return new PresetConfig
         {
             EditorType = EditorType.Classic,
             Cloud = new CloudConfig
@@ -27,6 +158,7 @@ public class ConfigManager
                 Premium = false,
                 Translations = ["en"]
             },
+            LicenseKey = licenseKey ?? LicenseKey.OfGPL(),
             Config = new Dictionary<string, object>
             {
                 ["toolbar"] = new Dictionary<string, object>
@@ -148,112 +280,6 @@ public class ConfigManager
                     }
                 }
             }
-        });
-
-        // Register default context
-        RegisterContext("default", new ContextConfig
-        {
-            Config = []
-        });
-    }
-
-    /// <summary>
-    /// Registers a preset with the specified name.
-    /// </summary>
-    /// <param name="name">The name of the preset.</param>
-    /// <param name="preset">The preset to register.</param>
-    public void RegisterPreset(string name, PresetConfig preset)
-    {
-        _presets[name] = preset;
-    }
-
-    /// <summary>
-    /// Registers a context with the specified name.
-    /// </summary>
-    /// <param name="name">The name of the context.</param>
-    /// <param name="context">The context to register.</param>
-    public void RegisterContext(string name, ContextConfig context)
-    {
-        _contexts[name] = context;
-    }
-
-    /// <summary>
-    /// Resolves a preset by name or returns the provided preset object.
-    /// </summary>
-    /// <param name="preset">The preset name or preset object.</param>
-    /// <returns>The resolved preset.</returns>
-    public PresetConfig ResolvePreset(object? preset)
-    {
-        return preset switch
-        {
-            null => _presets.GetValueOrDefault("default") ?? new PresetConfig(),
-            string presetName => _presets.GetValueOrDefault(presetName) ?? throw new InvalidOperationException($"Unknown preset: {presetName}"),
-            PresetConfig presetObj => presetObj,
-            _ => throw new ArgumentException("Invalid preset type", nameof(preset))
         };
-    }
-
-    /// <summary>
-    /// Resolves a preset by name or throws an exception if not found.
-    /// </summary>
-    /// <param name="presetName">The name of the preset.</param>
-    /// <returns>The resolved preset.</returns>
-    public PresetConfig ResolvePresetOrThrow(string presetName)
-    {
-        if (!_presets.TryGetValue(presetName, out var preset))
-        {
-            throw new InvalidOperationException($"Unknown preset: {presetName}");
-        }
-
-        return preset;
-    }
-
-    /// <summary>
-    /// Resolves a context by name or returns the provided context object.
-    /// </summary>
-    /// <param name="context">The context name or context object.</param>
-    /// <returns>The resolved context.</returns>
-    public ContextConfig ResolveContext(object? context)
-    {
-        return context switch
-        {
-            null => _contexts.GetValueOrDefault("default") ?? new ContextConfig(),
-            string contextName => _contexts.GetValueOrDefault(contextName) ?? throw new InvalidOperationException($"Unknown context: {contextName}"),
-            ContextConfig contextObj => contextObj,
-            _ => throw new ArgumentException("Invalid context type", nameof(context))
-        };
-    }
-
-    /// <summary>
-    /// Resolves a context by name or throws an exception if not found.
-    /// </summary>
-    /// <param name="contextName">The name of the context.</param>
-    /// <returns>The resolved context.</returns>
-    public ContextConfig ResolveContextOrThrow(string contextName)
-    {
-        if (!_contexts.TryGetValue(contextName, out var context))
-        {
-            throw new InvalidOperationException($"Unknown context: {contextName}");
-        }
-
-        return context;
-    }
-
-    /// <summary>
-    /// Gets all registered presets.
-    /// </summary>
-    /// <returns>A read-only dictionary of all registered presets.</returns>
-    public IReadOnlyDictionary<string, PresetConfig> GetPresets()
-    {
-        return _presets;
-    }
-
-    /// <summary>
-    /// Gets all registered contexts.
-    /// </summary>
-    /// <returns>A read-only dictionary of all registered contexts.</returns>
-    public IReadOnlyDictionary<string, ContextConfig> GetContexts()
-    {
-        return _contexts;
     }
 }

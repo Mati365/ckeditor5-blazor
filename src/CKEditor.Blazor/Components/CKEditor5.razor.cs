@@ -15,7 +15,8 @@ public partial class CKEditor5 : ComponentBase
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
     /// <summary>
@@ -163,7 +164,7 @@ public partial class CKEditor5 : ComponentBase
 
         if (!string.IsNullOrWhiteSpace(EditorType))
         {
-            var editorType = Blazor.Preset.EditorType.Parse(EditorType);
+            var editorType = Enum.Parse<EditorType>(EditorType, ignoreCase: true);
 
             preset = preset.OfEditorType(editorType);
         }
