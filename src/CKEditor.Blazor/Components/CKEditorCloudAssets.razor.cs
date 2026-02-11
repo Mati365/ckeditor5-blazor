@@ -33,6 +33,13 @@ public partial class CKEditorCloudAssets : ComponentBase
     public bool EmitImportMap { get; set; } = true;
 
     /// <summary>
+    /// Whether to automatically load the CKEditor Blazor module. Default is true.
+    /// Set to false if you want to load the module manually using CKEditorModuleLoader.
+    /// </summary>
+    [Parameter]
+    public bool LoadIntegration { get; set; } = true;
+
+    /// <summary>
     /// Custom import map entries to merge with the generated import map.
     /// </summary>
     [Parameter]
@@ -41,9 +48,9 @@ public partial class CKEditorCloudAssets : ComponentBase
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
 
-    private List<JSAsset> EsmAssets { get; set; } = [];
+    private List<string> EsmAssets { get; set; } = [];
 
-    private List<JSAsset> UmdAssets { get; set; } = [];
+    private List<string> UmdAssets { get; set; } = [];
 
     private List<string> CssUrls { get; set; } = [];
 
@@ -67,19 +74,17 @@ public partial class CKEditorCloudAssets : ComponentBase
     {
         var bundle = CloudBundleBuilder.Build(cloud);
 
-        EsmAssets = [.. bundle.Js.Where(asset => asset.Type == JSAssetType.ESM)];
-        UmdAssets = [.. bundle.Js.Where(asset => asset.Type == JSAssetType.UMD)];
-        CssUrls = [.. bundle.Css.Distinct(StringComparer.OrdinalIgnoreCase)];
+        EsmAssets = bundle.Js.Where(asset => asset.Type == JSAssetType.ESM).Select(a => a.Url).ToList();
+        UmdAssets = bundle.Js.Where(asset => asset.Type == JSAssetType.UMD).Select(a => a.Url).ToList();
+        CssUrls = bundle.Css.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
         var generatedImportMap = new Dictionary<string, string>();
 
-        // Group JS assets by type
-        foreach (var asset in EsmAssets)
+        foreach (var asset in bundle.Js.Where(asset => asset.Type == JSAssetType.ESM))
         {
             generatedImportMap[asset.Name] = asset.Url;
         }
 
-        // Merge with custom import map
         ImportMap = new Dictionary<string, string>(generatedImportMap);
 
         foreach (var (key, value) in CustomImportMap)

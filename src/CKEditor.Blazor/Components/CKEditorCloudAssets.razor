@@ -9,9 +9,9 @@
 }
 
 @* 2. Module preload for ESM assets *@
-@foreach (var asset in EsmAssets)
+@foreach (var url in EsmAssets)
 {
-    <link rel="modulepreload" href="@asset.Url" crossorigin="anonymous" @attributes="GetNonceAttribute()">
+    <link rel="modulepreload" href="@url" crossorigin="anonymous" @attributes="GetNonceAttribute()">
 }
 
 @* 3. Stylesheets *@
@@ -21,7 +21,13 @@
 }
 
 @* 4. UMD scripts *@
-@foreach (var asset in UmdAssets)
+@foreach (var url in UmdAssets)
 {
-    <script src="@asset.Url" @attributes="GetNonceAttribute()"></script>
+    <script src="@url" @attributes="GetNonceAttribute()"></script>
+}
+
+@* 5. CKEditor Blazor Module *@
+@if (LoadIntegration)
+{
+    <CKEditorIntegrationAssets Nonce="@Nonce" />
 }
