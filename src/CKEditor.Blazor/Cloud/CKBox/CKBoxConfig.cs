@@ -14,4 +14,10 @@ public class CKBoxConfig
     /// Optional theme/skin for CKBox (e.g. "dark").
     /// </summary>
     public string? Theme { get; set; }
+
+    /// <summary>
+    /// The base URL for the CKBox CDN.
+    /// Defaults to "https://cdn.ckbox.io/".
+    /// </summary>
+    public string CdnUrl { get; set; } = "https://cdn.ckbox.io/";
 }

@@ -22,11 +22,11 @@ public static class CloudBundleBuilder
         }
 
         var translations = cloud.Translations;
-        var editorBundle = CKEditorCloudBundleBuilder.Build(cloud.EditorVersion, translations);
+        var editorBundle = CKEditorCloudBundleBuilder.Build(cloud.EditorVersion, translations, cloud.CdnUrl);
 
         if (cloud.Premium)
         {
-            var premiumBundle = CKEditorPremiumCloudBundleBuilder.Build(cloud.EditorVersion, translations);
+            var premiumBundle = CKEditorPremiumCloudBundleBuilder.Build(cloud.EditorVersion, translations, cloud.CdnUrl);
             editorBundle = editorBundle.Merge(premiumBundle);
         }
 
@@ -40,6 +40,7 @@ public static class CloudBundleBuilder
             var ckboxBundle = CKBoxCloudBundleBuilder.Build(
                 cloud.CKBox.Version,
                 translations,
+                cloud.CKBox.CdnUrl,
                 cloud.CKBox.Theme ?? "lark");
 
             editorBundle = editorBundle.Merge(ckboxBundle);

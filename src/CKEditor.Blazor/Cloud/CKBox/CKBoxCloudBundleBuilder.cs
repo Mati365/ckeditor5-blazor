@@ -7,18 +7,21 @@ namespace CKEditor.Blazor.Cloud.CKBox;
 /// </summary>
 public static class CKBoxCloudBundleBuilder
 {
-    private const string _cdnBaseUrl = "https://cdn.ckbox.io/";
-
     /// <summary>
     /// Builds an asset bundle for CKBox based on the provided version, translations, and theme.
     /// </summary>
     /// <param name="version">The CKBox version.</param>
     /// <param name="translations">List of translations.</param>
+    /// <param name="cdnUrl">The custom CDN URL.</param>
     /// <param name="theme">The theme name (defaults to 'theme').</param>
     /// <returns>The asset bundle.</returns>
-    public static AssetsBundle Build(string version, IReadOnlyList<string> translations, string theme = "theme")
+    public static AssetsBundle Build(
+        string version,
+        IReadOnlyList<string> translations,
+        string cdnUrl,
+        string theme = "theme")
     {
-        var baseUrl = $"{_cdnBaseUrl}ckbox/{version}/";
+        var baseUrl = $"{cdnUrl.TrimEnd('/')}/ckbox/{version.Trim('/')}/";
 
         var js = new List<JSAsset>
         {
