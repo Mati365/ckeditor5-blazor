@@ -39,13 +39,6 @@ public partial class CKEditorCloudAssets : ComponentBase
     public bool LoadIntegration { get; set; } = true;
 
     /// <summary>
-    /// Whether to use CKEditor version from the consuming project's CKEditorVersion MSBuild property.
-    /// Default is true.
-    /// </summary>
-    [Parameter]
-    public bool PreferBuildVersion { get; set; } = true;
-
-    /// <summary>
     /// Custom import map entries to merge with the generated import map.
     /// </summary>
     [Parameter]
@@ -60,9 +53,11 @@ public partial class CKEditorCloudAssets : ComponentBase
     {
         var preset = ConfigManager.ResolvePresetOrThrow(Preset);
 
-        if (preset.Cloud != null)
+        if (preset.Cloud == null)
         {
-            Bundle = CloudBundleBuilder.Build(preset.Cloud);
+            return;
         }
+
+        Bundle = CloudBundleBuilder.Build(preset.Cloud);
     }
 }

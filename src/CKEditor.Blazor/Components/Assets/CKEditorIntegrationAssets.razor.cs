@@ -14,12 +14,6 @@ public partial class CKEditorIntegrationAssets : ComponentBase
     [Parameter]
     public string? Nonce { get; set; }
 
-    /// <summary>
-    /// The URL of the module to load. Default is the static web asset path.
-    /// </summary>
-    [Parameter]
-    public string ModuleUrl { get; set; } = "_content/CKEditor.Blazor/ckeditor5-blazor/index.mjs";
-
     private Dictionary<string, object> GetNonceAttribute()
     {
         if (string.IsNullOrEmpty(Nonce))

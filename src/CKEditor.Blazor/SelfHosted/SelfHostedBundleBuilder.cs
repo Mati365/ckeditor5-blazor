@@ -50,6 +50,13 @@ public static class SelfHostedBundleBuilder
             editorBundle = editorBundle.Merge(ckboxBundle);
         }
 
+        editorBundle.Js.Add(new JSAsset
+        {
+            Name = "ckeditor5-blazor",
+            Url = "/_content/CKEditor.Blazor/ckeditor5-blazor/index.mjs",
+            Type = JSAssetType.ESM
+        });
+
         return editorBundle;
     }
 }

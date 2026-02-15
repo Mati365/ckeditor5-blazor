@@ -1,3 +1,5 @@
 @namespace CKEditor.Blazor.Components.Assets
 
-<script type="module" src="@ModuleUrl" @attributes="GetNonceAttribute()"></script>
+<script type="module" @attributes="GetNonceAttribute()">
+    import 'ckeditor5-blazor';
+</script>

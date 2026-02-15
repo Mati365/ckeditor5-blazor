@@ -1,14 +1,16 @@
 
 @page "/form"
 @using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Model
 @using Microsoft.AspNetCore.Components.Forms
+@rendermode InteractiveServer
 
 <div class="mx-auto p-8 max-w-4xl">
     <a href="/" class="inline-block mb-6 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
     <h1 class="mb-6 font-bold text-3xl">Form Editor Demo</h1>
 
     <EditForm Model="@formModel" OnValidSubmit="HandleValidSubmit">
-        <CKEditor5 Value="@("AVC")" />
+        <CKEditor5 @bind-Value="formModel.Content" />
         <button type="submit" class="bg-blue-600 mt-4 px-4 py-2 rounded text-white">Submit</button>
     </EditForm>
 
@@ -16,7 +18,7 @@
     {
         <div class="bg-green-100 mt-4 p-4 border border-green-300 rounded">
             <strong>Submitted content:</strong>
-            <div>@formModel.Content</div>
+            <div>@formModel.Content.Data["main"]</div>
         </div>
     }
 </div>
@@ -32,6 +34,6 @@
 
     public class FormModel
     {
-        public string Content { get; set; } = "";
+        public CKEditorValue Content { get; set; } = new CKEditorValue("Initial Value");
     }
 }

@@ -1,8 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Preset;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace CKEditor.Blazor.Components;
 
@@ -10,7 +12,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 Main Component.
 /// Renders a CKEditor instance with configurable options.
 /// </summary>
-public partial class CKEditor5 : ComponentBase
+public partial class CKEditor5 : ComponentBase, IAsyncDisposable
 {
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -19,17 +21,25 @@ public partial class CKEditor5 : ComponentBase
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
+    private IJSObjectReference? _jsModule;
+
+    private IJSObjectReference? _jsInterop;
+
+    private DotNetObjectReference<CKEditor5>? _dotNetHelper;
+
+    private bool _isInitializing = true;
+
     /// <summary>
     /// The initial value of the editor. Can be a string or a dictionary for multiroot editors.
     /// </summary>
     [Parameter]
-    public object? Value { get; set; }
+    public CKEditorValue? Value { get; set; }
 
     /// <summary>
     /// Event callback for two-way binding of `Value`.
     /// </summary>
     [Parameter]
-    public EventCallback<object?> ValueChanged { get; set; }
+    public EventCallback<CKEditorValue?> ValueChanged { get; set; }
 
     /// <summary>
     /// The preset name or object to use (default: 'default').
@@ -60,6 +70,12 @@ public partial class CKEditor5 : ComponentBase
     /// </summary>
     [Parameter]
     public int? EditableHeight { get; set; }
+
+    /// <summary>
+    /// The debounce time in milliseconds for saving changes.
+    /// </summary>
+    [Parameter]
+    public int SaveDebounceMs { get; set; } = 250;
 
     /// <summary>
     /// Optional CSS class for the editor container.
@@ -124,6 +140,9 @@ public partial class CKEditor5 : ComponentBase
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
 
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
     private string? StyleValue { get; set; }
 
     private string? PresetJson { get; set; }
@@ -134,11 +153,60 @@ public partial class CKEditor5 : ComponentBase
 
     private bool ShowInput { get; set; }
 
-    private Dictionary<string, object> AdditionalAttributes { get; set; } = new();
+    private Dictionary<string, object> AdditionalAttributes { get; set; } = [];
+
+    public async ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+
+        _dotNetHelper?.Dispose();
+
+        if (_jsInterop is not null)
+        {
+            await _jsInterop.InvokeVoidAsync("unmount");
+            await _jsInterop.DisposeAsync();
+        }
+
+        if (_jsModule is not null)
+        {
+            await _jsModule.DisposeAsync();
+        }
+    }
+
+    /// <summary>
+    /// Method invoked from JS interop to update the Value based on editor data changes.
+    /// </summary>
+    /// <param name="roots">The new editor data value (from JS interop).</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task OnChangeEditorData(CKEditorValue roots)
+    {
+        Value = roots;
+        await ValueChanged.InvokeAsync(Value);
+    }
 
     protected override void OnInitialized()
     {
         Id ??= $"cke5-{Guid.NewGuid():N}";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!_isInitializing && _jsInterop is not null)
+        {
+            await _jsInterop.InvokeVoidAsync("setValue", Value);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetHelper = DotNetObjectReference.Create(this);
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "ckeditor5-blazor");
+            _jsInterop = await _jsModule.InvokeAsync<IJSObjectReference>("createCKEditor5BlazorInterop", Id, _dotNetHelper);
+            _isInitializing = false;
+        }
     }
 
     protected override void OnParametersSet()
@@ -149,7 +217,7 @@ public partial class CKEditor5 : ComponentBase
         ShowInput = !preset.EditorType.IsDecoupledOrMultiroot();
 
         PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
-        ValueJson = JsonSerializer.Serialize(NormalizeValue(), _jsonOptions);
+        ValueJson = JsonSerializer.Serialize(Value, _jsonOptions);
         LanguageJson = JsonSerializer.Serialize(Blazor.Preset.Language.Parse(Language), _jsonOptions);
 
         AdditionalAttributes = GetAttributes();
@@ -182,16 +250,6 @@ public partial class CKEditor5 : ComponentBase
         }
 
         return preset;
-    }
-
-    private object NormalizeValue()
-    {
-        return Value switch
-        {
-            string stringValue => new Dictionary<string, string> { { "main", stringValue } },
-            null => new Dictionary<string, string>(),
-            _ => Value
-        };
     }
 
     private Dictionary<string, object> GetAttributes()
