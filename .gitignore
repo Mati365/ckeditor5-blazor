@@ -59,4 +59,5 @@ pnpm-lock.yaml
 dist/
 
 # Blazor static web assets output
-src/CKEditor.Blazor/wwwroot/ckeditor5-blazor/
+src/CKEditor.Blazor/wwwroot
+.tmp

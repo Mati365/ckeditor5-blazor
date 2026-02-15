@@ -21,12 +21,11 @@ public static class CloudBundleBuilder
             throw new InvalidOperationException("Cloud config requires 'EditorVersion'.");
         }
 
-        var translations = cloud.Translations;
-        var editorBundle = CKEditorCloudBundleBuilder.Build(cloud.EditorVersion, translations, cloud.CdnUrl);
+        var editorBundle = CKEditorCloudBundleBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
 
         if (cloud.Premium)
         {
-            var premiumBundle = CKEditorPremiumCloudBundleBuilder.Build(cloud.EditorVersion, translations, cloud.CdnUrl);
+            var premiumBundle = CKEditorPremiumCloudBundleBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
             editorBundle = editorBundle.Merge(premiumBundle);
         }
 
@@ -39,7 +38,7 @@ public static class CloudBundleBuilder
 
             var ckboxBundle = CKBoxCloudBundleBuilder.Build(
                 cloud.CKBox.Version,
-                translations,
+                cloud.CKBox.Translations,
                 cloud.CKBox.CdnUrl,
                 cloud.CKBox.Theme ?? "lark");
 

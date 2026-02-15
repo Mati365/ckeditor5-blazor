@@ -18,10 +18,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         Action<CKEditorOptions>? configureOptions = null)
     {
-        services.Configure<CKEditorOptions>(options =>
-        {
-            configureOptions?.Invoke(options);
-        });
+        services.Configure<CKEditorOptions>(options => configureOptions?.Invoke(options));
 
         services.AddSingleton<ConfigManager>();
 

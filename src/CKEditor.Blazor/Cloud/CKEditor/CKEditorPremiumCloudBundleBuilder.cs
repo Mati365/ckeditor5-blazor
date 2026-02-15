@@ -11,12 +11,11 @@ public static class CKEditorPremiumCloudBundleBuilder
     /// Creates URLs for CKEditor 5 Premium Features JavaScript and CSS files.
     /// </summary>
     /// <param name="version">The CKEditor 5 version.</param>
-    /// <param name="translations">List of translations.</param>
     /// <param name="cdnUrl">The custom CDN URL.</param>
     /// <returns>The asset bundle.</returns>
-    public static AssetsBundle Build(string version, IReadOnlyList<string> translations, string cdnUrl)
+    public static AssetsBundle Build(string version, string cdnUrl)
     {
-        var baseUrl = $"{cdnUrl.TrimEnd('/')}/ckeditor5-premium-features/{version.Trim('/')}/";
+        var baseUrl = $"{cdnUrl}/ckeditor5-premium-features/{version}/";
         var js = new List<JSAsset>
         {
             new()
@@ -24,18 +23,14 @@ public static class CKEditorPremiumCloudBundleBuilder
                 Name = "ckeditor5-premium-features",
                 Url = $"{baseUrl}ckeditor5-premium-features.js",
                 Type = JSAssetType.ESM
+            },
+            new()
+            {
+                Name = $"ckeditor5-premium-features/translations/",
+                Url = $"{baseUrl}translations/",
+                Type = JSAssetType.ESM_DIRECTORY
             }
         };
-
-        foreach (var translation in translations)
-        {
-            js.Add(new()
-            {
-                Name = $"ckeditor5-premium-features/translations/{translation}.js",
-                Url = $"{baseUrl}translations/{translation}.js",
-                Type = JSAssetType.ESM
-            });
-        }
 
         var css = new List<string> { $"{baseUrl}ckeditor5-premium-features.css" };
 

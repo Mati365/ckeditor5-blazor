@@ -18,7 +18,9 @@
     "npm_package:watch": "pnpm -F ckeditor5-blazor run watch",
     "npm_package:build": "pnpm -F ckeditor5-blazor run build",
     "npm_package:test": "pnpm -F ckeditor5-blazor run test",
-    "npm_package:test:watch": "pnpm -F ckeditor5-blazor run test:watch"
+    "npm_package:test:watch": "pnpm -F ckeditor5-blazor run test:watch",
+    "pkg:base": "pnpm -F ckeditor5-blazor-playground run pkg:base",
+    "pkg:premium": "pnpm -F ckeditor5-blazor-playground run pkg:premium"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.3.0",

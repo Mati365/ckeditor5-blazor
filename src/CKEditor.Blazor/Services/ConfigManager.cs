@@ -156,7 +156,6 @@ public class ConfigManager
             {
                 EditorVersion = "47.3.0",
                 Premium = false,
-                Translations = ["en"]
             },
             LicenseKey = licenseKey ?? LicenseKey.OfGPL(),
             Config = new Dictionary<string, object>

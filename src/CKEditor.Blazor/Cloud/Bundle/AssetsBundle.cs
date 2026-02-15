@@ -35,4 +35,52 @@ public class AssetsBundle(IReadOnlyList<JSAsset> js, IReadOnlyList<string> css)
 
         return new AssetsBundle(js, css);
     }
+
+    /// <summary>
+    /// Gets the list of ESM JavaScript URLs from this bundle.
+    /// </summary>
+    /// <returns>The list of distinct ESM URLs.</returns>
+    public List<string> GetEsmOnlyUrls()
+    {
+        return [.. Js
+            .Where(static asset => asset.Type == JSAssetType.ESM)
+            .Select(static asset => asset.Url)
+            .Distinct(StringComparer.OrdinalIgnoreCase)];
+    }
+
+    /// <summary>
+    /// Gets the list of UMD JavaScript URLs from this bundle.
+    /// </summary>
+    /// <returns>The list of distinct UMD URLs.</returns>
+    public List<string> GetUmdUrls()
+    {
+        return [.. Js
+            .Where(static asset => asset.Type == JSAssetType.UMD)
+            .Select(static asset => asset.Url)
+            .Distinct(StringComparer.OrdinalIgnoreCase)];
+    }
+
+    /// <summary>
+    /// Gets the list of CSS URLs from this bundle.
+    /// </summary>
+    /// <returns>The list of distinct CSS URLs.</returns>
+    public List<string> GetCssUrls()
+    {
+        return [.. Css.Distinct(StringComparer.OrdinalIgnoreCase)];
+    }
+
+    /// <summary>
+    /// Gets the import map for ESM modules from this bundle.
+    /// </summary>
+    /// <returns>A dictionary mapping module names to their URLs.</returns>
+    public Dictionary<string, string> GetImportMap()
+    {
+        return Js
+            .Where(static asset => asset.Type == JSAssetType.ESM || asset.Type == JSAssetType.ESM_DIRECTORY)
+            .GroupBy(static asset => asset.Name, StringComparer.Ordinal)
+            .ToDictionary(
+                static group => group.Key,
+                static group => group.Last().Url,
+                StringComparer.Ordinal);
+    }
 }

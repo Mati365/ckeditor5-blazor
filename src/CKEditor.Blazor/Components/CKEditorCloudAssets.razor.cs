@@ -1,6 +1,5 @@
 using System.Text.Json;
 using CKEditor.Blazor.Cloud;
-using CKEditor.Blazor.Cloud.Bundle;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -40,6 +39,13 @@ public partial class CKEditorCloudAssets : ComponentBase
     public bool LoadIntegration { get; set; } = true;
 
     /// <summary>
+    /// Whether to use CKEditor version from the consuming project's CKEditorVersion MSBuild property.
+    /// Default is true.
+    /// </summary>
+    [Parameter]
+    public bool PreferBuildVersion { get; set; } = true;
+
+    /// <summary>
     /// Custom import map entries to merge with the generated import map.
     /// </summary>
     [Parameter]
@@ -74,18 +80,10 @@ public partial class CKEditorCloudAssets : ComponentBase
     {
         var bundle = CloudBundleBuilder.Build(cloud);
 
-        EsmAssets = bundle.Js.Where(asset => asset.Type == JSAssetType.ESM).Select(a => a.Url).ToList();
-        UmdAssets = bundle.Js.Where(asset => asset.Type == JSAssetType.UMD).Select(a => a.Url).ToList();
-        CssUrls = bundle.Css.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-
-        var generatedImportMap = new Dictionary<string, string>();
-
-        foreach (var asset in bundle.Js.Where(asset => asset.Type == JSAssetType.ESM))
-        {
-            generatedImportMap[asset.Name] = asset.Url;
-        }
-
-        ImportMap = new Dictionary<string, string>(generatedImportMap);
+        EsmAssets = bundle.GetEsmOnlyUrls();
+        UmdAssets = bundle.GetUmdUrls();
+        CssUrls = bundle.GetCssUrls();
+        ImportMap = bundle.GetImportMap();
 
         foreach (var (key, value) in CustomImportMap)
         {

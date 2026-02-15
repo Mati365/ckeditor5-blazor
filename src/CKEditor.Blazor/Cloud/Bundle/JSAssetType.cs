@@ -11,6 +11,11 @@ public enum JSAssetType
     ESM,
 
     /// <summary>
+    /// ECMAScript Module format with directory structure (e.g., for translations).
+    /// </summary>
+    ESM_DIRECTORY,
+
+    /// <summary>
     /// Universal Module Definition format.
     /// </summary>
     UMD

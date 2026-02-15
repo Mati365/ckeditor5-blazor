@@ -6,7 +6,9 @@
   "scripts": {
     "build:css": "tailwindcss -i ./wwwroot/app.css -o ./wwwroot/app.min.css --minify",
     "watch:css": "tailwindcss -i ./wwwroot/app.css -o ./wwwroot/app.min.css --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "pkg:base": "ruby install-local-package.rb",
+    "pkg:premium": "ruby install-local-package.rb --premium"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1"

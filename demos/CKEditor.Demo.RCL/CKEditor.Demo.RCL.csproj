@@ -11,13 +11,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.23" />
+    <PackageReference Include="CKEditor.Blazor" Version="$(CKEditorBlazorPackageVersion)" Condition="'$(CKEditorBlazorPackageVersion)' != ''" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(CKEditorBlazorPackageVersion)' == ''">
     <ProjectReference Include="..\..\src\CKEditor.Blazor\CKEditor.Blazor.csproj" />
   </ItemGroup>
 </Project>

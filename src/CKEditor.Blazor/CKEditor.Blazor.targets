@@ -1,0 +1,82 @@
+<Project>
+  <PropertyGroup>
+    <!-- CKEditor NPM package configuration - can be overridden in consuming project -->
+    <CKEditorVersion Condition="'$(CKEditorVersion)' == ''">47.3.0</CKEditorVersion>
+    <CKEditorIncludePremiumAssets Condition="'$(CKEditorIncludePremiumAssets)' == ''">false</CKEditorIncludePremiumAssets>
+
+    <!-- Default output directory - wwwroot in the consuming project -->
+    <CKEditorAssetsOutputPath Condition="'$(CKEditorAssetsOutputPath)' == ''">$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
+
+    <!-- Internal properties -->
+    <_CKEditorTempDir>$(BaseIntermediateOutputPath)ckeditor-npm</_CKEditorTempDir>
+  </PropertyGroup>
+
+  <!-- Embed CKEditor version into the assembly metadata of the consuming project -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>CKEditor.Blazor.CKEditorVersion</_Parameter1>
+      <_Parameter2>$(CKEditorVersion)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <!-- CKEditor NPM Assets Download Target -->
+  <Target Name="CKEditorDownloadNpmAssets"
+          BeforeTargets="BeforeBuild"
+          Condition="!Exists('$(CKEditorAssetsOutputPath)/ckeditor5/$(CKEditorVersion)/dist/browser')">
+    <Message Text="Downloading CKEditor $(CKEditorVersion) assets to $(CKEditorAssetsOutputPath) (Premium: $(CKEditorIncludePremiumAssets))..." Importance="high" />
+
+    <!-- Create temp directory -->
+    <MakeDir Directories="$(_CKEditorTempDir)" />
+    <MakeDir Directories="$(CKEditorAssetsOutputPath)/ckeditor5/$(CKEditorVersion)/dist" />
+    <MakeDir Directories="$(CKEditorAssetsOutputPath)/ckeditor5-premium-features/$(CKEditorVersion)/dist" Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
+
+    <!-- Download and extract core CKEditor -->
+    <DownloadFile SourceUrl="https://registry.npmjs.org/ckeditor5/-/ckeditor5-$(CKEditorVersion).tgz"
+                  DestinationFolder="$(_CKEditorTempDir)"
+                  DestinationFileName="core.tgz" />
+    <Exec Command="tar -xzf &quot;$(_CKEditorTempDir)/core.tgz&quot; -C &quot;$(_CKEditorTempDir)&quot;" />
+
+    <!-- Copy only dist/browser and dist/translations from core -->
+    <ItemGroup>
+      <_CKEditorCoreBrowserFiles Include="$(_CKEditorTempDir)/package/dist/browser/**/*.*" />
+      <_CKEditorCoreTranslationFiles Include="$(_CKEditorTempDir)/package/dist/translations/**/*.*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_CKEditorCoreBrowserFiles)"
+          DestinationFiles="@(_CKEditorCoreBrowserFiles->'$(CKEditorAssetsOutputPath)/ckeditor5/$(CKEditorVersion)/dist/browser/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_CKEditorCoreTranslationFiles)"
+          DestinationFiles="@(_CKEditorCoreTranslationFiles->'$(CKEditorAssetsOutputPath)/ckeditor5/$(CKEditorVersion)/dist/translations/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+
+    <!-- Download and extract premium features if requested -->
+    <DownloadFile SourceUrl="https://registry.npmjs.org/ckeditor5-premium-features/-/ckeditor5-premium-features-$(CKEditorVersion).tgz"
+                  DestinationFolder="$(_CKEditorTempDir)"
+                  DestinationFileName="premium.tgz"
+                  Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
+    <Exec Command="tar -xzf &quot;$(_CKEditorTempDir)/premium.tgz&quot; -C &quot;$(_CKEditorTempDir)&quot;"
+          Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
+
+    <!-- Copy only dist/browser and dist/translations from premium -->
+    <ItemGroup Condition="'$(CKEditorIncludePremiumAssets)' == 'true'">
+      <_CKEditorPremiumBrowserFiles Include="$(_CKEditorTempDir)/package/dist/browser/**/*.*" />
+      <_CKEditorPremiumTranslationFiles Include="$(_CKEditorTempDir)/package/dist/translations/**/*.*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_CKEditorPremiumBrowserFiles)"
+          DestinationFiles="@(_CKEditorPremiumBrowserFiles->'$(CKEditorAssetsOutputPath)/ckeditor5-premium-features/$(CKEditorVersion)/dist/browser/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
+    <Copy SourceFiles="@(_CKEditorPremiumTranslationFiles)"
+          DestinationFiles="@(_CKEditorPremiumTranslationFiles->'$(CKEditorAssetsOutputPath)/ckeditor5-premium-features/$(CKEditorVersion)/dist/translations/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
+
+    <!-- Clean up temp files -->
+    <RemoveDir Directories="$(_CKEditorTempDir)/package" />
+    <Delete Files="$(_CKEditorTempDir)/core.tgz" />
+    <Delete Files="$(_CKEditorTempDir)/premium.tgz" Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
+
+    <Message Text="CKEditor assets downloaded successfully to $(CKEditorAssetsOutputPath)!" Importance="high" />
+  </Target>
+</Project>

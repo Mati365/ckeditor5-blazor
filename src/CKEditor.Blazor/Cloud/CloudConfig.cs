@@ -18,15 +18,10 @@ public class CloudConfig
     public bool Premium { get; set; }
 
     /// <summary>
-    /// List of available translations.
-    /// </summary>
-    public List<string> Translations { get; set; } = [];
-
-    /// <summary>
     /// The base URL for the CKEditor CDN.
     /// Defaults to "https://cdn.ckeditor.com/".
     /// </summary>
-    public string CdnUrl { get; set; } = "https://cdn.ckeditor.com/";
+    public string CdnUrl { get; set; } = "https://cdn.ckeditor.com";
 
     /// <summary>
     /// CKBox information (optional).
