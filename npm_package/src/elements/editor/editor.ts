@@ -5,7 +5,10 @@ import type { Editor } from 'ckeditor5';
 import { isEmptyObject, waitFor, waitForDOMReady } from '../../shared';
 import { ContextsRegistry } from '../context';
 import { EditorsRegistry } from './editors-registry';
-import { createSyncEditorWithInputPlugin } from './plugins';
+import {
+  createDispatchEditorRootsChangeEventPlugin,
+  createSyncEditorWithInputPlugin,
+} from './plugins';
 import {
   createEditorInContext,
   isSingleRootEditor,
@@ -151,6 +154,14 @@ export class EditorComponentElement extends HTMLElement {
     }
 
     const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins);
+
+    loadedPlugins.push(
+      await createDispatchEditorRootsChangeEventPlugin({
+        saveDebounceMs,
+        editorId,
+        targetElement: this,
+      }),
+    );
 
     if (isSingleRootEditor(editorType)) {
       loadedPlugins.push(
