@@ -30,6 +30,12 @@ public partial class CKEditorContext : ComponentBase
     public object? ContextPreset { get; set; }
 
     /// <summary>
+    /// Optional child content to render inside the context component.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
     /// Optional ID for the context instance.
     /// </summary>
     [Parameter]
