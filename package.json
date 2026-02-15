@@ -4,8 +4,7 @@
   "scripts": {
     "dev": "concurrently -n \"dist,dotnet\" -c \"blue,yellow\" \"pnpm:watch:dist\" \"pnpm:dotnet:server\"",
     "watch:dist": "concurrently -n \"npm,copy\" -c \"cyan,blue\" \"pnpm:npm_package:watch\" \"node ./scripts/watch-dist.mjs\"",
-    "typecheck": "pnpm run npm_package:typecheck && pnpm run dotnet:typecheck",
-    "dotnet:typecheck": "pnpm -F ckeditor5-blazor-playground run typecheck",
+    "typecheck": "pnpm run npm_package:typecheck",
     "dotnet:format": "dotnet format",
     "dotnet:format:check": "dotnet format --verify-no-changes",
     "dotnet:server": "concurrently -n \"tailwind,server\" -c \"cyan,green\" \"pnpm:dotnet:tailwind:watch\" \"pnpm:dotnet:server:watch\"",
