@@ -9,9 +9,9 @@ builder.Services.AddCKEditor(options =>
 {
     options.Presets["default"] = ConfigManager.CreateDefaultPreset(
         selfHostedConfig: new SelfHostedConfig
-            {
-                AssetsBasePath = "/_content/CKEditor.Demo.RCL"
-            });
+        {
+            AssetsBasePath = "/_content/CKEditor.Demo.RCL"
+        });
 });
 
 builder.Services.AddRazorComponents()
