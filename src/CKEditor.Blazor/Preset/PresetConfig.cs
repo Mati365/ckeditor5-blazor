@@ -1,5 +1,6 @@
 using CKEditor.Blazor.Cloud;
 using CKEditor.Blazor.License;
+using CKEditor.Blazor.SelfHosted;
 
 namespace CKEditor.Blazor.Preset;
 
@@ -24,6 +25,11 @@ public class PresetConfig
     public CloudConfig? Cloud { get; set; }
 
     /// <summary>
+    /// Self-hosted configuration for this preset.
+    /// </summary>
+    public SelfHostedConfig SelfHosted { get; set; } = new SelfHostedConfig();
+
+    /// <summary>
     /// License key for this preset.
     /// </summary>
     public LicenseKey LicenseKey { get; set; } = LicenseKey.OfGPL();
@@ -44,6 +50,7 @@ public class PresetConfig
             EditorType = EditorType,
             Config = Config,
             Cloud = Cloud,
+            SelfHosted = SelfHosted,
             LicenseKey = LicenseKey,
             Translations = Translations
         };

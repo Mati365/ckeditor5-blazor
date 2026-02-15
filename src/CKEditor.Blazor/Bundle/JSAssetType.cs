@@ -1,4 +1,4 @@
-namespace CKEditor.Blazor.Cloud.Bundle;
+namespace CKEditor.Blazor.Bundle;
 
 /// <summary>
 /// Represents the type of JavaScript asset.

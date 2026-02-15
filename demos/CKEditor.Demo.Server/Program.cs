@@ -1,10 +1,18 @@
+using CKEditor.Blazor.SelfHosted;
 using CKEditor.Blazor.Services;
 using CKEditor.Demo.Server.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddCKEditor();
+builder.Services.AddCKEditor(options =>
+{
+    options.Presets["default"] = ConfigManager.CreateDefaultPreset(
+        selfHostedConfig: new SelfHostedConfig
+            {
+                AssetsBasePath = "/_content/CKEditor.Demo.RCL"
+            });
+});
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

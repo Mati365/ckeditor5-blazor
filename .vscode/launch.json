@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Server",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "blazor-server: build",
+      "program": "${workspaceFolder}/demos/CKEditor.Demo.Server/bin/Debug/net8.0/CKEditor.Demo.Server.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/demos/CKEditor.Demo.Server",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    },
+    {
+      "name": "Browser (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5175",
+      "webRoot": "${workspaceFolder}",
+      "timeout": 120000,
+      "sourceMaps": true
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Full Stack (.NET + Browser)",
+      "configurations": [".NET Server", "Browser (Chrome)"],
+      "stopAll": true,
+      "preLaunchTask": "vite: watch"
+    }
+  ]
+}

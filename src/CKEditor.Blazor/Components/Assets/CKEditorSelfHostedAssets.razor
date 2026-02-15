@@ -1,0 +1,12 @@
+@namespace CKEditor.Blazor.Components.Assets
+
+<CKEditorBundleRenderer
+    Bundle="@Bundle"
+    CustomImportMap="@CustomImportMap"
+    EmitImportMap="@EmitImportMap"
+    Nonce="@Nonce" />
+
+@if (LoadIntegration)
+{
+    <CKEditorIntegrationAssets Nonce="@Nonce" />
+}

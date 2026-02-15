@@ -1,4 +1,5 @@
 using CKEditor.Blazor.License;
+using CKEditor.Blazor.Preset;
 
 namespace CKEditor.Blazor.Services;
 
@@ -12,6 +13,12 @@ public class CKEditorOptions
     /// This can be set in appsettings.json, environment variables, or programmatically.
     /// </summary>
     public string? DefaultLicenseKey { get; set; }
+
+    /// <summary>
+    /// Gets or sets the dictionary of preset configurations.
+    /// The key is the preset name and the value is the PresetConfig object.
+    /// </summary>
+    public Dictionary<string, PresetConfig> Presets { get; set; } = [];
 
     /// <summary>
     /// Gets the parsed default license key, or null if not set or invalid.

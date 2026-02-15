@@ -1,0 +1,85 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "vite: watch",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["run", "npm_package:watch"],
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*building.*$",
+          "endsPattern": "^.*built in.*$"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "watch"
+      }
+    },
+    {
+      "label": "blazor-server: build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/demos/CKEditor.Demo.Server/CKEditor.Demo.Server.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary;ForceNoAlign",
+        "/property:Configuration=Debug"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "blazor-server: run",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/demos/CKEditor.Demo.Server/CKEditor.Demo.Server.csproj",
+        "--launch-profile",
+        "http"
+      ],
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Building.*$",
+          "endsPattern": "^.*Application started.*$|^.*Now listening on.*$"
+        }
+      },
+      "isBackground": true,
+      "options": {
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "blazor"
+      }
+    },
+    {
+      "label": "debug: vite + blazor-server",
+      "dependsOn": ["vite: watch", "blazor-server: run"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

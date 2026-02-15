@@ -1,9 +1,9 @@
-using System.Text.Json;
+using CKEditor.Blazor.Bundle;
 using CKEditor.Blazor.Cloud;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace CKEditor.Blazor.Components;
+namespace CKEditor.Blazor.Components.Assets;
 
 /// <summary>
 /// CKEditor 5 Cloud Assets Component.
@@ -54,50 +54,15 @@ public partial class CKEditorCloudAssets : ComponentBase
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
 
-    private List<string> EsmAssets { get; set; } = [];
-
-    private List<string> UmdAssets { get; set; } = [];
-
-    private List<string> CssUrls { get; set; } = [];
-
-    private Dictionary<string, string> ImportMap { get; set; } = [];
-
-    private string ImportMapJson => JsonSerializer.Serialize(new { imports = ImportMap });
+    private AssetsBundle? Bundle { get; set; }
 
     protected override void OnInitialized()
     {
         var preset = ConfigManager.ResolvePresetOrThrow(Preset);
 
-        if (preset.Cloud == null)
+        if (preset.Cloud != null)
         {
-            return;
+            Bundle = CloudBundleBuilder.Build(preset.Cloud);
         }
-
-        LoadCloudAssets(preset.Cloud);
-    }
-
-    private void LoadCloudAssets(CloudConfig cloud)
-    {
-        var bundle = CloudBundleBuilder.Build(cloud);
-
-        EsmAssets = bundle.GetEsmOnlyUrls();
-        UmdAssets = bundle.GetUmdUrls();
-        CssUrls = bundle.GetCssUrls();
-        ImportMap = bundle.GetImportMap();
-
-        foreach (var (key, value) in CustomImportMap)
-        {
-            ImportMap[key] = value;
-        }
-    }
-
-    private Dictionary<string, object> GetNonceAttribute()
-    {
-        if (string.IsNullOrEmpty(Nonce))
-        {
-            return [];
-        }
-
-        return new Dictionary<string, object> { { "nonce", Nonce } };
     }
 }

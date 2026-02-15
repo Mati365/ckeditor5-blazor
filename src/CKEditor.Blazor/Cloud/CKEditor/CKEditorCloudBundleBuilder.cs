@@ -1,4 +1,4 @@
-using CKEditor.Blazor.Cloud.Bundle;
+using CKEditor.Blazor.Bundle;
 
 namespace CKEditor.Blazor.Cloud.CKEditor;
 

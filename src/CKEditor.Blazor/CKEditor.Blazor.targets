@@ -3,6 +3,11 @@
     <!-- CKEditor NPM package configuration - can be overridden in consuming project -->
     <CKEditorVersion Condition="'$(CKEditorVersion)' == ''">47.3.0</CKEditorVersion>
     <CKEditorIncludePremiumAssets Condition="'$(CKEditorIncludePremiumAssets)' == ''">false</CKEditorIncludePremiumAssets>
+    <CKBoxVersion Condition="'$(CKBoxVersion)' == ''">2.8.0</CKBoxVersion>
+    <CKBoxIncludeAssets Condition="'$(CKBoxIncludeAssets)' == ''">true</CKBoxIncludeAssets>
+
+    <!-- Allow disabling download of core CKEditor assets -->
+    <CKEditorIncludeAssets Condition="'$(CKEditorIncludeAssets)' == ''">true</CKEditorIncludeAssets>
 
     <!-- Default output directory - wwwroot in the consuming project -->
     <CKEditorAssetsOutputPath Condition="'$(CKEditorAssetsOutputPath)' == ''">$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
@@ -17,18 +22,31 @@
       <_Parameter1>CKEditor.Blazor.CKEditorVersion</_Parameter1>
       <_Parameter2>$(CKEditorVersion)</_Parameter2>
     </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>CKEditor.Blazor.CKBoxVersion</_Parameter1>
+      <_Parameter2>$(CKBoxVersion)</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>CKEditor.Blazor.AssetsOutputPath</_Parameter1>
+      <_Parameter2>_content/ckeditor5</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>CKEditor.Blazor.IncludePremiumAssets</_Parameter1>
+      <_Parameter2>$(CKEditorIncludePremiumAssets)</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <!-- CKEditor NPM Assets Download Target -->
-  <Target Name="CKEditorDownloadNpmAssets"
-          BeforeTargets="BeforeBuild"
-          Condition="!Exists('$(CKEditorAssetsOutputPath)/ckeditor5/$(CKEditorVersion)/dist/browser')">
+    <Target Name="CKEditorDownloadNpmAssets"
+      BeforeTargets="BeforeBuild"
+      Condition="'$(CKEditorIncludeAssets)' == 'true' AND !Exists('$(CKEditorAssetsOutputPath)/ckeditor5/$(CKEditorVersion)/dist/browser')">
     <Message Text="Downloading CKEditor $(CKEditorVersion) assets to $(CKEditorAssetsOutputPath) (Premium: $(CKEditorIncludePremiumAssets))..." Importance="high" />
 
     <!-- Create temp directory -->
     <MakeDir Directories="$(_CKEditorTempDir)" />
     <MakeDir Directories="$(CKEditorAssetsOutputPath)/ckeditor5/$(CKEditorVersion)/dist" />
     <MakeDir Directories="$(CKEditorAssetsOutputPath)/ckeditor5-premium-features/$(CKEditorVersion)/dist" Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
+    <MakeDir Directories="$(CKEditorAssetsOutputPath)/ckbox/$(CKBoxVersion)/dist" Condition="'$(CKBoxIncludeAssets)' == 'true'" />
 
     <!-- Download and extract core CKEditor -->
     <DownloadFile SourceUrl="https://registry.npmjs.org/ckeditor5/-/ckeditor5-$(CKEditorVersion).tgz"
@@ -75,8 +93,40 @@
     <!-- Clean up temp files -->
     <RemoveDir Directories="$(_CKEditorTempDir)/package" />
     <Delete Files="$(_CKEditorTempDir)/core.tgz" />
-    <Delete Files="$(_CKEditorTempDir)/premium.tgz" Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
+    <Delete Files="$(_CKEditorTempDir)/ckbox.tgz" Condition="'$(CKBoxIncludeAssets)' == 'true'" />
 
     <Message Text="CKEditor assets downloaded successfully to $(CKEditorAssetsOutputPath)!" Importance="high" />
+  </Target>
+
+  <!-- CKBox NPM Assets Download Target -->
+  <Target Name="CKBoxDownloadNpmAssets"
+          BeforeTargets="BeforeBuild"
+          Condition="'$(CKBoxIncludeAssets)' == 'true' AND !Exists('$(CKEditorAssetsOutputPath)/ckbox/$(CKBoxVersion)/dist/ckbox.js')">
+    <Message Text="Downloading CKBox $(CKBoxVersion) assets to $(CKEditorAssetsOutputPath)..." Importance="high" />
+
+    <!-- Create temp directory -->
+    <MakeDir Directories="$(_CKEditorTempDir)" />
+    <MakeDir Directories="$(CKEditorAssetsOutputPath)/ckbox/$(CKBoxVersion)/dist" />
+
+    <!-- Download and extract CKBox -->
+    <DownloadFile SourceUrl="https://registry.npmjs.org/ckbox/-/ckbox-$(CKBoxVersion).tgz"
+                  DestinationFolder="$(_CKEditorTempDir)"
+                  DestinationFileName="ckbox.tgz" />
+    <Exec Command="tar -xzf &quot;$(_CKEditorTempDir)/ckbox.tgz&quot; -C &quot;$(_CKEditorTempDir)&quot;" />
+
+    <!-- Copy dist folder from CKBox (UMD format) -->
+    <ItemGroup>
+      <_CKBoxDistFiles Include="$(_CKEditorTempDir)/package/dist/**/*.*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_CKBoxDistFiles)"
+          DestinationFiles="@(_CKBoxDistFiles->'$(CKEditorAssetsOutputPath)/ckbox/$(CKBoxVersion)/dist/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+
+    <!-- Clean up temp files -->
+    <RemoveDir Directories="$(_CKEditorTempDir)/package" />
+    <Delete Files="$(_CKEditorTempDir)/ckbox.tgz" />
+
+    <Message Text="CKBox assets downloaded successfully to $(CKEditorAssetsOutputPath)!" Importance="high" />
   </Target>
 </Project>

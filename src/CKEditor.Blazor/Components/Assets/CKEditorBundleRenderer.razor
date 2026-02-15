@@ -1,4 +1,4 @@
-@namespace CKEditor.Blazor.Components
+@namespace CKEditor.Blazor.Components.Assets
 
 @* 1. Importmap for ESM assets *@
 @if (EmitImportMap && ImportMap.Count > 0)
@@ -24,10 +24,4 @@
 @foreach (var url in UmdAssets)
 {
     <script src="@url" @attributes="GetNonceAttribute()"></script>
-}
-
-@* 5. CKEditor Blazor Module *@
-@if (LoadIntegration)
-{
-    <CKEditorIntegrationAssets Nonce="@Nonce" />
 }

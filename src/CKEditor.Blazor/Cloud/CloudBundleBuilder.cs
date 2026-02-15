@@ -1,4 +1,4 @@
-using CKEditor.Blazor.Cloud.Bundle;
+using CKEditor.Blazor.Bundle;
 using CKEditor.Blazor.Cloud.CKBox;
 using CKEditor.Blazor.Cloud.CKEditor;
 

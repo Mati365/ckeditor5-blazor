@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace CKEditor.Blazor.Components;
+namespace CKEditor.Blazor.Components.Assets;
 
 /// <summary>
 /// CKEditor 5 Integration Loader Component.
