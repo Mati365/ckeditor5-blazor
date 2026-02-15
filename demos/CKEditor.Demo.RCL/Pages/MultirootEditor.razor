@@ -11,17 +11,26 @@
     <div class="gap-4 grid grid-cols-2">
         <div>
             <h2 class="mb-2 font-bold">Header</h2>
-            <CKEditorEditable RootName="header" Content="Header content" Class="border border-gray-300 rounded-sm" />
+            <CKEditorEditable
+                RootName="header"
+                Value="Header content"
+                Class="border border-gray-300 rounded-sm" />
         </div>
         <div>
             <h2 class="mb-2 font-bold">Content</h2>
-            <CKEditorEditable RootName="content" Content="Main content" Class="border border-gray-300 rounded-sm" />
+            <CKEditorEditable
+                RootName="content"
+                Value="Main content"
+                Class="border border-gray-300 rounded-sm" />
         </div>
     </div>
 
     <div class="mt-6">
         <h2 class="mb-2 font-bold">Footer</h2>
-        <CKEditorEditable RootName="footer" Content="Footer content" Class="border border-gray-300 rounded-sm" />
+        <CKEditorEditable
+            RootName="footer"
+            Value="Footer content"
+            Class="border border-gray-300 rounded-sm" />
     </div>
 
     <CKEditor5 EditorType="multiroot" />

@@ -21,10 +21,16 @@ public partial class CKEditorEditable : ComponentBase
     public string? EditorId { get; set; }
 
     /// <summary>
-    /// The initial content value for the editable.
+    /// The initial value for the editable.
     /// </summary>
     [Parameter]
-    public string? Content { get; set; }
+    public string? Value { get; set; }
+
+    /// <summary>
+    /// Event callback for two-way binding of `Value` on the editable.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
 
     /// <summary>
     /// The debounce time in milliseconds for saving changes.

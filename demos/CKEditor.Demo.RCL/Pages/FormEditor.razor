@@ -8,7 +8,7 @@
     <h1 class="mb-6 font-bold text-3xl">Form Editor Demo</h1>
 
     <EditForm Model="@formModel" OnValidSubmit="HandleValidSubmit">
-        <CKEditor5 @bind-Value="formModel.Content" />
+        <CKEditor5 Value="@("AVC")" />
         <button type="submit" class="bg-blue-600 mt-4 px-4 py-2 rounded text-white">Submit</button>
     </EditForm>
 

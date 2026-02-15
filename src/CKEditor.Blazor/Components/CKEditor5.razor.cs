@@ -20,10 +20,16 @@ public partial class CKEditor5 : ComponentBase
     };
 
     /// <summary>
-    /// The initial content of the editor. Can be a string or a dictionary for multiroot editors.
+    /// The initial value of the editor. Can be a string or a dictionary for multiroot editors.
     /// </summary>
     [Parameter]
-    public object? Content { get; set; }
+    public object? Value { get; set; }
+
+    /// <summary>
+    /// Event callback for two-way binding of `Value`.
+    /// </summary>
+    [Parameter]
+    public EventCallback<object?> ValueChanged { get; set; }
 
     /// <summary>
     /// The preset name or object to use (default: 'default').
@@ -109,6 +115,12 @@ public partial class CKEditor5 : ComponentBase
     [Parameter]
     public string? EditorType { get; set; }
 
+    /// <summary>
+    /// Optional child content to render inside the editor component.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
 
@@ -116,7 +128,7 @@ public partial class CKEditor5 : ComponentBase
 
     private string? PresetJson { get; set; }
 
-    private string? ContentJson { get; set; }
+    private string? ValueJson { get; set; }
 
     private string? LanguageJson { get; set; }
 
@@ -137,7 +149,7 @@ public partial class CKEditor5 : ComponentBase
         ShowInput = !preset.EditorType.IsDecoupledOrMultiroot();
 
         PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
-        ContentJson = JsonSerializer.Serialize(NormalizeContent(), _jsonOptions);
+        ValueJson = JsonSerializer.Serialize(NormalizeValue(), _jsonOptions);
         LanguageJson = JsonSerializer.Serialize(Blazor.Preset.Language.Parse(Language), _jsonOptions);
 
         AdditionalAttributes = GetAttributes();
@@ -172,13 +184,13 @@ public partial class CKEditor5 : ComponentBase
         return preset;
     }
 
-    private object NormalizeContent()
+    private object NormalizeValue()
     {
-        return Content switch
+        return Value switch
         {
-            string stringContent => new Dictionary<string, string> { { "main", stringContent } },
+            string stringValue => new Dictionary<string, string> { { "main", stringValue } },
             null => new Dictionary<string, string>(),
-            _ => Content
+            _ => Value
         };
     }
 

@@ -6,7 +6,7 @@
     style="@StyleValue"
     data-cke-editor-id="@Id"
     data-cke-preset="@PresetJson"
-    data-cke-content="@ContentJson"
+    data-cke-content="@ValueJson"
     data-cke-language="@LanguageJson"
     @attributes="AdditionalAttributes">
 
@@ -22,4 +22,6 @@
             Id="@($"{Id}_input")"
             Required="@Required" />
     }
+
+    @ChildContent
 </cke5-editor>
