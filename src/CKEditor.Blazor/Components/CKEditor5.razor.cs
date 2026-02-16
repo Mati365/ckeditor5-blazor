@@ -137,6 +137,12 @@ public partial class CKEditor5 : ComponentBase, IAsyncDisposable
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+    /// <summary>
+    /// Whether the editor should be interactive and bootstrap automatically. Default is false.
+    /// </summary>
+    [Parameter]
+    public bool Interactive { get; set; } = false;
+
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
 
@@ -255,6 +261,11 @@ public partial class CKEditor5 : ComponentBase, IAsyncDisposable
     private Dictionary<string, object> GetAttributes()
     {
         var attributes = new Dictionary<string, object>();
+
+        if (Interactive)
+        {
+            attributes["data-cke-interactive"] = "true";
+        }
 
         if (Watchdog)
         {

@@ -38,6 +38,12 @@ public partial class CKEditor5UIPart : ComponentBase
     [Parameter]
     public string? Id { get; set; }
 
+    /// <summary>
+    /// Whether the UI part should be interactive and bootstrap automatically. Default is false.
+    /// </summary>
+    [Parameter]
+    public bool Interactive { get; set; } = false;
+
     protected override void OnInitialized()
     {
         Id ??= $"cke5-ui-part-{Guid.NewGuid():N}";

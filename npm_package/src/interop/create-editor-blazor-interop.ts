@@ -1,15 +1,8 @@
-import { ensureEditorElementsRegistered } from './elements';
-import { EditorsRegistry } from './elements/editor/editors-registry';
-import { CKEditor5ChangeDataEvent } from './elements/editor/plugins/dispatch-editor-roots-change-event';
-import { getEditorRootsValues } from './elements/editor/utils';
-import { shallowEqual } from './shared';
-
-/**
- * Represents the .NET interop helper for communication with Blazor.
- */
-type DotNetInterop = {
-  invokeMethodAsync: (methodName: string, ...args: any[]) => Promise<void>;
-};
+import { ensureEditorElementsRegistered } from '../elements';
+import { EditorsRegistry } from '../elements/editor/editors-registry';
+import { CKEditor5ChangeDataEvent } from '../elements/editor/plugins/dispatch-editor-roots-change-event';
+import { getEditorRootsValues } from '../elements/editor/utils';
+import { shallowEqual } from '../shared';
 
 /**
  * Creates an interop layer to synchronize a CKEditor 5 instance with a Blazor component.
@@ -18,7 +11,15 @@ type DotNetInterop = {
  * @returns An object containing lifecycle and synchronization methods.
  */
 export function createEditorBlazorInterop(editorId: string, interop: DotNetInterop) {
+  const element = document.querySelector(`cke5-editor[data-cke-editor-id="${editorId}"]`) as HTMLElement | null;
+
+  /* v8 ignore next if -- @preserve */
+  if (!element) {
+    throw new Error(`Editor element with ID "${editorId}" not found.`);
+  }
+
   ensureEditorElementsRegistered();
+  element?.setAttribute('data-cke-interactive', '');
 
   /**
    * Internal state to track values and prevent unnecessary updates or race conditions.
@@ -109,3 +110,10 @@ export function createEditorBlazorInterop(editorId: string, interop: DotNetInter
     },
   };
 }
+
+/**
+ * Represents the .NET interop helper for communication with Blazor.
+ */
+type DotNetInterop = {
+  invokeMethodAsync: (methodName: string, ...args: any[]) => Promise<void>;
+};

@@ -8,7 +8,10 @@ import { createContextSnapshot } from './create-context-snapshot';
  */
 export function renderTestContext(
   snapshot: Partial<Snapshot> = {},
-  options: { container?: HTMLElement; } = {},
+  {
+    container = document.body,
+    interactive = true,
+  }: Options = {},
 ): HTMLElement {
   const fullSnapshot: Snapshot = {
     ...createContextSnapshot(),
@@ -19,10 +22,17 @@ export function renderTestContext(
     'data-cke-context-id': fullSnapshot.contextId,
     'data-cke-context': JSON.stringify(fullSnapshot.context),
     'data-cke-language': JSON.stringify(fullSnapshot.language),
+    ...interactive && {
+      'data-cke-interactive': '',
+    },
   });
 
-  const container = options.container || document.body;
   container.appendChild(component);
 
   return component;
 }
+
+type Options = {
+  container?: HTMLElement;
+  interactive?: boolean;
+};

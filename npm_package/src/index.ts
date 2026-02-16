@@ -1,5 +1,4 @@
 export { CKEditor5BlazorError } from './ckeditor5-blazor-error';
-export { createEditorBlazorInterop } from './create-editor-blazor-interop';
 export { ensureEditorElementsRegistered } from './elements';
 export { ContextsRegistry } from './elements/context/contexts-registry';
 export { EditableComponentElement } from './elements/editable';
@@ -8,3 +7,7 @@ export { CustomEditorPluginsRegistry } from './elements/editor/custom-editor-plu
 export { EditorsRegistry } from './elements/editor/editors-registry';
 export { CKEditor5ChangeDataEvent } from './elements/editor/plugins/dispatch-editor-roots-change-event';
 export { UIPartComponentElement } from './elements/ui-part';
+export {
+  createContextBlazorInterop,
+  createEditorBlazorInterop,
+} from './interop';

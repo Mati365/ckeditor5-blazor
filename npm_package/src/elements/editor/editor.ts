@@ -1,8 +1,14 @@
+import type { WaitForInteractiveResult } from '../../shared';
 import type { EditorId, EditorLanguage, EditorPreset } from './typings';
 import type { EditorCreator } from './utils';
 import type { Editor } from 'ckeditor5';
 
-import { isEmptyObject, waitFor, waitForDOMReady } from '../../shared';
+import {
+  isEmptyObject,
+  waitFor,
+  waitForDOMReady,
+  waitForInteractiveAttribute,
+} from '../../shared';
 import { ContextsRegistry } from '../context';
 import { EditorsRegistry } from './editors-registry';
 import {
@@ -35,11 +41,34 @@ export class EditorComponentElement extends HTMLElement {
   private editorPromise: Promise<Editor> | null = null;
 
   /**
+   * Wait result for the interactive attribute.
+   */
+  private interactiveWait?: WaitForInteractiveResult;
+
+  /**
    * Mounts the editor component.
    */
   async connectedCallback(): Promise<void> {
     await waitForDOMReady();
 
+    // By default, components do not bootstrap from web components.
+    // They bootstrap only when they receive the data-cke-interactive flag, which the interop sets.
+    // This is a fallback for situations where CKEditor 5 is rendered on a non-interactive page.
+    this.interactiveWait = waitForInteractiveAttribute(this);
+
+    // Let's start preloading the editor constructor. We are still waiting for the interactive attribute, but
+    // at least we will have the constructor ready when it arrives. It makes no difference which editor type is being
+    // preloaded as they are loaded from the same package, so let's just preload the classic editor constructor.
+    void loadEditorConstructor('classic');
+
+    await this.interactiveWait.promise;
+    await this.initializeEditor();
+  }
+
+  /**
+   * Initializes the editor instance.
+   */
+  private async initializeEditor(): Promise<void> {
     const editorId = this.getAttribute('data-cke-editor-id')!;
 
     EditorsRegistry.the.resetErrors(editorId);
@@ -77,6 +106,9 @@ export class EditorComponentElement extends HTMLElement {
    * This is important to prevent memory leaks and ensure that the editor is properly cleaned up.
    */
   async disconnectedCallback() {
+    // Disconnect the observer if present.
+    this.interactiveWait?.disconnect();
+
     // Let's hide the element during destruction to prevent flickering.
     this.style.display = 'none';
 

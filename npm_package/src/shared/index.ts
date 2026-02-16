@@ -12,3 +12,4 @@ export * from './timeout';
 export * from './uid';
 export * from './wait-for';
 export * from './wait-for-dom-ready';
+export * from './wait-for-interactive-attribute';

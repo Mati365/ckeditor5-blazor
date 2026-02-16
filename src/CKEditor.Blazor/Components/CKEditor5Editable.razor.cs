@@ -80,6 +80,12 @@ public partial class CKEditor5Editable : ComponentBase
     [Parameter]
     public string? InnerStyle { get; set; }
 
+    /// <summary>
+    /// Whether the editable should be interactive and bootstrap automatically. Default is false.
+    /// </summary>
+    [Parameter]
+    public bool Interactive { get; set; } = false;
+
     private string StyleValue => $"position: relative;{(string.IsNullOrEmpty(Style) ? string.Empty : $" {Style}")}";
 
     protected override void OnInitialized()

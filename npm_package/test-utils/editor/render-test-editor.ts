@@ -10,7 +10,11 @@ import { createEditorSnapshot } from './create-editor-snapshot';
  */
 export function renderTestEditor(
   snapshot: Partial<EditorSnapshot> = {},
-  options: { withInput?: boolean; container?: HTMLElement; } = {},
+  {
+    withInput,
+    interactive = true,
+    container = document.body,
+  }: Options = {},
 ): HTMLElement {
   const fullSnapshot: EditorSnapshot = {
     ...createEditorSnapshot(),
@@ -25,7 +29,12 @@ export function renderTestEditor(
     'data-cke-save-debounce-ms': fullSnapshot.saveDebounceMs,
     'data-cke-language': JSON.stringify(fullSnapshot.language),
     'data-cke-content': JSON.stringify(fullSnapshot.content),
-    ...(fullSnapshot.watchdog && { 'data-cke-watchdog': '' }),
+    ...fullSnapshot.watchdog && {
+      'data-cke-watchdog': '',
+    },
+    ...interactive && {
+      'data-cke-interactive': '',
+    },
   });
 
   const elements = [component];
@@ -38,7 +47,7 @@ export function renderTestEditor(
     );
   }
 
-  if (options.withInput) {
+  if (withInput) {
     const value = (
       typeof fullSnapshot.content === 'object'
         ? (fullSnapshot.content['main'] || '')
@@ -55,7 +64,6 @@ export function renderTestEditor(
   }
 
   const wrapper = html.div({}, ...elements);
-  const container = options.container || document.body;
 
   container.appendChild(wrapper);
 
@@ -65,3 +73,9 @@ export function renderTestEditor(
 
   return component;
 }
+
+type Options = {
+  withInput?: boolean;
+  interactive?: boolean;
+  container?: HTMLElement;
+};
