@@ -204,7 +204,7 @@ public partial class CKEditor5 : ComponentBase, IAsyncDisposable
         {
             _dotNetHelper = DotNetObjectReference.Create(this);
             _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "ckeditor5-blazor");
-            _jsInterop = await _jsModule.InvokeAsync<IJSObjectReference>("createCKEditor5BlazorInterop", Id, _dotNetHelper);
+            _jsInterop = await _jsModule.InvokeAsync<IJSObjectReference>("createEditorBlazorInterop", Id, _dotNetHelper);
             _isInitializing = false;
         }
     }

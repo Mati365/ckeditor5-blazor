@@ -1,5 +1,4 @@
 @namespace CKEditor.Blazor.Components
-@using CKEditor.Blazor.Components
 
 <cke5-editor
     class="@Class"
@@ -18,7 +17,7 @@
 
     @if (!string.IsNullOrEmpty(Name))
     {
-        <CKEditorHiddenInput
+        <CKEditor5HiddenInput
             Name="@Name"
             Id="@($"{Id}_input")"
             Required="@Required" />

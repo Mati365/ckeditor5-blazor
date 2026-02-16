@@ -1,3 +1,4 @@
+import { ensureEditorElementsRegistered } from './elements';
 import { EditorsRegistry } from './elements/editor/editors-registry';
 import { CKEditor5ChangeDataEvent } from './elements/editor/plugins/dispatch-editor-roots-change-event';
 import { getEditorRootsValues } from './elements/editor/utils';
@@ -16,7 +17,9 @@ type DotNetInterop = {
  * @param interop - The .NET object reference to trigger Blazor methods.
  * @returns An object containing lifecycle and synchronization methods.
  */
-export function createCKEditor5BlazorInterop(editorId: string, interop: DotNetInterop) {
+export function createEditorBlazorInterop(editorId: string, interop: DotNetInterop) {
+  ensureEditorElementsRegistered();
+
   /**
    * Internal state to track values and prevent unnecessary updates or race conditions.
    */

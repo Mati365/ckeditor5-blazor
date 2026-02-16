@@ -7,19 +7,19 @@
     <a href="/" class="inline-block mb-6 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
     <h1 class="mb-6 font-bold text-3xl">Multiroot Editor Demo</h1>
 
-    <CKEditorUIPart Name="toolbar" Class="mt-4 mb-6" />
+    <CKEditor5UIPart Name="toolbar" Class="mt-4 mb-6" />
 
     <div class="gap-4 grid grid-cols-2">
         <div>
             <h2 class="mb-2 font-bold">Header</h2>
-            <CKEditorEditable
+            <CKEditor5Editable
                 RootName="header"
                 Value="Header content"
                 Class="border border-gray-300 rounded-sm" />
         </div>
         <div>
             <h2 class="mb-2 font-bold">Content</h2>
-            <CKEditorEditable
+            <CKEditor5Editable
                 RootName="content"
                 Value="Main content"
                 Class="border border-gray-300 rounded-sm" />
@@ -28,7 +28,7 @@
 
     <div class="mt-6">
         <h2 class="mb-2 font-bold">Footer</h2>
-        <CKEditorEditable
+        <CKEditor5Editable
             RootName="footer"
             Value="Footer content"
             Class="border border-gray-300 rounded-sm" />

@@ -6,7 +6,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 UI Part Component.
 /// Renders a UI part container (e.g., toolbar, menubar) for decoupled editors.
 /// </summary>
-public partial class CKEditorUIPart : ComponentBase
+public partial class CKEditor5UIPart : ComponentBase
 {
     /// <summary>
     /// The name of the UI part (e.g., "toolbar", "menubar").

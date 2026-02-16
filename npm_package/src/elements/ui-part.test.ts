@@ -11,12 +11,12 @@ import {
 
 import { timeout } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
-import { registerCustomElements } from './register-custom-elements';
+import { ensureEditorElementsRegistered } from './ensure-editor-elements-registered';
 
 describe('ui-part component', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
-    registerCustomElements();
+    ensureEditorElementsRegistered();
   });
 
   afterEach(async () => {

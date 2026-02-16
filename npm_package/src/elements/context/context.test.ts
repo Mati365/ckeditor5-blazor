@@ -14,13 +14,13 @@ import {
 import { timeout } from '../../shared';
 import { CustomEditorPluginsRegistry } from '../editor/custom-editor-plugins';
 import { EditorsRegistry } from '../editor/editors-registry';
-import { registerCustomElements } from '../register-custom-elements';
+import { ensureEditorElementsRegistered } from '../ensure-editor-elements-registered';
 import { ContextsRegistry } from './contexts-registry';
 
 describe('context component', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
-    registerCustomElements();
+    ensureEditorElementsRegistered();
   });
 
   afterEach(async () => {

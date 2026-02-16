@@ -32,13 +32,6 @@ public partial class CKEditorSelfHostedAssets : ComponentBase
     public bool EmitImportMap { get; set; } = true;
 
     /// <summary>
-    /// Whether to automatically load the CKEditor Blazor module. Default is true.
-    /// Set to false if you want to load the module manually using CKEditorModuleLoader.
-    /// </summary>
-    [Parameter]
-    public bool LoadIntegration { get; set; } = true;
-
-    /// <summary>
     /// Custom import map entries to merge with the generated import map.
     /// </summary>
     [Parameter]

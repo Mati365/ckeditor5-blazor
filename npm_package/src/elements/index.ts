@@ -10,5 +10,5 @@ export {
   EditorComponentElement,
   type EditorConfig,
 } from './editor';
-export { registerCustomElements } from './register-custom-elements';
+export { ensureEditorElementsRegistered } from './ensure-editor-elements-registered';
 export { UIPartComponentElement } from './ui-part';

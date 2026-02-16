@@ -11,12 +11,12 @@ import {
 } from '~/test-utils';
 
 import { timeout } from '../shared';
-import { registerCustomElements } from './register-custom-elements';
+import { ensureEditorElementsRegistered } from './ensure-editor-elements-registered';
 
 describe('editable component', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
-    registerCustomElements();
+    ensureEditorElementsRegistered();
   });
 
   afterEach(async () => {

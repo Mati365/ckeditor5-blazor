@@ -13,7 +13,7 @@ const CUSTOM_ELEMENTS = {
 /**
  * Registers all available Blazor component hooks.
  */
-export function registerCustomElements() {
+export function ensureEditorElementsRegistered() {
   for (const [name, CustomElement] of Object.entries(CUSTOM_ELEMENTS)) {
     if (window.customElements.get(name)) {
       continue;

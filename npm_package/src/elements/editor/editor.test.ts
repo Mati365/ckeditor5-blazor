@@ -24,14 +24,14 @@ import {
 } from '~/test-utils';
 
 import { timeout } from '../../shared/timeout';
-import { registerCustomElements } from '../register-custom-elements';
+import { ensureEditorElementsRegistered } from '../ensure-editor-elements-registered';
 import { CustomEditorPluginsRegistry } from './custom-editor-plugins';
 import { unwrapEditorWatchdog } from './utils';
 
 describe('editor component', () => {
   beforeEach(async () => {
     document.body.innerHTML = '';
-    registerCustomElements();
+    ensureEditorElementsRegistered();
   });
 
   afterEach(async () => {
