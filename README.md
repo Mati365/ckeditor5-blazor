@@ -16,11 +16,168 @@ The fastest way to add CKEditor 5 to your Blazor app. Zero-config installation, 
   <img src="docs/intro-classic-editor.png" alt="CKEditor 5 Classic Editor in .NET / Blazor application">
 </p>
 
+## Table of Contents
+
+- [ckeditor5-blazor](#ckeditor5-blazor)
+  - [Table of Contents](#table-of-contents)
+  - [Under construction 🚧](#under-construction-)
+  - [Installation 🚀](#installation-)
+    - [Self hosted 🏠](#self-hosted-)
+    - [Cloud hosted ☁️](#cloud-hosted-️)
+    - [Usage 🎉](#usage-)
+  - [Editors and Contexts registry 👀](#editors-and-contexts-registry-)
+  - [Development ⚙️](#development-️)
+  - [Psst... 👀](#psst-)
+  - [Trademarks 📜](#trademarks-)
+  - [License 📜](#license-)
+
 ## Under construction 🚧
 
 This project is currently under active development. In the meantime the author might be watching cat videos, brewing coffee, and negotiating with npm packages - PRs and snacks are welcome. Here's a silly cat+coffee picture for motivation:
 
 ![Cat and Coffee](https://i.makeagif.com/media/6-02-2015/ipXidH.gif)
+
+## Installation 🚀
+
+Add the package to your Blazor project using NuGet:
+
+```bash
+dotnet add package CKEditor5.Blazor
+```
+
+and register service in `Program.cs`:
+
+```csharp
+builder.Services.AddCKEditor5();
+```
+
+Depending on your needs, you can choose between two installation methods: `self-hosted` or `cloud-hosted`.
+
+### Self hosted 🏠
+
+Bundle CKEditor 5 with your application for full control over assets, versioning, and offline support. This method automatically downloads the necessary assets from NPM into your project's `wwwroot` directory during the build process using MSBuild tasks.
+
+1. **Configure MSBuild (Optional):**
+
+    The package comes with default configuration settings. You can override these in your project's .csproj file to control the version or enable premium features:
+
+    ```xml
+    <PropertyGroup>
+      <CKEditorVersion>47.3.0</CKEditorVersion>
+      <CKEditorIncludePremiumAssets>false</CKEditorIncludePremiumAssets>
+      <CKEditorAssetsOutputPath>$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
+    </PropertyGroup>
+    ```
+
+2. **Rebuild your project:**
+
+    It'll trigger the asset download and bundling process. The CKEditor 5 assets will be available in the specified output path (default is `wwwroot/ckeditor5`).
+
+    ```bash
+    dotnet build
+    ```
+
+3. **Add Assets to your layout:**
+
+    In your main layout file (e.g., App.razor, _Host.cshtml, or MainLayout.razor), add the self-hosted assets component inside the <head> tag:
+
+    ```razor
+    <head>
+        <!-- It'll add importmap and other necessary scripts for CKEditor 5 -->
+        <CKEditorSelfHostedAssets />
+    </head>
+    ```
+
+### Cloud hosted ☁️
+
+Load CKEditor 5 directly from CKSource's CDN. This method requires no build configuration or asset management but **requires a valid License Key** (even for trial purposes).
+
+1. **Configure License Key:**
+
+    Adjust your `AddCKEditor5` service registration in `Program.cs` to include your CKEditor Cloud License Key:
+
+    ```csharp
+    builder.Services.AddCKEditor5(options =>
+    {
+        options.DefaultLicenseKey = "your-license-key-here";
+    });
+    ```
+
+2. **Add Assets to Layout:**
+
+    In your main layout file (e.g., App.razor, _Host.cshtml, or MainLayout.razor), add the cloud-hosted assets component inside the <head> tag:
+
+    ```razor
+    <head>
+        <!-- It'll add importmap and other necessary scripts for CKEditor 5 -->
+        <CKEditorCloudHostedAssets />
+    </head>
+    ```
+
+### Usage 🎉
+
+Voila! You can now use the `<CKEditor5>` component anywhere in your Blazor app. The `EditorType` parameter accepts any CKEditor 5 build (e.g., `classic`, `inline`, `balloon`, `decoupled` or `multiroot`). The `Value` parameter is a string containing the editor's content, and supports two-way binding with `@bind-Value`.
+
+```razor
+<CKEditor5 EditorType="classic" Value="@("<p>Hello world!</p>")" />
+
+<!-- Or with two-way binding -->
+
+<CKEditor5 EditorType="classic" @bind-Value="editorContent" />
+```
+
+## Editors and Contexts registry 👀
+
+The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. They allow you to watch for changes in registered editors and contexts, get instances directly, or execute logic when a specific editor or context appears.
+
+- **`watch(callback)`** — react whenever registry state changes.
+
+    ```javascript
+    import { EditorsRegistry } from 'ckeditor5-livewire';
+
+    const unregisterWatcher = EditorsRegistry.the.watch((editors) => {
+      console.log('Registered editors changed:', editors);
+    });
+
+    // Later, you can unregister the watcher
+    unregisterWatcher();
+    ```
+
+- **`waitFor(id)`** — get the instance directly. If it is already registered, the promise resolves immediately.
+
+    ```javascript
+    import { EditorsRegistry } from 'ckeditor5-livewire';
+
+    EditorsRegistry.the.waitFor('editor1').then((editor) => {
+      console.log('Editor "editor1" is registered:', editor);
+    });
+
+    // ... init editor somewhere later
+    ```
+
+- **`execute(id, callback)`** — run logic immediately if the instance already exists, or later when it appears.
+
+    ```javascript
+    import { EditorsRegistry } from 'ckeditor5-livewire';
+
+    EditorsRegistry.the.execute('editor1', (editor) => {
+      console.log('Current data:', editor.getData());
+    });
+    ```
+
+- The same methods are available on `ContextsRegistry` for shared contexts:
+
+    ```javascript
+    import { ContextsRegistry } from 'ckeditor5-livewire';
+
+    ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
+      console.log('Context is ready:', watchdog.context);
+    });
+
+    ContextsRegistry.the.execute('shared-context', (watchdog) => {
+      console.log('Context state:', watchdog.state);
+    });
+    ```
 
 ## Development ⚙️
 
