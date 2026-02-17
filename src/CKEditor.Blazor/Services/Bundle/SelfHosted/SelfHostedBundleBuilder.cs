@@ -1,32 +1,30 @@
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.SelfHosted;
 
-namespace CKEditor.Blazor.SelfHosted;
+namespace CKEditor.Blazor.Services.Bundle.SelfHosted;
 
 /// <summary>
 /// Builds an <see cref="AssetsBundle"/> from a self-hosted configuration.
 /// </summary>
-public static class SelfHostedBundleBuilder
+public class SelfHostedBundleBuilder(
+    ICKEditorSelfHostedBundleBuilder editorBuilder,
+    ICKEditorPremiumSelfHostedBundleBuilder premiumBuilder,
+    ICKBoxSelfHostedBundleBuilder ckboxBuilder) : ISelfHostedBundleBuilder
 {
-    /// <summary>
-    /// Creates an <see cref="AssetsBundle"/> from the given self-hosted configuration.
-    /// </summary>
-    /// <param name="selfHosted">The self-hosted configuration.</param>
-    /// <returns>The resulting assets bundle.</returns>
-    public static AssetsBundle Build(SelfHostedConfig selfHosted)
+    public AssetsBundle Build(SelfHostedConfig selfHosted)
     {
         if (string.IsNullOrWhiteSpace(selfHosted.EditorVersion))
         {
             throw new InvalidOperationException("Self-hosted config requires 'EditorVersion'.");
         }
 
-        var editorBundle = CKEditorSelfHostedBundleBuilder.Build(
+        var editorBundle = editorBuilder.Build(
             selfHosted.EditorVersion,
             selfHosted.AssetsBasePath);
 
         if (selfHosted.Premium)
         {
-            var premiumBundle = CKEditorPremiumSelfHostedBundleBuilder.Build(
+            var premiumBundle = premiumBuilder.Build(
                 selfHosted.EditorVersion,
                 selfHosted.AssetsBasePath);
 
@@ -40,7 +38,7 @@ public static class SelfHostedBundleBuilder
                 throw new InvalidOperationException("Self-hosted config requires CKBox 'Version' when CKBox is enabled.");
             }
 
-            var ckboxBundle = CKBoxSelfHostedBundleBuilder.Build(
+            var ckboxBundle = ckboxBuilder.Build(
                 selfHosted.CKBox.Version,
                 selfHosted.CKBox.Translations,
                 selfHosted.AssetsBasePath,

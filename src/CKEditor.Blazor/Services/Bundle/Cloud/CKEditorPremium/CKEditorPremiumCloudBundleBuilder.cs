@@ -1,19 +1,13 @@
 using CKEditor.Blazor.Model.Bundle;
 
-namespace CKEditor.Blazor.Cloud;
+namespace CKEditor.Blazor.Services.Bundle.Cloud;
 
 /// <summary>
 /// Generates asset package URLs for CKEditor 5 Premium Features.
 /// </summary>
-public static class CKEditorPremiumCloudBundleBuilder
+public class CKEditorPremiumCloudBundleBuilder : ICKEditorPremiumCloudBundleBuilder
 {
-    /// <summary>
-    /// Creates URLs for CKEditor 5 Premium Features JavaScript and CSS files.
-    /// </summary>
-    /// <param name="version">The CKEditor 5 version.</param>
-    /// <param name="cdnUrl">The custom CDN URL.</param>
-    /// <returns>The asset bundle.</returns>
-    public static AssetsBundle Build(string version, string cdnUrl)
+    public AssetsBundle Build(string version, string cdnUrl)
     {
         var baseUrl = $"{cdnUrl}/ckeditor5-premium-features/{version}/";
         var js = new List<JSAsset>

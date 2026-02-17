@@ -1,6 +1,6 @@
 using CKEditor.Blazor.Model.Bundle;
-using CKEditor.Blazor.SelfHosted;
 using CKEditor.Blazor.Services;
+using CKEditor.Blazor.Services.Bundle.SelfHosted;
 using Microsoft.AspNetCore.Components;
 
 namespace CKEditor.Blazor.Components.Assets;
@@ -39,6 +39,9 @@ public partial class CKEditor5SelfHostedAssets : ComponentBase
 
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
+
+    [Inject]
+    private ISelfHostedBundleBuilder SelfHostedBundleBuilder { get; set; } = default!;
 
     private AssetsBundle? Bundle { get; set; }
 

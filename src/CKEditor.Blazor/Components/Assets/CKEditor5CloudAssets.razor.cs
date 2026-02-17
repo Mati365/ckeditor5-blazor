@@ -1,6 +1,6 @@
-using CKEditor.Blazor.Cloud;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Services;
+using CKEditor.Blazor.Services.Bundle.Cloud;
 using Microsoft.AspNetCore.Components;
 
 namespace CKEditor.Blazor.Components.Assets;
@@ -39,6 +39,9 @@ public partial class CKEditor5CloudAssets : ComponentBase
 
     [Inject]
     private ConfigManager ConfigManager { get; set; } = default!;
+
+    [Inject]
+    private ICloudBundleBuilder CloudBundleBuilder { get; set; } = default!;
 
     private AssetsBundle? Bundle { get; set; }
 

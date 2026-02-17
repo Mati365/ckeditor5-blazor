@@ -1,21 +1,13 @@
 using CKEditor.Blazor.Model.Bundle;
 
-namespace CKEditor.Blazor.SelfHosted;
+namespace CKEditor.Blazor.Services.Bundle.SelfHosted;
 
 /// <summary>
 /// Builds an asset bundle for self-hosted CKBox.
 /// </summary>
-public static class CKBoxSelfHostedBundleBuilder
+public class CKBoxSelfHostedBundleBuilder : ICKBoxSelfHostedBundleBuilder
 {
-    /// <summary>
-    /// Builds an asset bundle for CKBox based on the provided version, translations, and theme.
-    /// </summary>
-    /// <param name="version">The CKBox version.</param>
-    /// <param name="translations">List of translations.</param>
-    /// <param name="basePath">The base path for assets.</param>
-    /// <param name="theme">The theme name (defaults to 'lark').</param>
-    /// <returns>The asset bundle.</returns>
-    public static AssetsBundle Build(
+    public AssetsBundle Build(
         string version,
         IReadOnlyList<string> translations,
         string basePath,
@@ -33,7 +25,6 @@ public static class CKBoxSelfHostedBundleBuilder
             }
         };
 
-        // CKBox translations are UMD scripts, not ESM
         foreach (var translation in translations)
         {
             js.Add(new JSAsset

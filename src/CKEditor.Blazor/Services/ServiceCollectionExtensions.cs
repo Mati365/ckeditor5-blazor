@@ -1,3 +1,5 @@
+using CKEditor.Blazor.Services.Bundle.Cloud;
+using CKEditor.Blazor.Services.Bundle.SelfHosted;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +23,16 @@ public static class ServiceCollectionExtensions
         services.Configure<CKEditorOptions>(options => configureOptions?.Invoke(options));
 
         services.AddSingleton<ConfigManager>();
+
+        services.AddSingleton<ICKEditorCloudBundleBuilder, CKEditorCloudBundleBuilder>();
+        services.AddSingleton<ICKEditorPremiumCloudBundleBuilder, CKEditorPremiumCloudBundleBuilder>();
+        services.AddSingleton<ICKBoxCloudBundleBuilder, CKBoxCloudBundleBuilder>();
+        services.AddSingleton<ICloudBundleBuilder, CloudBundleBuilder>();
+
+        services.AddSingleton<ICKEditorSelfHostedBundleBuilder, CKEditorSelfHostedBundleBuilder>();
+        services.AddSingleton<ICKEditorPremiumSelfHostedBundleBuilder, CKEditorPremiumSelfHostedBundleBuilder>();
+        services.AddSingleton<ICKBoxSelfHostedBundleBuilder, CKBoxSelfHostedBundleBuilder>();
+        services.AddSingleton<ISelfHostedBundleBuilder, SelfHostedBundleBuilder>();
 
         return services;
     }

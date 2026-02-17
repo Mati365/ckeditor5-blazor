@@ -1,19 +1,13 @@
 using CKEditor.Blazor.Model.Bundle;
 
-namespace CKEditor.Blazor.SelfHosted;
+namespace CKEditor.Blazor.Services.Bundle.SelfHosted;
 
 /// <summary>
 /// Generates asset URLs for self-hosted CKEditor 5 core files.
 /// </summary>
-public static class CKEditorSelfHostedBundleBuilder
+public class CKEditorSelfHostedBundleBuilder : ICKEditorSelfHostedBundleBuilder
 {
-    /// <summary>
-    /// Creates URLs for self-hosted CKEditor 5 core JavaScript and CSS files.
-    /// </summary>
-    /// <param name="version">The CKEditor 5 version.</param>
-    /// <param name="basePath">The base path for assets.</param>
-    /// <returns>The asset bundle.</returns>
-    public static AssetsBundle Build(string version, string basePath)
+    public AssetsBundle Build(string version, string basePath)
     {
         var baseUrl = $"{basePath.TrimEnd('/')}/ckeditor5/{version.Trim('/')}/";
         var js = new List<JSAsset>

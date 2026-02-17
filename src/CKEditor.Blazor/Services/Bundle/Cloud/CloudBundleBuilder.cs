@@ -1,30 +1,28 @@
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.Cloud;
 
-namespace CKEditor.Blazor.Cloud;
+namespace CKEditor.Blazor.Services.Bundle.Cloud;
 
 /// <summary>
 /// Builds an <see cref="AssetsBundle"/> from a cloud configuration.
 /// </summary>
-public static class CloudBundleBuilder
+public class CloudBundleBuilder(
+    ICKEditorCloudBundleBuilder editorBuilder,
+    ICKEditorPremiumCloudBundleBuilder premiumBuilder,
+    ICKBoxCloudBundleBuilder ckboxBuilder) : ICloudBundleBuilder
 {
-    /// <summary>
-    /// Creates an <see cref="AssetsBundle"/> from the given cloud configuration.
-    /// </summary>
-    /// <param name="cloud">The cloud configuration.</param>
-    /// <returns>The resulting assets bundle.</returns>
-    public static AssetsBundle Build(CloudConfig cloud)
+    public AssetsBundle Build(CloudConfig cloud)
     {
         if (string.IsNullOrWhiteSpace(cloud.EditorVersion))
         {
             throw new InvalidOperationException("Cloud config requires 'EditorVersion'.");
         }
 
-        var editorBundle = CKEditorCloudBundleBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
+        var editorBundle = editorBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
 
         if (cloud.Premium)
         {
-            var premiumBundle = CKEditorPremiumCloudBundleBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
+            var premiumBundle = premiumBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
             editorBundle = editorBundle.Merge(premiumBundle);
         }
 
@@ -35,7 +33,7 @@ public static class CloudBundleBuilder
                 throw new InvalidOperationException("Cloud config requires CKBox 'Version' when CKBox is enabled.");
             }
 
-            var ckboxBundle = CKBoxCloudBundleBuilder.Build(
+            var ckboxBundle = ckboxBuilder.Build(
                 cloud.CKBox.Version,
                 cloud.CKBox.Translations,
                 cloud.CKBox.CdnUrl,

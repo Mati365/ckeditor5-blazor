@@ -1,21 +1,13 @@
 using CKEditor.Blazor.Model.Bundle;
 
-namespace CKEditor.Blazor.Cloud;
+namespace CKEditor.Blazor.Services.Bundle.Cloud;
 
 /// <summary>
 /// Builds an asset bundle for CKBox based on the provided cloud configuration.
 /// </summary>
-public static class CKBoxCloudBundleBuilder
+public class CKBoxCloudBundleBuilder : ICKBoxCloudBundleBuilder
 {
-    /// <summary>
-    /// Builds an asset bundle for CKBox based on the provided version, translations, and theme.
-    /// </summary>
-    /// <param name="version">The CKBox version.</param>
-    /// <param name="translations">List of translations.</param>
-    /// <param name="cdnUrl">The custom CDN URL.</param>
-    /// <param name="theme">The theme name (defaults to 'theme').</param>
-    /// <returns>The asset bundle.</returns>
-    public static AssetsBundle Build(
+    public AssetsBundle Build(
         string version,
         IReadOnlyList<string> translations,
         string cdnUrl,
