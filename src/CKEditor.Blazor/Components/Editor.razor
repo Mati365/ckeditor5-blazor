@@ -17,7 +17,7 @@
 
     @if (!string.IsNullOrEmpty(Name))
     {
-        <CKEditor5HiddenInput
+        <HiddenInput
             Name="@Name"
             Id="@($"{Id}_input")"
             Required="@Required" />

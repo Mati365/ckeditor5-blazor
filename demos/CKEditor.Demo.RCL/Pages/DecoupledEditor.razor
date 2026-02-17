@@ -7,11 +7,11 @@
     <a href="/" class="inline-block mb-6 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
     <h1 class="mb-6 font-bold text-3xl">Decoupled Editor Demo</h1>
 
-    <CKEditor5 EditorType="decoupled" Class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <Editor EditorType="decoupled" Class="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div class="bg-gray-50 p-2 border-gray-200 border-b">
-            <CKEditor5UIPart Name="toolbar" />
+            <UIPart Name="toolbar" />
         </div>
 
-        <CKEditor5Editable Value="Hello Decoupled World" InnerClass="p-4 min-h-[300px]" />
-    </CKEditor5>
+        <Editable Value="Hello Decoupled World" InnerClass="p-4 min-h-[300px]" />
+    </Editor>
 </div>

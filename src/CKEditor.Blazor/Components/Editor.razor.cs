@@ -12,7 +12,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 Main Component.
 /// Renders a CKEditor instance with configurable options.
 /// </summary>
-public partial class CKEditor5 : ComponentBase, IAsyncDisposable
+public partial class Editor : ComponentBase, IAsyncDisposable
 {
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -25,7 +25,7 @@ public partial class CKEditor5 : ComponentBase, IAsyncDisposable
 
     private IJSObjectReference? _jsInterop;
 
-    private DotNetObjectReference<CKEditor5>? _dotNetHelper;
+    private DotNetObjectReference<Editor>? _dotNetHelper;
 
     private bool _isInitializing = true;
 

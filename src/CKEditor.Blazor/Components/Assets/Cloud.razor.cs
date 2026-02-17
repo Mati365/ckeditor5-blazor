@@ -9,7 +9,7 @@ namespace CKEditor.Blazor.Components.Assets;
 /// CKEditor 5 Cloud Assets Component.
 /// Renders the necessary script and stylesheet tags for CKEditor Cloud integration.
 /// </summary>
-public partial class CKEditor5CloudAssets : ComponentBase
+public partial class Cloud : ComponentBase
 {
     /// <summary>
     /// The preset name to use (default: 'default').

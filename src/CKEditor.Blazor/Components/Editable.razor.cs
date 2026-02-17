@@ -6,7 +6,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 Editable Component.
 /// Renders an editable area for CKEditor (useful for multiroot/decoupled editors).
 /// </summary>
-public partial class CKEditor5Editable : ComponentBase
+public partial class Editable : ComponentBase
 {
     /// <summary>
     /// The name of the root element in the editor.

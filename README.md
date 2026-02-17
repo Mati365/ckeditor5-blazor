@@ -83,8 +83,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
 
     ```razor
     <HeadContent>
-        <!-- It'll add importmap and other necessary scripts for CKEditor 5 -->
-        <CKEditor5SelfHostedAssets />
+        <CKEditor.Blazor.Components.Assets.SelfHosted />
     </HeadContent>
     ```
 
@@ -109,22 +108,23 @@ Load CKEditor 5 directly from CKSource's CDN. This method requires no build conf
 
     ```razor
     <HeadContent>
-        <!-- It'll add importmap and other necessary scripts for CKEditor 5 -->
-        <CKEditor5CloudAssets />
+        <CKEditor.Blazor.Components.Assets.Cloud />
     </HeadContent>
     ```
 
 ## Basic Usage 🏁
 
-You can now use the `<CKEditor5>` component anywhere in your Blazor app.
+You can now use the `<CKEditor.Blazor.Components.Editor>` component anywhere in your Blazor app.
 
 ```razor
-<CKEditor5 EditorType="classic" Value="@("<p>Hello world!</p>")" />
+@using CKEditor.Blazor.Components
+
+<Editor EditorType="classic" Value="@("<p>Hello world!</p>")" />
 ```
 
 - The `EditorType` parameter accepts any CKEditor 5 build (e.g., `classic`, `inline`, `balloon`, `decoupled` or `multiroot`).
 
-- The `Value` parameter allows you to set the initial content of the editor, and supports two-way binding with `@bind-Value`. Keep in mind that `Value` is [`EditorValue.cs`](/src/CKEditor.Blazor/Model/EditorValue.cs) type, which also supports multiple roots. If you use classic editor, which has only single root, you can pass string content directly. For editors with multiple roots, you need to pass a directory with root names as keys and their content as values.
+- The `Value` parameter allows you to set the initial content of the editor, and supports two-way binding with `@bind-Value`. Keep in mind that `Value` is [`EditorValue.cs`](/src/CKEditor.Blazor/Domain/Model/EditorValue.cs) type, which also supports multiple roots. If you use classic editor, which has only single root, you can pass string content directly. For editors with multiple roots, you need to pass a directory with root names as keys and their content as values.
 
 ## Editors and Contexts registry 👀
 

@@ -6,7 +6,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 Hidden Input Component.
 /// Renders a hidden input field for form integration.
 /// </summary>
-public partial class CKEditor5HiddenInput : ComponentBase
+public partial class HiddenInput : ComponentBase
 {
     /// <summary>
     /// Optional name for the input field.
