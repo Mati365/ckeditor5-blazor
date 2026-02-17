@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CKEditor.Blazor.Domain.Model;
 using CKEditor.Blazor.Infrastructure;
-using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -224,7 +224,7 @@ public partial class CKEditor5 : ComponentBase, IAsyncDisposable
 
         PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
         ValueJson = JsonSerializer.Serialize(Value, _jsonOptions);
-        LanguageJson = JsonSerializer.Serialize(Model.Language.Parse(Language), _jsonOptions);
+        LanguageJson = JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
 
         AdditionalAttributes = GetAttributes();
     }

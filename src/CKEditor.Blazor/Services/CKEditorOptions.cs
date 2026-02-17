@@ -1,6 +1,6 @@
+using CKEditor.Blazor.Domain.Model;
+using CKEditor.Blazor.Domain.Model.License;
 using CKEditor.Blazor.Infrastructure;
-using CKEditor.Blazor.Model;
-using CKEditor.Blazor.Model.License;
 
 namespace CKEditor.Blazor.Services;
 

@@ -1,7 +1,7 @@
-using CKEditor.Blazor.Model;
-using CKEditor.Blazor.Model.Cloud;
-using CKEditor.Blazor.Model.License;
-using CKEditor.Blazor.Model.SelfHosted;
+using CKEditor.Blazor.Domain.Model;
+using CKEditor.Blazor.Domain.Model.Cloud;
+using CKEditor.Blazor.Domain.Model.License;
+using CKEditor.Blazor.Domain.Model.SelfHosted;
 using Microsoft.Extensions.Options;
 
 namespace CKEditor.Blazor.Services;

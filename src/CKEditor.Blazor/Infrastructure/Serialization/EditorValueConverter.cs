@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Domain.Model;
 
 namespace CKEditor.Blazor.Infrastructure;
 

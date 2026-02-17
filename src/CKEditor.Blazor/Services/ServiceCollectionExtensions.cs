@@ -1,5 +1,7 @@
-using CKEditor.Blazor.Services.Bundle.Cloud;
-using CKEditor.Blazor.Services.Bundle.SelfHosted;
+using CKEditor.Blazor.Domain.Interfaces.Bundle.Cloud;
+using CKEditor.Blazor.Domain.Interfaces.Bundle.SelfHosted;
+using CKEditor.Blazor.Infrastructure.Bundle.Cloud;
+using CKEditor.Blazor.Infrastructure.Bundle.SelfHosted;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

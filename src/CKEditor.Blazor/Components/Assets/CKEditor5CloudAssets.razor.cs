@@ -1,6 +1,6 @@
-using CKEditor.Blazor.Model.Bundle;
+using CKEditor.Blazor.Domain.Interfaces.Bundle.Cloud;
+using CKEditor.Blazor.Domain.Model.Bundle;
 using CKEditor.Blazor.Services;
-using CKEditor.Blazor.Services.Bundle.Cloud;
 using Microsoft.AspNetCore.Components;
 
 namespace CKEditor.Blazor.Components.Assets;
