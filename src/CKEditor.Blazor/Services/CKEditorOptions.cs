@@ -1,3 +1,4 @@
+using CKEditor.Blazor.Infrastructure;
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.License;
 
@@ -26,6 +27,6 @@ public class CKEditorOptions
     /// <returns>The parsed LicenseKey instance or null.</returns>
     internal LicenseKey? GetParsedLicenseKey()
     {
-        return LicenseKey.TryParse(DefaultLicenseKey, out var key) ? key : null;
+        return LicenseKeyParser.TryParse(DefaultLicenseKey, out var key) ? key : null;
     }
 }

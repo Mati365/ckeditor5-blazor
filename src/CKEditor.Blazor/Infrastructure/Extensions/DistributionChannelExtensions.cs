@@ -1,4 +1,6 @@
-namespace CKEditor.Blazor.Model.License;
+using CKEditor.Blazor.Model.License;
+
+namespace CKEditor.Blazor.Infrastructure;
 
 /// <summary>
 /// Extension methods for DistributionChannel.

@@ -1,4 +1,6 @@
-namespace CKEditor.Blazor.Model;
+using CKEditor.Blazor.Model;
+
+namespace CKEditor.Blazor.Infrastructure;
 
 /// <summary>
 /// Extension methods for EditorType.

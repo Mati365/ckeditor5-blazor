@@ -1,5 +1,5 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
+using CKEditor.Blazor.Infrastructure;
 
 namespace CKEditor.Blazor.Model;
 
@@ -56,23 +56,5 @@ public class EditorValue
     public static implicit operator EditorValue(Dictionary<string, string>? value)
     {
         return new(value);
-    }
-
-    /// <summary>
-    /// Internal converter to ensure that only the <see cref="Data"/> dictionary
-    /// is serialized, making it compatible with CKEditor 5 JS expectations.
-    /// </summary>
-    private class EditorValueConverter : JsonConverter<EditorValue>
-    {
-        public override EditorValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(ref reader, options);
-            return new EditorValue(dictionary);
-        }
-
-        public override void Write(Utf8JsonWriter writer, EditorValue value, JsonSerializerOptions options)
-        {
-            JsonSerializer.Serialize(writer, value.Data, options);
-        }
     }
 }
