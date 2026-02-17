@@ -1,6 +1,6 @@
 using CKEditor.Blazor.Services;
 
-namespace CKEditor.Blazor.SelfHosted.CKBox;
+namespace CKEditor.Blazor.Model.SelfHosted;
 
 /// <summary>
 /// CKBox configuration for self-hosted assets.

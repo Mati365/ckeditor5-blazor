@@ -56,7 +56,7 @@ public partial class CKEditor5Context : ComponentBase, IAsyncDisposable
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
 
-    private string LanguageJson => JsonSerializer.Serialize(Preset.Language.Parse(Language), _jsonOptions);
+    private string LanguageJson => JsonSerializer.Serialize(Model.Language.Parse(Language), _jsonOptions);
 
     private string ContextJson => JsonSerializer.Serialize(ConfigManager.ResolveContext(ContextPreset ?? "default"), _jsonOptions);
 

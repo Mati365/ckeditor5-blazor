@@ -1,7 +1,6 @@
-using CKEditor.Blazor.SelfHosted.CKBox;
 using CKEditor.Blazor.Services;
 
-namespace CKEditor.Blazor.SelfHosted;
+namespace CKEditor.Blazor.Model.SelfHosted;
 
 /// <summary>
 /// Configuration data for self-hosted CKEditor 5 assets.

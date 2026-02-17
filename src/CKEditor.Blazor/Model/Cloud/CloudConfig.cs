@@ -1,6 +1,4 @@
-using CKEditor.Blazor.Cloud.CKBox;
-
-namespace CKEditor.Blazor.Cloud;
+namespace CKEditor.Blazor.Model.Cloud;
 
 /// <summary>
 /// Configuration data required to import CKEditor 5 from the cloud (CDN / importmap).
@@ -26,5 +24,5 @@ public class CloudConfig
     /// <summary>
     /// CKBox information (optional).
     /// </summary>
-    public CKBoxConfig? CKBox { get; set; }
+    public CKBoxCloudConfig? CKBox { get; set; }
 }

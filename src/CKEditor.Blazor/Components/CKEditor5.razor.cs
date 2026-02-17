@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CKEditor.Blazor.Model;
-using CKEditor.Blazor.Preset;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -33,13 +32,13 @@ public partial class CKEditor5 : ComponentBase, IAsyncDisposable
     /// The initial value of the editor. Can be a string or a dictionary for multiroot editors.
     /// </summary>
     [Parameter]
-    public CKEditorValue? Value { get; set; }
+    public EditorValue? Value { get; set; }
 
     /// <summary>
     /// Event callback for two-way binding of `Value`.
     /// </summary>
     [Parameter]
-    public EventCallback<CKEditorValue?> ValueChanged { get; set; }
+    public EventCallback<EditorValue?> ValueChanged { get; set; }
 
     /// <summary>
     /// The preset name or object to use (default: 'default').
@@ -185,7 +184,7 @@ public partial class CKEditor5 : ComponentBase, IAsyncDisposable
     /// <param name="roots">The new editor data value (from JS interop).</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [JSInvokable]
-    public async Task OnChangeEditorData(CKEditorValue roots)
+    public async Task OnChangeEditorData(EditorValue roots)
     {
         Value = roots;
         await ValueChanged.InvokeAsync(Value);
@@ -224,7 +223,7 @@ public partial class CKEditor5 : ComponentBase, IAsyncDisposable
 
         PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
         ValueJson = JsonSerializer.Serialize(Value, _jsonOptions);
-        LanguageJson = JsonSerializer.Serialize(Blazor.Preset.Language.Parse(Language), _jsonOptions);
+        LanguageJson = JsonSerializer.Serialize(Model.Language.Parse(Language), _jsonOptions);
 
         AdditionalAttributes = GetAttributes();
     }

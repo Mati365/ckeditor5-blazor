@@ -1,6 +1,5 @@
-using CKEditor.Blazor.Bundle;
-using CKEditor.Blazor.SelfHosted.CKBox;
-using CKEditor.Blazor.SelfHosted.CKEditor;
+using CKEditor.Blazor.Model.Bundle;
+using CKEditor.Blazor.Model.SelfHosted;
 
 namespace CKEditor.Blazor.SelfHosted;
 

@@ -1,9 +1,9 @@
-namespace CKEditor.Blazor.Cloud.CKBox;
+namespace CKEditor.Blazor.Model.Cloud;
 
 /// <summary>
 /// CKBox information used when importing the editor from the cloud (CDN / importmap).
 /// </summary>
-public class CKBoxConfig
+public class CKBoxCloudConfig
 {
     /// <summary>
     /// CKBox version (e.g. "1.2.3").

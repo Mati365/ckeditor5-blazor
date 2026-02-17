@@ -1,8 +1,8 @@
-using CKEditor.Blazor.Cloud;
-using CKEditor.Blazor.License;
-using CKEditor.Blazor.SelfHosted;
+using CKEditor.Blazor.Model.Cloud;
+using CKEditor.Blazor.Model.License;
+using CKEditor.Blazor.Model.SelfHosted;
 
-namespace CKEditor.Blazor.Preset;
+namespace CKEditor.Blazor.Model;
 
 /// <summary>
 /// Represents a CKEditor preset configuration.

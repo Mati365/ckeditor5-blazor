@@ -1,4 +1,4 @@
-using CKEditor.Blazor.SelfHosted;
+using CKEditor.Blazor.Model.SelfHosted;
 using CKEditor.Blazor.Services;
 using CKEditor.Demo.Server.Components;
 

@@ -1,4 +1,4 @@
-namespace CKEditor.Blazor.Context;
+namespace CKEditor.Blazor.Model;
 
 /// <summary>
 /// Represents a CKEditor context configuration.

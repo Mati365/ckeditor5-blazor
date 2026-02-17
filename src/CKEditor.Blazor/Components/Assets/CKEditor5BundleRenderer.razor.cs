@@ -1,5 +1,5 @@
 using System.Text.Json;
-using CKEditor.Blazor.Bundle;
+using CKEditor.Blazor.Model.Bundle;
 using Microsoft.AspNetCore.Components;
 
 namespace CKEditor.Blazor.Components.Assets;

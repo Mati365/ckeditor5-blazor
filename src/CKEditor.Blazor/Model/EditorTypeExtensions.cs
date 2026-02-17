@@ -1,4 +1,4 @@
-namespace CKEditor.Blazor.Preset;
+namespace CKEditor.Blazor.Model;
 
 /// <summary>
 /// Extension methods for EditorType.

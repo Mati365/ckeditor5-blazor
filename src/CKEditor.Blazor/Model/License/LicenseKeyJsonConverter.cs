@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CKEditor.Blazor.License;
+namespace CKEditor.Blazor.Model.License;
 
 /// <summary>
 /// JSON converter for LicenseKey that serializes only the raw string.

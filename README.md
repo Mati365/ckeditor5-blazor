@@ -124,7 +124,7 @@ You can now use the `<CKEditor5>` component anywhere in your Blazor app.
 
 - The `EditorType` parameter accepts any CKEditor 5 build (e.g., `classic`, `inline`, `balloon`, `decoupled` or `multiroot`).
 
-- The `Value` parameter allows you to set the initial content of the editor, and supports two-way binding with `@bind-Value`. Keep in mind that `Value` is [CKEditorValue.cs](/src/CKEditor.Blazor/Model/CKEditorValue.cs) type, which also supports multiple roots. If you use classic editor, which has only single root, you can pass string content directly. For editors with multiple roots, you need to pass a directory with root names as keys and their content as values.
+- The `Value` parameter allows you to set the initial content of the editor, and supports two-way binding with `@bind-Value`. Keep in mind that `Value` is [`EditorValue.cs`](/src/CKEditor.Blazor/Model/EditorValue.cs) type, which also supports multiple roots. If you use classic editor, which has only single root, you can pass string content directly. For editors with multiple roots, you need to pass a directory with root names as keys and their content as values.
 
 ## Editors and Contexts registry 👀
 

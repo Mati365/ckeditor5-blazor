@@ -1,50 +1,49 @@
-using CKEditor.Blazor.Bundle;
+using CKEditor.Blazor.Model.Bundle;
 
-namespace CKEditor.Blazor.SelfHosted.CKBox;
+namespace CKEditor.Blazor.Cloud;
 
 /// <summary>
-/// Builds an asset bundle for self-hosted CKBox.
+/// Builds an asset bundle for CKBox based on the provided cloud configuration.
 /// </summary>
-public static class CKBoxSelfHostedBundleBuilder
+public static class CKBoxCloudBundleBuilder
 {
     /// <summary>
     /// Builds an asset bundle for CKBox based on the provided version, translations, and theme.
     /// </summary>
     /// <param name="version">The CKBox version.</param>
     /// <param name="translations">List of translations.</param>
-    /// <param name="basePath">The base path for assets.</param>
-    /// <param name="theme">The theme name (defaults to 'lark').</param>
+    /// <param name="cdnUrl">The custom CDN URL.</param>
+    /// <param name="theme">The theme name (defaults to 'theme').</param>
     /// <returns>The asset bundle.</returns>
     public static AssetsBundle Build(
         string version,
         IReadOnlyList<string> translations,
-        string basePath,
-        string theme = "lark")
+        string cdnUrl,
+        string theme = "theme")
     {
-        var baseUrl = $"{basePath.TrimEnd('/')}/ckbox/{version.Trim('/')}/";
+        var baseUrl = $"{cdnUrl.TrimEnd('/')}/ckbox/{version.Trim('/')}/";
 
         var js = new List<JSAsset>
         {
             new()
             {
                 Name = "ckbox",
-                Url = $"{baseUrl}dist/ckbox.js",
+                Url = $"{baseUrl}ckbox.js",
                 Type = JSAssetType.UMD
             }
         };
 
-        // CKBox translations are UMD scripts, not ESM
         foreach (var translation in translations)
         {
             js.Add(new JSAsset
             {
                 Name = $"ckbox/translations/{translation}",
-                Url = $"{baseUrl}dist/translations/{translation}.js",
+                Url = $"{baseUrl}translations/{translation}.js",
                 Type = JSAssetType.UMD
             });
         }
 
-        var css = new List<string> { $"{baseUrl}dist/styles/{theme}.css" };
+        var css = new List<string> { $"{baseUrl}styles/themes/{theme}.css" };
 
         return new AssetsBundle(js, css);
     }

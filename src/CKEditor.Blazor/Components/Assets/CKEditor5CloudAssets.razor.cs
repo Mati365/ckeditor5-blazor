@@ -1,5 +1,5 @@
-using CKEditor.Blazor.Bundle;
 using CKEditor.Blazor.Cloud;
+using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 

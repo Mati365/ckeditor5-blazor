@@ -1,4 +1,4 @@
-namespace CKEditor.Blazor.Preset;
+namespace CKEditor.Blazor.Model;
 
 /// <summary>
 /// Represents the type of CKEditor instance.

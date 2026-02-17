@@ -1,6 +1,5 @@
-using CKEditor.Blazor.Bundle;
-using CKEditor.Blazor.Cloud.CKBox;
-using CKEditor.Blazor.Cloud.CKEditor;
+using CKEditor.Blazor.Model.Bundle;
+using CKEditor.Blazor.Model.Cloud;
 
 namespace CKEditor.Blazor.Cloud;
 

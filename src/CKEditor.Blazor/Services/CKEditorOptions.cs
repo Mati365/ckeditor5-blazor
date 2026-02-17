@@ -1,5 +1,5 @@
-using CKEditor.Blazor.License;
-using CKEditor.Blazor.Preset;
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Model.License;
 
 namespace CKEditor.Blazor.Services;
 

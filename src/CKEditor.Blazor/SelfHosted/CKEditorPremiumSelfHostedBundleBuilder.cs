@@ -1,6 +1,6 @@
-using CKEditor.Blazor.Bundle;
+using CKEditor.Blazor.Model.Bundle;
 
-namespace CKEditor.Blazor.SelfHosted.CKEditor;
+namespace CKEditor.Blazor.SelfHosted;
 
 /// <summary>
 /// Generates asset URLs for self-hosted CKEditor 5 Premium Features.
