@@ -7,7 +7,7 @@ namespace CKEditor.Blazor.Components.Assets;
 /// <summary>
 /// Internal component for rendering CKEditor bundle assets (scripts, stylesheets, import maps).
 /// </summary>
-public partial class CKEditorBundleRenderer : ComponentBase
+public partial class CKEditor5BundleRenderer : ComponentBase
 {
     /// <summary>
     /// Optional nonce for CSP (Content Security Policy).

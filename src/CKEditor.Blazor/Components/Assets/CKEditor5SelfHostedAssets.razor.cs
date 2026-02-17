@@ -9,7 +9,7 @@ namespace CKEditor.Blazor.Components.Assets;
 /// CKEditor 5 Self-Hosted Assets Component.
 /// Renders the necessary script and stylesheet tags for self-hosted CKEditor integration.
 /// </summary>
-public partial class CKEditorSelfHostedAssets : ComponentBase
+public partial class CKEditor5SelfHostedAssets : ComponentBase
 {
     /// <summary>
     /// The preset name to use (default: 'default').
