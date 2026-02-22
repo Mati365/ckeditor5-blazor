@@ -21,13 +21,15 @@ public partial class Editor : ComponentBase, IAsyncDisposable
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
-    private IJSObjectReference? _jsModule;
-
-    private IJSObjectReference? _jsInterop;
+    private readonly CKComponentJsInterop _jsInterop = new();
 
     private DotNetObjectReference<Editor>? _dotNetHelper;
 
-    private bool _isInitializing = true;
+    /// <summary>
+    /// Reference to the root DOM element of this component, captured via <c>@ref</c>.
+    /// Passed to JS interop so it can locate and mount the editor on the correct node.
+    /// </summary>
+    private ElementReference _elementRef;
 
     /// <summary>
     /// The initial value of the editor. Can be a string or a dictionary for multiroot editors.
@@ -36,118 +38,123 @@ public partial class Editor : ComponentBase, IAsyncDisposable
     public EditorValue? Value { get; set; }
 
     /// <summary>
-    /// Event callback for two-way binding of `Value`.
+    /// Event callback for two-way binding of <see cref="Value"/>.
     /// </summary>
     [Parameter]
     public EventCallback<EditorValue?> ValueChanged { get; set; }
 
     /// <summary>
-    /// The preset name or object to use (default: 'default').
+    /// The preset name or object to use (default: <c>'default'</c>).
     /// </summary>
     [Parameter]
     public object? Preset { get; set; } = "default";
 
     /// <summary>
-    /// Whether to enable the watchdog feature (default: true).
+    /// Whether to enable the watchdog feature (default: <see langword="true"/>).
     /// </summary>
     [Parameter]
     public bool Watchdog { get; set; } = true;
 
     /// <summary>
-    /// Optional name for the input field.
+    /// Optional name for the hidden input field used in form submissions.
     /// </summary>
     [Parameter]
     public string? Name { get; set; }
 
     /// <summary>
-    /// Whether the input is required.
+    /// Whether the hidden input field is required for form validation.
     /// </summary>
     [Parameter]
     public bool? Required { get; set; }
 
     /// <summary>
-    /// Optional height for the editable area in pixels.
+    /// Optional fixed height for the editable area in pixels.
     /// </summary>
     [Parameter]
     public int? EditableHeight { get; set; }
 
     /// <summary>
-    /// The debounce time in milliseconds for saving changes.
+    /// The debounce time in milliseconds before the editor propagates content changes.
     /// </summary>
     [Parameter]
     public int SaveDebounceMs { get; set; } = 250;
 
     /// <summary>
-    /// Optional CSS class for the editor container.
+    /// Optional CSS class applied to the outermost editor container element.
     /// </summary>
     [Parameter]
     public string? Class { get; set; }
 
     /// <summary>
-    /// Optional inline styles for the editor container.
+    /// Optional inline styles applied to the outermost editor container element.
     /// </summary>
     [Parameter]
     public string? Style { get; set; } = "display: block; width: 100%;";
 
     /// <summary>
-    /// Optional ID for the editor instance.
+    /// Optional HTML ID for the editor instance.
+    /// When not provided, a unique ID is generated automatically in <see cref="OnInitialized"/>.
     /// </summary>
     [Parameter]
     public string? Id { get; set; }
 
     /// <summary>
-    /// Optional context ID for multiple editors sharing a context.
+    /// Optional context ID used when multiple editors share a single CKEditor context.
     /// </summary>
     [Parameter]
     public string? ContextId { get; set; }
 
     /// <summary>
-    /// Optional language configuration (string or object).
+    /// Optional language configuration. Accepts a language code string or a language config object.
     /// </summary>
     [Parameter]
     public object? Language { get; set; }
 
     /// <summary>
-    /// Optional editor configuration overrides (shallow replace).
+    /// Optional editor configuration that performs a shallow replace of the resolved preset config.
     /// </summary>
     [Parameter]
     public Dictionary<string, object>? Config { get; set; }
 
     /// <summary>
-    /// Optional editor configuration to merge (deep merge).
+    /// Optional editor configuration that is deep-merged into the resolved preset config.
     /// </summary>
     [Parameter]
     public Dictionary<string, object>? MergeConfig { get; set; }
 
     /// <summary>
-    /// Optional custom translations dictionary.
+    /// Optional dictionary of custom UI translations keyed by the original string.
     /// </summary>
     [Parameter]
     public Dictionary<string, string>? CustomTranslations { get; set; }
 
     /// <summary>
-    /// Optional editor type to use (e.g., "classic", "inline", "balloon", "decoupled", "multiroot").
+    /// Optional editor type override (e.g. <c>"classic"</c>, <c>"inline"</c>,
+    /// <c>"balloon"</c>, <c>"decoupled"</c>, <c>"multiroot"</c>).
     /// </summary>
     [Parameter]
     public string? EditorType { get; set; }
 
     /// <summary>
-    /// Optional child content to render inside the editor component.
+    /// Optional child content rendered inside the editor's custom element,
+    /// useful for injecting toolbar slots in decoupled or multiroot layouts.
     /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
-    /// Whether the editor should be interactive and bootstrap automatically. Default is false.
+    /// When <see langword="true"/>, the editor bootstraps itself automatically via
+    /// the JS Web Component without waiting for the Blazor interop initialization.
+    /// Default is <see langword="false"/>.
     /// </summary>
     [Parameter]
     public bool Interactive { get; set; } = false;
 
     [Inject]
-    private ConfigManager ConfigManager { get; set; } = default!;
+    private IJSRuntime JS { get; set; } = default!;
 
     [Inject]
-    private IJSRuntime JS { get; set; } = default!;
+    private ConfigManager ConfigManager { get; set; } = default!;
 
     private string? StyleValue { get; set; }
 
@@ -161,28 +168,21 @@ public partial class Editor : ComponentBase, IAsyncDisposable
 
     private Dictionary<string, object> AdditionalAttributes { get; set; } = [];
 
+    /// <summary>
+    /// Disposes the <see cref="DotNetObjectReference{T}"/> and the JS interop instance.
+    /// </summary>
+    /// <returns>A task representing the asynchronous dispose operation.</returns>
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
-
         _dotNetHelper?.Dispose();
-
-        if (_jsInterop is not null)
-        {
-            await _jsInterop.InvokeVoidAsync("unmount");
-            await _jsInterop.DisposeAsync();
-        }
-
-        if (_jsModule is not null)
-        {
-            await _jsModule.DisposeAsync();
-        }
+        await _jsInterop.DisposeAsync();
     }
 
     /// <summary>
-    /// Method invoked from JS interop to update the Value based on editor data changes.
+    /// Method invoked from JS interop to update <see cref="Value"/> based on editor data changes.
     /// </summary>
-    /// <param name="roots">The new editor data value (from JS interop).</param>
+    /// <param name="roots">The new editor data emitted by the JS interop layer.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [JSInvokable]
     public async Task OnChangeEditorData(EditorValue roots)
@@ -191,30 +191,18 @@ public partial class Editor : ComponentBase, IAsyncDisposable
         await ValueChanged.InvokeAsync(Value);
     }
 
+    /// <summary>
+    /// Generates a unique <see cref="Id"/> when none is provided by the consumer.
+    /// </summary>
     protected override void OnInitialized()
     {
         Id ??= $"cke5-{Guid.NewGuid():N}";
     }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (!_isInitializing && _jsInterop is not null)
-        {
-            await _jsInterop.InvokeVoidAsync("setValue", Value);
-        }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _dotNetHelper = DotNetObjectReference.Create(this);
-            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "ckeditor5-blazor");
-            _jsInterop = await _jsModule.InvokeAsync<IJSObjectReference>("createEditorBlazorInterop", Id, _dotNetHelper);
-            _isInitializing = false;
-        }
-    }
-
+    /// <summary>
+    /// Recomputes all serialized JSON attributes and the additional HTML attributes
+    /// dictionary whenever bound parameters change.
+    /// </summary>
     protected override void OnParametersSet()
     {
         var preset = ResolvePreset();
@@ -226,9 +214,45 @@ public partial class Editor : ComponentBase, IAsyncDisposable
         ValueJson = JsonSerializer.Serialize(Value, _jsonOptions);
         LanguageJson = JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
 
-        AdditionalAttributes = GetAttributes();
+        AdditionalAttributes = BuildAdditionalAttributes();
     }
 
+    /// <summary>
+    /// Forwards the current <see cref="Value"/> to the JS interop whenever parameters change,
+    /// but only after the component has been fully initialized.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!_jsInterop.IsInitializing && Value is not null)
+        {
+            await _jsInterop.InvokeVoidAsync("setValue", Value);
+        }
+    }
+
+    /// <summary>
+    /// On the first render, creates a <see cref="DotNetObjectReference{T}"/> and initializes
+    /// the JS interop by invoking <c>createEditorBlazorInterop</c> with the root element reference.
+    /// </summary>
+    /// <param name="firstRender">
+    /// <see langword="true"/> only on the initial render of the component.
+    /// </param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetHelper = DotNetObjectReference.Create(this);
+            await _jsInterop.InitializeAsync(JS, "createEditorBlazorInterop", _elementRef, _dotNetHelper);
+        }
+    }
+
+    /// <summary>
+    /// Resolves the active <see cref="PresetConfig"/> by starting from the configured
+    /// preset and applying any <see cref="Config"/>, <see cref="MergeConfig"/>,
+    /// <see cref="CustomTranslations"/>, and <see cref="EditorType"/> overrides in order.
+    /// </summary>
+    /// <returns>The fully resolved <see cref="PresetConfig"/> for this editor instance.</returns>
     private PresetConfig ResolvePreset()
     {
         var preset = ConfigManager.ResolvePreset(Preset);
@@ -251,14 +275,20 @@ public partial class Editor : ComponentBase, IAsyncDisposable
         if (!string.IsNullOrWhiteSpace(EditorType))
         {
             var editorType = Enum.Parse<EditorType>(EditorType, ignoreCase: true);
-
             preset = preset.OfEditorType(editorType);
         }
 
         return preset;
     }
 
-    private Dictionary<string, object> GetAttributes()
+    /// <summary>
+    /// Builds the dictionary of <c>data-cke-*</c> HTML attributes that are conditionally
+    /// rendered on the editor's custom element based on the current parameter values.
+    /// </summary>
+    /// <returns>
+    /// A dictionary of attribute name/value pairs to be spread via <c>@attributes</c>.
+    /// </returns>
+    private Dictionary<string, object> BuildAdditionalAttributes()
     {
         var attributes = new Dictionary<string, object>();
 

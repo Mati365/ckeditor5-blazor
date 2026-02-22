@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { waitForInteractiveAttribute } from './wait-for-interactive-attribute';
+import { markElementAsInteractive, waitForInteractiveAttribute } from './wait-for-interactive-attribute';
 
 describe('waitForInteractiveAttribute', () => {
   let element: HTMLElement;
@@ -18,7 +18,7 @@ describe('waitForInteractiveAttribute', () => {
   });
 
   it('should resolve immediately if the element already has the data-cke-interactive attribute', async () => {
-    element.setAttribute('data-cke-interactive', '');
+    markElementAsInteractive(element);
 
     const result = waitForInteractiveAttribute(element);
 
@@ -37,7 +37,7 @@ describe('waitForInteractiveAttribute', () => {
     expect(successSpy).not.toHaveBeenCalled();
 
     // 2. Add the attribute
-    element.setAttribute('data-cke-interactive', '');
+    markElementAsInteractive(element);
 
     // 3. Ensure the promise resolves after the mutation
     await expect(result.promise).resolves.toBeUndefined();
@@ -65,7 +65,7 @@ describe('waitForInteractiveAttribute', () => {
     const disconnectSpy = vi.spyOn(MutationObserver.prototype, 'disconnect');
 
     const result = waitForInteractiveAttribute(element);
-    element.setAttribute('data-cke-interactive', '');
+    markElementAsInteractive(element);
 
     await result.promise;
 
@@ -84,7 +84,7 @@ describe('waitForInteractiveAttribute', () => {
     expect(disconnectSpy).toHaveBeenCalled();
 
     // 2. Add the attribute AFTER disconnecting
-    element.setAttribute('data-cke-interactive', '');
+    markElementAsInteractive(element);
 
     // 3. Verify the promise remains pending (observer should be dead)
     await vi.advanceTimersByTimeAsync(100);

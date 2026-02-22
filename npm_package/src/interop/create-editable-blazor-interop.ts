@@ -1,55 +1,61 @@
 import type { DotNetInterop } from '../types';
 import type { EditorValueSync } from './utils/create-editor-value-sync';
 
-import { ensureEditorElementsRegistered } from '../elements';
 import { EditorsRegistry } from '../elements/editor/editors-registry';
 import { CKEditor5ChangeDataEvent } from '../elements/editor/plugins/dispatch-editor-roots-change-event';
 import { getEditorRootsValues } from '../elements/editor/utils';
-import { markElementAsInteractive, shallowEqual } from '../shared';
+import { markElementAsInteractive } from '../shared';
 import { createEditorValueSync, createNoopSync } from './utils/create-editor-value-sync';
 
 /**
- * Creates an interop layer to synchronize a CKEditor 5 instance with a Blazor component.
+ * Creates an interop layer to synchronize a single CKEditor 5 editable root with a Blazor component.
  *
- * @param element - The root HTML element of the editor component, used to identify the editor instance and attach necessary attributes.
+ * @param element - The root HTML element of the editable component, used to identify
+ * the editable instance and attach necessary attributes.
  * @param interop - The .NET object reference to trigger Blazor methods.
  * @returns An object containing lifecycle and synchronization methods.
  */
-export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetInterop) {
+export function createEditableBlazorInterop(element: HTMLElement, interop: DotNetInterop) {
   const editorId = element.getAttribute('data-cke-editor-id');
+  const rootName = element.getAttribute('data-cke-root-name') ?? 'main';
 
-  ensureEditorElementsRegistered();
   markElementAsInteractive(element);
 
   // Placeholder so `setValue` calls queued before the editor is ready are forwarded correctly.
-  let sync: EditorValueSync<Record<string, string>> = createNoopSync();
+  let sync: EditorValueSync<string> = createNoopSync();
 
   /**
    * Handles data change events dispatched by the CKEditor plugin.
-   * Dispatches updates back to Blazor if the data has changed.
+   * Filters by both editorId and rootName, then notifies Blazor if the root value changed.
    */
   const onDataChange = (event: Event) => {
     if (!(event instanceof CKEditor5ChangeDataEvent) || event.detail.editorId !== editorId) {
       return;
     }
 
-    if (sync.notifyIfChanged(event.detail.roots)) {
-      void interop.invokeMethodAsync('OnChangeEditorData', event.detail.roots);
+    const newValue = event.detail.roots[rootName];
+
+    if (newValue === undefined) {
+      return;
+    }
+
+    if (sync.notifyIfChanged(newValue)) {
+      void interop.invokeMethodAsync('OnChangeEditableData', newValue);
     }
   };
 
   document.body.addEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
 
   /**
-   * Initializes the focus tracker and model listeners for the editor.
+   * Initializes the focus tracker and model listeners for the editor owning this editable.
    */
   const initializeSynchronization = async () => {
     const editor = await EditorsRegistry.the.waitFor(editorId);
 
     sync = createEditorValueSync(editor, {
-      getCurrentValue: () => getEditorRootsValues(editor),
-      applyValue: value => editor.setData(value),
-      isEqual: shallowEqual,
+      getCurrentValue: () => getEditorRootsValues(editor)[rootName] ?? '',
+      applyValue: value => editor.setData({ [rootName]: value }),
+      isEqual: (a, b) => a === b,
     });
   };
 
@@ -65,9 +71,10 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
     },
 
     /**
-     * Updates the editor data from Blazor. If the editor is focused, the update is deferred until blur to avoid interrupting the user.
+     * Updates this editable root's data from Blazor.
+     * If the editor is focused, the update is deferred until blur to avoid interrupting the user.
      */
-    setValue: async (value: Record<string, string>) => {
+    setValue: async (value: string) => {
       await EditorsRegistry.the.waitFor(editorId);
 
       // Ensure sync is initialized before forwarding (waitFor guarantees the editor exists)

@@ -19,16 +19,22 @@ public partial class Context : ComponentBase, IAsyncDisposable
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    private IJSObjectReference? _jsModule;
+    private readonly CKComponentJsInterop _jsInterop = new();
 
     /// <summary>
-    /// The language code for the context (default: 'en').
+    /// Reference to the root DOM element of this component, captured via <c>@ref</c>.
+    /// Passed to JS interop so it can mount the context on the correct node.
+    /// </summary>
+    private ElementReference _elementRef;
+
+    /// <summary>
+    /// The language code for the context (default: <c>'en'</c>).
     /// </summary>
     [Parameter]
     public string? Language { get; set; } = "en";
 
     /// <summary>
-    /// The context preset name or configuration object to use (default: 'default').
+    /// The context preset name or configuration object to use (default: <c>'default'</c>).
     /// </summary>
     [Parameter]
     public object? ContextPreset { get; set; }
@@ -40,13 +46,16 @@ public partial class Context : ComponentBase, IAsyncDisposable
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
-    /// Optional ID for the context instance.
+    /// Optional HTML ID for the context instance.
+    /// When not provided, a unique ID is generated automatically in <see cref="OnInitialized"/>.
     /// </summary>
     [Parameter]
     public string? Id { get; set; }
 
     /// <summary>
-    /// Whether the context should be interactive and bootstrap automatically. Default is false.
+    /// When <see langword="true"/>, the context bootstraps itself automatically via
+    /// the JS Web Component without waiting for the Blazor interop initialization.
+    /// Default is <see langword="false"/>.
     /// </summary>
     [Parameter]
     public bool Interactive { get; set; } = false;
@@ -59,29 +68,42 @@ public partial class Context : ComponentBase, IAsyncDisposable
 
     private string LanguageJson => JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
 
-    private string ContextJson => JsonSerializer.Serialize(ConfigManager.ResolveContext(ContextPreset ?? "default"), _jsonOptions);
+    private string ContextJson => JsonSerializer.Serialize(
+        ConfigManager.ResolveContext(ContextPreset ?? "default"), _jsonOptions);
 
+    /// <summary>
+    /// Disposes the JS interop instance.
+    /// </summary>
+    /// <returns>A task representing the asynchronous dispose operation.</returns>
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
-
-        if (_jsModule is not null)
-        {
-            await _jsModule.DisposeAsync();
-        }
+        await _jsInterop.DisposeAsync();
     }
 
+    /// <summary>
+    /// Generates a unique <see cref="Id"/> when none is provided by the consumer.
+    /// </summary>
     protected override void OnInitialized()
     {
         Id ??= $"cke5-context-{Guid.NewGuid():N}";
     }
 
+    /// <summary>
+    /// On the first render, initializes the JS interop by invoking
+    /// <c>createContextBlazorInterop</c> with the root element reference.
+    /// No <see cref="DotNetObjectReference{T}"/> is passed because this component
+    /// does not expose any JS-invokable callbacks.
+    /// </summary>
+    /// <param name="firstRender">
+    /// <see langword="true"/> only on the initial render of the component.
+    /// </param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "ckeditor5-blazor");
-            await _jsModule.InvokeVoidAsync("createContextBlazorInterop", Id);
+            await _jsInterop.InitializeAsync(JS, "createContextBlazorInterop", _elementRef);
         }
     }
 }

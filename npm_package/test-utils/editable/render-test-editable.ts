@@ -8,7 +8,10 @@ import { createEditableSnapshot } from './create-editable-snapshot';
  */
 export function renderTestEditable(
   snapshot: Partial<EditableSnapshot> = {},
-  options: { withInput?: boolean; } = {},
+  {
+    withInput,
+    interactive = true,
+  }: Options = {},
 ): HTMLElement {
   const fullSnapshot: EditableSnapshot = {
     ...createEditableSnapshot(),
@@ -24,10 +27,13 @@ export function renderTestEditable(
       'data-cke-root-name': fullSnapshot.rootName,
       'data-cke-content': fullSnapshot.content,
       'data-cke-save-debounce-ms': fullSnapshot.saveDebounceMs,
+      ...interactive && {
+        'data-cke-interactive': 'true',
+      },
     },
     ...[
       html.div({ 'data-cke-editable-content': '' }),
-      ...options.withInput
+      ...withInput
         ? [html.input({ type: 'text' })]
         : [],
     ],
@@ -41,3 +47,8 @@ export function renderTestEditable(
 
   return element;
 }
+
+type Options = {
+  withInput?: boolean;
+  interactive?: boolean;
+};

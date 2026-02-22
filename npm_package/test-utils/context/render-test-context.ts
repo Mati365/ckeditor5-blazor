@@ -23,7 +23,7 @@ export function renderTestContext(
     'data-cke-context': JSON.stringify(fullSnapshot.context),
     'data-cke-language': JSON.stringify(fullSnapshot.language),
     ...interactive && {
-      'data-cke-interactive': '',
+      'data-cke-interactive': 'true',
     },
   });
 

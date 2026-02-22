@@ -1,14 +1,15 @@
+import { markElementAsInteractive } from '../shared';
+
 /**
  * Creates a simple interop layer for CKEditor 5 context to set the interactive attribute.
- * @param contextId - The unique identifier of the CKEditor context instance.
+ *
+ * @param element - The root HTML element of the context component, used to identify
+ * the context instance and attach necessary attributes.
  */
-export function createContextBlazorInterop(contextId: string): void {
-  const element = document.querySelector(`cke5-context[data-cke-context-id="${contextId}"]`) as HTMLElement | null;
+export function createContextBlazorInterop(element: HTMLElement) {
+  markElementAsInteractive(element);
 
-  /* v8 ignore next if -- @preserve */
-  if (!element) {
-    throw new Error(`Context element with ID "${contextId}" not found.`);
-  }
-
-  element.setAttribute('data-cke-interactive', '');
+  return {
+    unmount() {},
+  };
 }

@@ -1,7 +1,8 @@
+import type { WaitForInteractiveResult } from '../shared';
 import type { MultiRootEditor } from 'ckeditor5';
 
 import { CKEditor5BlazorError } from '../ckeditor5-blazor-error';
-import { debounce, waitForDOMReady } from '../shared';
+import { debounce, waitForDOMReady, waitForInteractiveAttribute } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
 import { queryAllEditorIds } from './editor/utils';
 
@@ -15,11 +16,37 @@ export class EditableComponentElement extends HTMLElement {
   private editorPromise: Promise<MultiRootEditor | null> | null = null;
 
   /**
+   * Wait result for the interactive attribute.
+   */
+  private interactiveWait?: WaitForInteractiveResult;
+
+  /**
+   * Callbacks to be invoked before the editable is destroyed.
+   */
+  private beforeDestroyCallbacks: Array<() => void> = [];
+
+  /**
+   * Registers a callback to be called before the editable is destroyed.
+   */
+  public onBeforeDestroy(callback: () => void): void {
+    this.beforeDestroyCallbacks.push(callback);
+  }
+
+  /**
    * Mounts the editable component.
    */
   async connectedCallback() {
     await waitForDOMReady();
 
+    this.interactiveWait = waitForInteractiveAttribute(this);
+    await this.interactiveWait.promise;
+    await this.initializeEditable();
+  }
+
+  /**
+   * Initializes the editable instance.
+   */
+  private async initializeEditable(): Promise<void> {
     if (!this.hasAttribute('data-cke-editor-id')) {
       this.setAttribute('data-cke-editor-id', queryAllEditorIds()[0]!);
     }
@@ -85,7 +112,10 @@ export class EditableComponentElement extends HTMLElement {
         this.dispatchEvent(new CustomEvent('change', { detail: { value: html } }));
       };
 
-      editor.model.document.on('change:data', debounce(saveDebounceMs, sync));
+      const debouncedSync = debounce(saveDebounceMs, sync);
+
+      editor.model.document.on('change:data', debouncedSync);
+      this.onBeforeDestroy(() => editor.model.document.off('change:data', debouncedSync));
       sync();
 
       return editor;
@@ -96,6 +126,9 @@ export class EditableComponentElement extends HTMLElement {
    * Destroys the editable component. Unmounts root from the editor.
    */
   async disconnectedCallback() {
+    // Disconnect the observer if present.
+    this.interactiveWait?.disconnect();
+
     const rootName = this.getAttribute('data-cke-root-name');
 
     // Let's hide the element during destruction to prevent flickering.
@@ -104,6 +137,13 @@ export class EditableComponentElement extends HTMLElement {
     // Let's wait for the mounted promise to resolve before proceeding with destruction.
     const editor = await this.editorPromise;
     this.editorPromise = null;
+
+    // Run all registered pre-destroy callbacks and clear the queue.
+    for (const callback of this.beforeDestroyCallbacks) {
+      callback();
+    }
+
+    this.beforeDestroyCallbacks = [];
 
     // Unmount root from the editor if editor is still registered.
     if (editor && editor.state !== 'destroyed' && rootName) {

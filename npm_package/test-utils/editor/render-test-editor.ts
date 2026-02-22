@@ -33,7 +33,7 @@ export function renderTestEditor(
       'data-cke-watchdog': '',
     },
     ...interactive && {
-      'data-cke-interactive': '',
+      'data-cke-interactive': 'true',
     },
   });
 

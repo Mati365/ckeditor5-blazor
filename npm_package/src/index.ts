@@ -9,5 +9,7 @@ export { CKEditor5ChangeDataEvent } from './elements/editor/plugins/dispatch-edi
 export { UIPartComponentElement } from './elements/ui-part';
 export {
   createContextBlazorInterop,
+  createEditableBlazorInterop,
   createEditorBlazorInterop,
+  createUIPartBlazorInterop,
 } from './interop';
