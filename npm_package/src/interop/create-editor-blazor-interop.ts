@@ -23,6 +23,7 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
 
   // Placeholder so `setValue` calls queued before the editor is ready are forwarded correctly.
   let sync: EditorValueSync<Record<string, string>> = createNoopSync();
+  let unmountFocusTracker: VoidFunction | null = null;
 
   /**
    * Handles data change events dispatched by the CKEditor plugin.
@@ -51,19 +52,18 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
       applyValue: value => editor.setData(value),
       isEqual: shallowEqual,
     });
+
+    const onFocusChange = (_evt: unknown, _name: unknown, isFocused: boolean) => {
+      void interop.invokeMethodAsync(isFocused ? 'OnEditorFocus' : 'OnEditorBlur');
+    };
+
+    editor.ui.focusTracker.on('change:isFocused', onFocusChange);
+    unmountFocusTracker = () => editor.ui.focusTracker.off('change:isFocused', onFocusChange);
   };
 
   void initializeSynchronization();
 
   return {
-    /**
-     * Cleans up all event listeners when the Blazor component is disposed.
-     */
-    unmount() {
-      document.body.removeEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
-      sync.unmount();
-    },
-
     /**
      * Updates the editor data from Blazor. If the editor is focused, the update is deferred until blur to avoid interrupting the user.
      */
@@ -72,6 +72,15 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
 
       // Ensure sync is initialized before forwarding (waitFor guarantees the editor exists)
       sync.setValue(value);
+    },
+
+    /**
+     * Cleans up all event listeners when the Blazor component is disposed.
+     */
+    unmount() {
+      document.body.removeEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
+      sync.unmount();
+      unmountFocusTracker?.();
     },
   };
 }

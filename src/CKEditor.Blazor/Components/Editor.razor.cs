@@ -150,6 +150,18 @@ public partial class Editor : ComponentBase, IAsyncDisposable
     [Parameter]
     public bool Interactive { get; set; } = false;
 
+    /// <summary>
+    /// Event callback invoked when the editor gains focus.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnFocus { get; set; }
+
+    /// <summary>
+    /// Event callback invoked when the editor loses focus.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnBlur { get; set; }
+
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
 
@@ -189,6 +201,32 @@ public partial class Editor : ComponentBase, IAsyncDisposable
     {
         Value = roots;
         await ValueChanged.InvokeAsync(Value);
+    }
+
+    /// <summary>
+    /// JS-invokable callback method triggered when the editor gains focus.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task OnEditorFocus()
+    {
+        if (OnFocus.HasDelegate)
+        {
+            await OnFocus.InvokeAsync();
+        }
+    }
+
+    /// <summary>
+    /// JS-invokable callback method triggered when the editor loses focus.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task OnEditorBlur()
+    {
+        if (OnBlur.HasDelegate)
+        {
+            await OnBlur.InvokeAsync();
+        }
     }
 
     /// <summary>

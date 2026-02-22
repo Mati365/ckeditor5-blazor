@@ -1,38 +1,86 @@
-
 @page "/multiroot"
 @using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Domain.Model
 @rendermode InteractiveServer
 
-<div class="mx-auto p-8 max-w-4xl">
+<div class="mx-auto p-8 max-w-4xl text-gray-900">
     <a href="/" class="inline-block mb-6 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
-    <h1 class="mb-6 font-bold text-3xl">Multiroot Editor Demo</h1>
+    <h1 class="mb-6 font-bold text-3xl">Multi-root Editor Demo</h1>
 
-    <UIPart Name="toolbar" Class="mt-4 mb-6" />
-
-    <div class="gap-4 grid grid-cols-2">
-        <div>
-            <h2 class="mb-2 font-bold">Header</h2>
-            <Editable
-                RootName="header"
-                Value="Header content"
-                Class="border border-gray-300 rounded-sm" />
-        </div>
-        <div>
-            <h2 class="mb-2 font-bold">Content</h2>
-            <Editable
-                RootName="content"
-                Value="Main content"
-                Class="border border-gray-300 rounded-sm" />
-        </div>
+    <div class="flex sm:flex-row flex-col gap-2 mb-8">
+        <input
+            type="text"
+            placeholder="Enter root ID (e.g. sidebar)"
+            class="flex-1 p-2 border border-gray-300 rounded-none focus:outline-none focus:ring-1 focus:ring-blue-600"
+            @bind="newRootName"
+            @bind:event="oninput" />
+        <button
+            type="button"
+            class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-none font-bold text-white transition-colors"
+            @onclick="AddRoot">
+            Add Root
+        </button>
     </div>
 
-    <div class="mt-6">
-        <h2 class="mb-2 font-bold">Footer</h2>
-        <Editable
-            RootName="footer"
-            Value="Footer content"
-            Class="border border-gray-300 rounded-sm" />
-    </div>
+    <Editor Id="@EditorId" EditorType="multiroot" />
+    <UIPart Name="toolbar" EditorId="@EditorId" Class="mb-6" />
 
-    <Editor EditorType="multiroot" />
+    <div class="flex flex-col gap-6">
+        @foreach (var kv in Roots)
+        {
+            var rootName = kv.Key;
+            <div class="bg-white border border-gray-300" id="@($"container-{rootName}")">
+                <div class="flex justify-between items-center bg-gray-50 p-2 border-gray-300 border-b">
+                    <span class="font-mono font-bold text-gray-600 text-xs uppercase">
+                        Root ID: @rootName
+                    </span>
+                    <button
+                        type="button"
+                        class="hover:bg-red-50 px-2 py-1 border border-red-600 rounded-none font-bold text-red-600 text-xs transition-colors"
+                        @onclick="() => RemoveRoot(rootName)">
+                        Remove
+                    </button>
+                </div>
+                <div class="p-2">
+                    <Editable
+                        RootName="@rootName"
+                        EditorId="@EditorId"
+                        @bind-Value="Roots[rootName]"
+                        Class="focus:outline-none" />
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
+@code {
+    private string EditorId { get; } = $"cke5-multiroot-{Guid.NewGuid():N}";
+
+    private Dictionary<string, string> Roots { get; set; } = new()
+    {
+        { "header", "Header content" },
+        { "content", "Main content" },
+        { "footer", "Footer content" },
+    };
+
+    private string? newRootName;
+
+    private void AddRoot()
+    {
+        var name = string.IsNullOrWhiteSpace(newRootName)
+            ? $"r_{Guid.NewGuid():N}"
+            : newRootName!.Trim();
+
+        if (!Roots.ContainsKey(name))
+        {
+            Roots[name] = string.Empty;
+        }
+
+        newRootName = string.Empty;
+    }
+
+    private void RemoveRoot(string name)
+    {
+        Roots.Remove(name);
+    }
+}

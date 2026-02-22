@@ -1,10 +1,87 @@
 @page "/classic"
 @using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Domain.Model
 @rendermode InteractiveServer
 
-<div class="mx-auto p-8 max-w-4xl">
+<div class="mx-auto p-8 max-w-4xl text-gray-900">
     <a href="/" class="inline-block mb-6 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
     <h1 class="mb-6 font-bold text-3xl">Classic Editor Demo</h1>
 
-    <Editor EditorType="classic" Value="@("Hello World")" />
+    <div class="flex gap-2 mb-4">
+        <button
+            type="button"
+            class="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white transition-colors duration-200"
+            @onclick="LoadTemplate">
+            Load Template
+        </button>
+        <button
+            type="button"
+            class="hover:bg-red-50 px-4 py-2 border border-red-600 text-red-600 transition-colors duration-200"
+            @onclick="Clear">
+            Clear
+        </button>
+    </div>
+
+    <div class="mt-6">
+        <Editor
+            EditorType="classic"
+            @bind-Value="editorValue"
+            OnFocus="() => isFocused = true"
+            OnBlur="() => isFocused = false" />
+    </div>
+
+    <div class="space-y-2 mt-8">
+        <label class="block font-bold">Push New Content</label>
+        <div class="flex sm:flex-row flex-col gap-2">
+            <textarea
+                placeholder="Enter HTML content..."
+                class="flex-1 p-2 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-600 h-24"
+                @bind="pendingContent"
+                @bind:event="oninput" />
+            <button
+                type="button"
+                class="bg-blue-600 hover:bg-blue-700 px-4 py-2 h-fit text-white transition-colors duration-200"
+                @onclick="SetData">
+                Set Data
+            </button>
+        </div>
+    </div>
+
+    <div class="@($"mt-8 p-4 border transition-colors duration-200 {(isFocused ? "bg-blue-50 border-blue-400" : "bg-gray-50 border-gray-300")}")">
+        <strong class="block mb-2">Current editor value (Server):</strong>
+        <pre class="bg-white p-2 border border-gray-200 font-mono text-gray-700 text-sm whitespace-pre-wrap">@CurrentValue</pre>
+    </div>
 </div>
+
+@code {
+    private EditorValue editorValue { get; set; } = "Hello World";
+    private string? pendingContent;
+    private bool isFocused;
+
+    private string CurrentValue => editorValue?.Data.TryGetValue("main", out var v) == true ? v : string.Empty;
+
+    private void LoadTemplate()
+    {
+        editorValue = @"
+            <h2>Work Report</h2>
+            <p>This is a <strong>template</strong> loaded from the server.</p>
+            <ul>
+                <li>Item one</li>
+                <li>Item two</li>
+            </ul>
+        ";
+    }
+
+    private void Clear()
+    {
+        editorValue = string.Empty;
+    }
+
+    private void SetData()
+    {
+        if (pendingContent is not null)
+        {
+            editorValue = pendingContent;
+        }
+    }
+}

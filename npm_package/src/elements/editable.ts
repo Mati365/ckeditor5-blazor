@@ -151,15 +151,21 @@ export class EditableComponentElement extends HTMLElement {
 
       /* v8 ignore else -- @preserve */
       if (root && 'detachEditable' in editor) {
+        // Detaching editables seem to be buggy when something removed DOM element of the editable (e.g. Blazor re-render) before
+        // the editable is unmounted. To prevent errors in such cases, we will try to detach the editable if it exists, but ignore errors.
         try {
-          editor.detachEditable(root);
+          if (editor.ui.view.editables[rootName]) {
+            editor.detachEditable(root);
+          }
         }
         catch (err) {
           // Ignore errors when detaching editable.
           console.error('Unable unmount editable from root:', err);
         }
 
-        editor.detachRoot(rootName, false);
+        if (root.isAttached()) {
+          editor.detachRoot(rootName, false);
+        }
       }
     }
   }

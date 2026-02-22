@@ -20,9 +20,7 @@ public class EditorValue
     /// <param name="value">The HTML content for the 'main' editable area.</param>
     public EditorValue(string? value)
     {
-        _roots = string.IsNullOrEmpty(value)
-            ? []
-            : new Dictionary<string, string> { { "main", value } };
+        _roots = new Dictionary<string, string> { { "main", value ?? string.Empty } };
     }
 
     /// <summary>
