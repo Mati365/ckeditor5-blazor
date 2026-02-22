@@ -20,33 +20,40 @@
             @onclick="AddRoot">
             Add Root
         </button>
+        <button
+            type="button"
+            class="hover:bg-red-50 px-6 py-2 border border-red-600 rounded-none font-bold text-red-600 transition-colors"
+            @onclick="ClearValues">
+            Clear Values
+        </button>
     </div>
 
     <Editor Id="@EditorId" EditorType="multiroot" />
     <UIPart Name="toolbar" EditorId="@EditorId" Class="mb-6" />
 
     <div class="flex flex-col gap-6">
-        @foreach (var kv in Roots)
+        @foreach (var root in Roots)
         {
-            var rootName = kv.Key;
-            <div class="bg-white border border-gray-300" id="@($"container-{rootName}")">
+            <div @key="root.Name" class="bg-white border border-gray-300" id="@($"container-{root.Name}")">
                 <div class="flex justify-between items-center bg-gray-50 p-2 border-gray-300 border-b">
                     <span class="font-mono font-bold text-gray-600 text-xs uppercase">
-                        Root ID: @rootName
+                        Root ID: @root.Name
                     </span>
                     <button
                         type="button"
                         class="hover:bg-red-50 px-2 py-1 border border-red-600 rounded-none font-bold text-red-600 text-xs transition-colors"
-                        @onclick="() => RemoveRoot(rootName)">
+                        @onclick="() => RemoveRoot(root.Name)">
                         Remove
                     </button>
                 </div>
                 <div class="p-2">
                     <Editable
-                        RootName="@rootName"
+                        RootName="@root.Name"
                         EditorId="@EditorId"
-                        @bind-Value="Roots[rootName]"
+                        Value="@root.Value"
+                        ValueChanged="@(value => root.Value = value ?? string.Empty)"
                         Class="focus:outline-none" />
+                    <p class="mt-1 text-gray-400 text-xs">@root.Value</p>
                 </div>
             </div>
         }
@@ -54,14 +61,19 @@
 </div>
 
 @code {
+    private record EditorRoot(string Name)
+    {
+        public string Value { get; set; } = string.Empty;
+    }
+
     private string EditorId { get; } = $"cke5-multiroot-{Guid.NewGuid():N}";
 
-    private Dictionary<string, string> Roots { get; set; } = new()
-    {
-        { "header", "Header content" },
-        { "content", "Main content" },
-        { "footer", "Footer content" },
-    };
+    private List<EditorRoot> Roots { get; } =
+    [
+        new("header") { Value = "Header content" },
+        new("content") { Value = "Main content" },
+        new("footer") { Value = "Footer content" },
+    ];
 
     private string? newRootName;
 
@@ -71,9 +83,9 @@
             ? $"r_{Guid.NewGuid():N}"
             : newRootName!.Trim();
 
-        if (!Roots.ContainsKey(name))
+        if (Roots.All(r => r.Name != name))
         {
-            Roots[name] = string.Empty;
+            Roots.Add(new EditorRoot(name) { Value = $"Content for {name}" });
         }
 
         newRootName = string.Empty;
@@ -81,6 +93,14 @@
 
     private void RemoveRoot(string name)
     {
-        Roots.Remove(name);
+        Roots.RemoveAll(r => r.Name == name);
+    }
+
+    private void ClearValues()
+    {
+        foreach (var root in Roots)
+        {
+            root.Value = string.Empty;
+        }
     }
 }

@@ -113,15 +113,27 @@ internal sealed class CKComponentJsInterop : IAsyncDisposable
     /// <returns>A task representing the asynchronous dispose operation.</returns>
     public async ValueTask DisposeAsync()
     {
-        if (_jsInterop is not null)
+        try
         {
-            await _jsInterop.InvokeVoidAsync("unmount");
-            await _jsInterop.DisposeAsync();
-        }
+            if (_jsInterop is not null)
+            {
+                await _jsInterop.InvokeVoidAsync("unmount");
+                await _jsInterop.DisposeAsync();
+            }
 
-        if (_jsModule is not null)
+            if (_jsModule is not null)
+            {
+                await _jsModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
         {
-            await _jsModule.DisposeAsync();
+            // Circuit has already disconnected — the browser will release all JS resources
+            // when the page unloads. JS-side cleanup (unmount, listener removal) is not needed.
+        }
+        catch (TaskCanceledException)
+        {
+            // Shutdown timeout elapsed before dispose could complete. Safe to swallow.
         }
     }
 }
