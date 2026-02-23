@@ -1,3 +1,4 @@
+using CKEditor.Blazor.Model.Events;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -43,7 +44,20 @@ public partial class Editable : ComponentBase, IAsyncDisposable
     /// Event callback for two-way binding of <see cref="Value"/> on this editable root.
     /// </summary>
     [Parameter]
-    public EventCallback<string?> ValueChanged { get; set; }
+    public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Optional event callback that is invoked whenever the editable root's
+    /// data changes. This is raised in addition to the <see cref="ValueChanged"/>
+    /// callback and may be used by consumers who don't wish to participate in
+    /// two‑way binding.
+    ///
+    /// The callback now receives a <see cref="EditableChangeEventArgs"/>
+    /// instance containing both the new data and a JS object reference for the
+    /// underlying editor.
+    /// </summary>
+    [Parameter]
+    public EventCallback<EditableChangeEventArgs> OnChange { get; set; }
 
     /// <summary>
     /// The debounce time in milliseconds before content changes are propagated.
@@ -123,13 +137,21 @@ public partial class Editable : ComponentBase, IAsyncDisposable
     /// <summary>
     /// JS-invokable callback method for handling content changes from the JS side.
     /// </summary>
+    /// <param name="editor">A JS object reference to the CKEditor instance owning this editable.</param>
     /// <param name="data">The new content data from the JS side.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [JSInvokable]
-    public async Task OnChangeEditableData(string data)
+    public async Task OnChangeEditableData(IJSObjectReference editor, string data)
     {
         Value = data;
         await ValueChanged.InvokeAsync(data);
+
+        if (OnChange.HasDelegate)
+        {
+            var args = new EditableChangeEventArgs(RootName, editor, data);
+
+            await OnChange.InvokeAsync(args);
+        }
     }
 
     /// <summary>

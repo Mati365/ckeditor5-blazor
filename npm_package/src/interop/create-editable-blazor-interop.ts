@@ -23,10 +23,12 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
 
   // Placeholder so `setValue` calls queued before the editor is ready are forwarded correctly.
   let sync: EditorValueSync<string> = createNoopSync();
+  let editorRef: unknown | null = null;
 
   /**
    * Handles data change events dispatched by the CKEditor plugin.
    * Filters by both editorId and rootName, then notifies Blazor if the root value changed.
+   * The callback now includes a JS object reference to the underlying editor instance.
    */
   const onDataChange = (event: Event) => {
     if (!(event instanceof CKEditor5ChangeDataEvent) || event.detail.editorId !== editorId) {
@@ -40,7 +42,7 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
     }
 
     if (sync.notifyIfChanged(newValue)) {
-      void interop.invokeMethodAsync('OnChangeEditableData', newValue);
+      void interop.invokeMethodAsync('OnChangeEditableData', editorRef, newValue);
     }
   };
 
@@ -51,6 +53,7 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
    */
   const initializeSynchronization = async () => {
     const editor = await EditorsRegistry.the.waitFor(editorId);
+    editorRef = DotNet.createJSObjectReference(editor);
 
     sync = createEditorValueSync(editor, {
       getCurrentValue: () => getEditorRootsValues(editor)[rootName] ?? '',
@@ -68,6 +71,11 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
     unmount() {
       document.body.removeEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
       sync.unmount();
+
+      if (editorRef) {
+        DotNet.disposeJSObjectReference(editorRef);
+        editorRef = null;
+      }
     },
 
     /**

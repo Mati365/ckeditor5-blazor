@@ -23,7 +23,8 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
 
   // Placeholder so `setValue` calls queued before the editor is ready are forwarded correctly.
   let sync: EditorValueSync<Record<string, string>> = createNoopSync();
-  let afterUnmount: VoidFunction | null = null;
+  let unmountCKEditorListeners: VoidFunction | null = null;
+  let editorRef: unknown | null = null;
 
   /**
    * Handles data change events dispatched by the CKEditor plugin.
@@ -35,7 +36,7 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
     }
 
     if (sync.notifyIfChanged(event.detail.roots)) {
-      void interop.invokeMethodAsync('OnChangeEditorData', event.detail.roots);
+      void interop.invokeMethodAsync('OnChangeEditorData', editorRef!, event.detail.roots);
     }
   };
 
@@ -46,7 +47,7 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
    */
   const initializeSynchronization = async () => {
     const editor = await EditorsRegistry.the.waitFor(editorId);
-    let editorRef = DotNet.createJSObjectReference(editor);
+    editorRef = DotNet.createJSObjectReference(editor);
 
     // Set up synchronization between the editor and Blazor.
     sync = createEditorValueSync(editor, {
@@ -66,15 +67,14 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
 
     // Notify Blazor that the editor instance is ready so the consumer can
     // retain an IJSObjectReference or perform additional JS calls directly.
-    // This mirrors the `OnChangeEditorData`/`OnEditorFocus` callbacks that
-    // already exist on the .NET side.
+    // This mirrors the `OnChangeEditorData` (which now also drives the public
+    // `OnChange` event) as well as `OnEditorFocus` and `OnEditorBlur` callbacks
+    // that already exist on the .NET side.
     void interop.invokeMethodAsync('OnEditorReady', editorRef);
 
-    // When the Blazor component is disposed, clean up event listeners and dispose the JS object reference.
-    afterUnmount = () => {
+    // When the Blazor component is disposed, clean up event listeners.
+    unmountCKEditorListeners = () => {
       editor.ui.focusTracker.off('change:isFocused', onFocusChange);
-      DotNet.disposeJSObjectReference(editorRef);
-      editorRef = null;
     };
   };
 
@@ -95,7 +95,12 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
     unmount() {
       document.body.removeEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
       sync.unmount();
-      afterUnmount?.();
+      unmountCKEditorListeners?.();
+
+      if (editorRef) {
+        DotNet.disposeJSObjectReference(editorRef);
+        editorRef = null;
+      }
     },
   };
 }

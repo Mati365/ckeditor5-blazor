@@ -1,7 +1,9 @@
 @page "/classic"
 @using CKEditor.Blazor.Components
 @using CKEditor.Blazor.Model
+@using CKEditor.Blazor.Model.Events
 @using Microsoft.JSInterop
+@using System.Text.Json
 @rendermode InteractiveServer
 
 <div class="mx-auto p-8 max-w-4xl text-gray-900">
@@ -27,6 +29,7 @@
         <Editor
             EditorType="classic"
             @bind-Value="editorValue"
+            OnChange="OnEditorChange"
             OnFocus="() => isFocused = true"
             OnBlur="() => isFocused = false"
             OnReady="() => isReady = true" />
@@ -58,6 +61,14 @@
         <strong class="block mb-2">Current editor value (Server):</strong>
         <pre class="bg-white p-2 border border-gray-200 font-mono text-gray-700 text-sm whitespace-pre-wrap">@CurrentValue</pre>
     </div>
+
+    @if (!string.IsNullOrEmpty(lastChangeJson))
+    {
+        <div class="bg-yellow-50 mt-4 p-4 border border-yellow-200">
+            <strong class="block mb-2">Last OnChange payload (JSON):</strong>
+            <pre class="bg-white p-2 border border-gray-200 font-mono text-gray-700 text-sm whitespace-pre-wrap">@lastChangeJson</pre>
+        </div>
+    }
 </div>
 
 @code {
@@ -66,6 +77,7 @@
     private bool isFocused;
 
     private bool isReady;
+    private string? lastChangeJson;
 
     private string CurrentValue => editorValue?.Data.TryGetValue("main", out var v) == true ? v : string.Empty;
 
@@ -92,5 +104,10 @@
         {
             editorValue = pendingContent;
         }
+    }
+
+    private void OnEditorChange(EditorChangeEventArgs args)
+    {
+        lastChangeJson = JsonSerializer.Serialize(args.Value, new JsonSerializerOptions { WriteIndented = true });
     }
 }

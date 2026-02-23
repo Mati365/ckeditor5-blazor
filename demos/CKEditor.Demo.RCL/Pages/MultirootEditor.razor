@@ -1,6 +1,8 @@
 @page "/multiroot"
 @using CKEditor.Blazor.Components
 @using CKEditor.Blazor.Model
+@using CKEditor.Blazor.Model.Events
+@using System.Text.Json
 @rendermode InteractiveServer
 
 <div class="mx-auto p-8 max-w-4xl text-gray-900">
@@ -28,7 +30,7 @@
         </button>
     </div>
 
-    <Editor Id="@EditorId" EditorType="multiroot" />
+    <Editor Id="@EditorId" EditorType="multiroot" OnChange="OnEditorChange" />
     <UIPart Name="toolbar" EditorId="@EditorId" Class="mb-6" />
 
     <div class="flex flex-col gap-6">
@@ -52,9 +54,25 @@
                         EditorId="@EditorId"
                         Value="@root.Value"
                         ValueChanged="@(value => root.Value = value ?? string.Empty)"
+                        OnChange="@(OnRootChange)"
                         Class="focus:outline-none" />
                     <p class="mt-1 text-gray-400 text-xs">@root.Value</p>
                 </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(lastEditorChange))
+        {
+            <div class="bg-yellow-50 p-4 border border-yellow-200">
+                <strong class="block mb-1">Last editor OnChange payload:</strong>
+                <pre class="font-mono text-sm whitespace-pre-wrap">@lastEditorChange</pre>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(lastRootChange))
+        {
+            <div class="bg-green-50 p-2 border border-green-200">
+                <strong class="block mb-1">Last root OnChange:</strong> @lastRootChange
             </div>
         }
     </div>
@@ -67,6 +85,8 @@
     }
 
     private string EditorId { get; } = $"cke5-multiroot-{Guid.NewGuid():N}";
+    private string? lastEditorChange;
+    private string? lastRootChange;
 
     private List<EditorRoot> Roots { get; } =
     [
@@ -102,5 +122,15 @@
         {
             root.Value = string.Empty;
         }
+    }
+
+    private void OnEditorChange(EditorChangeEventArgs args)
+    {
+        lastEditorChange = JsonSerializer.Serialize(args.Value, new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    private void OnRootChange(EditableChangeEventArgs args)
+    {
+        lastRootChange = $"{args.RootName}: {args.Value}";
     }
 }

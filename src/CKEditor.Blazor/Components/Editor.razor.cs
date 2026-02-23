@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CKEditor.Blazor.Extensions;
 using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Model.Events;
 using CKEditor.Blazor.Serialization;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
@@ -42,7 +43,20 @@ public partial class Editor : ComponentBase, IAsyncDisposable
     /// Event callback for two-way binding of <see cref="Value"/>.
     /// </summary>
     [Parameter]
-    public EventCallback<EditorValue?> ValueChanged { get; set; }
+    public EventCallback<EditorValue> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Optional event callback invoked whenever the editor data changes.
+    /// This callback is invoked in addition to <see cref="ValueChanged"/>,
+    /// allowing consumers to react to change events without participating in
+    /// two‑way binding.
+    ///
+    /// The callback now receives a <see cref="EditorChangeEventArgs"/>
+    /// instance containing both the new value and a JS object reference to the
+    /// underlying editor.
+    /// </summary>
+    [Parameter]
+    public EventCallback<EditorChangeEventArgs> OnChange { get; set; }
 
     /// <summary>
     /// The preset name or object to use (default: <c>'default'</c>).
@@ -205,13 +219,21 @@ public partial class Editor : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Method invoked from JS interop to update <see cref="Value"/> based on editor data changes.
     /// </summary>
+    /// <param name="editor">A JS object reference to the CKEditor instance emitting the change.</param>
     /// <param name="roots">The new editor data emitted by the JS interop layer.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [JSInvokable]
-    public async Task OnChangeEditorData(EditorValue roots)
+    public async Task OnChangeEditorData(IJSObjectReference editor, EditorValue roots)
     {
         Value = roots;
         await ValueChanged.InvokeAsync(Value);
+
+        if (OnChange.HasDelegate)
+        {
+            var args = new EditorChangeEventArgs(editor, roots);
+
+            await OnChange.InvokeAsync(args);
+        }
     }
 
     /// <summary>
