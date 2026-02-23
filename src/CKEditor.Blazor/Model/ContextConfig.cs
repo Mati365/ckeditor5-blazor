@@ -1,0 +1,17 @@
+namespace CKEditor.Blazor.Model;
+
+/// <summary>
+/// Represents a CKEditor context configuration.
+/// </summary>
+public class ContextConfig
+{
+    /// <summary>
+    /// The context configuration object.
+    /// </summary>
+    public Dictionary<string, object> Config { get; set; } = [];
+
+    /// <summary>
+    /// Plugins to be loaded in the context.
+    /// </summary>
+    public List<string> Plugins { get; set; } = [];
+}

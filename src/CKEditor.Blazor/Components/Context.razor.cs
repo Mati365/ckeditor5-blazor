@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CKEditor.Blazor.Infrastructure;
+using CKEditor.Blazor.Serialization;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;

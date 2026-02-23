@@ -1,6 +1,6 @@
-using CKEditor.Blazor.Domain.Interfaces.Bundle.SelfHosted;
-using CKEditor.Blazor.Domain.Model.Bundle;
+using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Services;
+using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
 using Microsoft.AspNetCore.Components;
 
 namespace CKEditor.Blazor.Components.Assets;

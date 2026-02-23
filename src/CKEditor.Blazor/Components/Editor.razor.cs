@@ -1,7 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CKEditor.Blazor.Domain.Model;
-using CKEditor.Blazor.Infrastructure;
+using CKEditor.Blazor.Extensions;
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Serialization;
 using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -246,7 +247,7 @@ public partial class Editor : ComponentBase, IAsyncDisposable
         var preset = ResolvePreset();
 
         StyleValue = $"position: relative; {Style}";
-        ShowInput = !preset.EditorType.IsDecoupledOrMultiroot();
+        ShowInput = !EditorTypeExtensions.IsDecoupledOrMultiroot(preset.EditorType);
 
         PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
         ValueJson = JsonSerializer.Serialize(Value, _jsonOptions);
