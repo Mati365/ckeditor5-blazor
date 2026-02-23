@@ -351,5 +351,33 @@ describe('editable component', () => {
 
       expect(() => element.remove()).not.toThrow();
     });
+
+    it('should not attempt to detach root again if it is already detached', async () => {
+      renderTestEditor({
+        preset: createEditorPreset('multiroot'),
+        content: {},
+      });
+
+      const editor = await waitForTestEditor<MultiRootEditor>();
+      const element = renderTestEditable({
+        rootName: 'foo',
+        content: '<p>Initial foo content</p>',
+      });
+
+      await vi.waitFor(() => {
+        expect(editor.model.document.getRoot('foo')!.isAttached()).toBe(true);
+      });
+
+      const detachSpy = vi.spyOn(editor, 'detachRoot');
+      editor.detachRoot('foo', false);
+      expect(detachSpy).toHaveBeenCalledTimes(1);
+
+      detachSpy.mockClear();
+
+      element.remove();
+      await timeout(10);
+
+      expect(detachSpy).not.toHaveBeenCalled();
+    });
   });
 });

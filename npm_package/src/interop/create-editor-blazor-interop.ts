@@ -23,7 +23,7 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
 
   // Placeholder so `setValue` calls queued before the editor is ready are forwarded correctly.
   let sync: EditorValueSync<Record<string, string>> = createNoopSync();
-  let unmountFocusTracker: VoidFunction | null = null;
+  let afterUnmount: VoidFunction | null = null;
 
   /**
    * Handles data change events dispatched by the CKEditor plugin.
@@ -46,19 +46,36 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
    */
   const initializeSynchronization = async () => {
     const editor = await EditorsRegistry.the.waitFor(editorId);
+    let editorRef = DotNet.createJSObjectReference(editor);
 
+    // Set up synchronization between the editor and Blazor.
     sync = createEditorValueSync(editor, {
       getCurrentValue: () => getEditorRootsValues(editor),
       applyValue: value => editor.setData(value),
       isEqual: shallowEqual,
     });
 
+    // Notify Blazor of focus changes so it can trigger the appropriate callbacks.
     const onFocusChange = (_evt: unknown, _name: unknown, isFocused: boolean) => {
-      void interop.invokeMethodAsync(isFocused ? 'OnEditorFocus' : 'OnEditorBlur');
+      const method = isFocused ? 'OnEditorFocus' : 'OnEditorBlur';
+
+      void interop.invokeMethodAsync(method, editorRef);
     };
 
     editor.ui.focusTracker.on('change:isFocused', onFocusChange);
-    unmountFocusTracker = () => editor.ui.focusTracker.off('change:isFocused', onFocusChange);
+
+    // Notify Blazor that the editor instance is ready so the consumer can
+    // retain an IJSObjectReference or perform additional JS calls directly.
+    // This mirrors the `OnChangeEditorData`/`OnEditorFocus` callbacks that
+    // already exist on the .NET side.
+    void interop.invokeMethodAsync('OnEditorReady', editorRef);
+
+    // When the Blazor component is disposed, clean up event listeners and dispose the JS object reference.
+    afterUnmount = () => {
+      editor.ui.focusTracker.off('change:isFocused', onFocusChange);
+      DotNet.disposeJSObjectReference(editorRef);
+      editorRef = null;
+    };
   };
 
   void initializeSynchronization();
@@ -69,8 +86,6 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
      */
     setValue: async (value: Record<string, string>) => {
       await EditorsRegistry.the.waitFor(editorId);
-
-      // Ensure sync is initialized before forwarding (waitFor guarantees the editor exists)
       sync.setValue(value);
     },
 
@@ -80,7 +95,7 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
     unmount() {
       document.body.removeEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
       sync.unmount();
-      unmountFocusTracker?.();
+      afterUnmount?.();
     },
   };
 }

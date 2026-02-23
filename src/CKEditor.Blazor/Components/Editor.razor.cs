@@ -153,15 +153,25 @@ public partial class Editor : ComponentBase, IAsyncDisposable
 
     /// <summary>
     /// Event callback invoked when the editor gains focus.
+    /// The JS object reference for the editor is provided as the callback argument.
     /// </summary>
     [Parameter]
-    public EventCallback OnFocus { get; set; }
+    public EventCallback<IJSObjectReference> OnFocus { get; set; }
 
     /// <summary>
     /// Event callback invoked when the editor loses focus.
+    /// The JS object reference for the editor is provided as the callback argument.
     /// </summary>
     [Parameter]
-    public EventCallback OnBlur { get; set; }
+    public EventCallback<IJSObjectReference> OnBlur { get; set; }
+
+    /// <summary>
+    /// Event callback invoked when the editor has finished initializing and the
+    /// underlying CKEditor 5 instance is available.
+    /// The JS object reference for the editor is provided as the callback argument.
+    /// </summary>
+    [Parameter]
+    public EventCallback<IJSObjectReference> OnReady { get; set; }
 
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
@@ -207,26 +217,44 @@ public partial class Editor : ComponentBase, IAsyncDisposable
     /// <summary>
     /// JS-invokable callback method triggered when the editor gains focus.
     /// </summary>
+    /// <param name="editor">JS object reference for the editor.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [JSInvokable]
-    public async Task OnEditorFocus()
+    public async Task OnEditorFocus(IJSObjectReference editor)
     {
         if (OnFocus.HasDelegate)
         {
-            await OnFocus.InvokeAsync();
+            await OnFocus.InvokeAsync(editor);
         }
     }
 
     /// <summary>
     /// JS-invokable callback method triggered when the editor loses focus.
     /// </summary>
+    /// <param name="editor">JS object reference for the editor.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [JSInvokable]
-    public async Task OnEditorBlur()
+    public async Task OnEditorBlur(IJSObjectReference editor)
     {
         if (OnBlur.HasDelegate)
         {
-            await OnBlur.InvokeAsync();
+            await OnBlur.InvokeAsync(editor);
+        }
+    }
+
+    /// <summary>
+    /// JS-invokable callback that is called when the editor instance is ready.
+    /// The <paramref name="editor"/> parameter is the JS object reference that
+    /// can be used to invoke editor methods directly from .NET.
+    /// </summary>
+    /// <param name="editor">JS object reference for the editor.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task OnEditorReady(IJSObjectReference editor)
+    {
+        if (OnReady.HasDelegate)
+        {
+            await OnReady.InvokeAsync(editor);
         }
     }
 

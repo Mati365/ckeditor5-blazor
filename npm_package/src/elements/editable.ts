@@ -68,10 +68,12 @@ export class EditableComponentElement extends HTMLElement {
         return null;
       }
 
-      const input = this.querySelector('input') as HTMLInputElement | null;
       const { ui, editing, model } = editor;
 
-      if (model.document.getRoot(rootName)) {
+      const input = this.querySelector('input') as HTMLInputElement | null;
+      const root = model.document.getRoot(rootName);
+
+      if (root?.isAttached()) {
         // If the newly added root already exists, but the newly added editable has content,
         // we need to update the root data with the editable content.
         if (content !== null) {
@@ -102,6 +104,10 @@ export class EditableComponentElement extends HTMLElement {
 
       // Sync data with socket and input element.
       const sync = () => {
+        if (!model.document.getRoot(rootName)?.isAttached()) {
+          return;
+        }
+
         const html = editor.getData({ rootName });
 
         if (input) {
@@ -109,7 +115,11 @@ export class EditableComponentElement extends HTMLElement {
           input.dispatchEvent(new Event('input'));
         }
 
-        this.dispatchEvent(new CustomEvent('change', { detail: { value: html } }));
+        this.dispatchEvent(new CustomEvent('change', {
+          detail: {
+            value: html,
+          },
+        }));
       };
 
       const debouncedSync = debounce(saveDebounceMs, sync);
@@ -160,6 +170,7 @@ export class EditableComponentElement extends HTMLElement {
         }
         catch (err) {
           // Ignore errors when detaching editable.
+          /* v8 ignore next -- @preserve */
           console.error('Unable unmount editable from root:', err);
         }
 
