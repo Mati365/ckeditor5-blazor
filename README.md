@@ -135,7 +135,7 @@ so handlers can invoke JS methods directly or inspect the editor if needed.
 
 - The `EditorType` parameter accepts any CKEditor 5 build (e.g., `classic`, `inline`, `balloon`, `decoupled` or `multiroot`).
 
-- The `Value` parameter allows you to set the initial content of the editor, and supports two-way binding with `@bind-Value`. Keep in mind that `Value` is [`EditorValue.cs`](/src/CKEditor.Blazor/Domain/Model/EditorValue.cs) type, which also supports multiple roots. If you use classic editor, which has only single root, you can pass string content directly. For editors with multiple roots, you need to pass a directory with root names as keys and their content as values.
+- The `Value` parameter allows you to set the initial content of the editor, and supports two-way binding with `@bind-Value`. Keep in mind that `Value` is [`EditorValue.cs`](/src/CKEditor.Blazor/Model/EditorValue.cs) type, which also supports multiple roots. If you use classic editor, which has only single root, you can pass string content directly. For editors with multiple roots, you need to pass a directory with root names as keys and their content as values.
 
 - **Change notifications** – in addition to two‑way binding you may register a callback that fires every time the editor data changes without mutating your bound value. Use the `OnChange` parameter to receive both the new value and a JS object reference for the editor:
 
