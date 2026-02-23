@@ -50,10 +50,9 @@
                 </div>
                 <div class="p-2">
                     <Editable
+                        @bind-Value="@root.Value"
                         RootName="@root.Name"
                         EditorId="@EditorId"
-                        Value="@root.Value"
-                        ValueChanged="@(value => root.Value = value ?? string.Empty)"
                         OnChange="@(OnRootChange)"
                         Class="focus:outline-none" />
                     <p class="mt-1 text-gray-400 text-xs">@root.Value</p>
