@@ -45,7 +45,8 @@ public sealed record PresetConfig
     /// <param name="mergeConfig">The configuration to merge.</param>
     /// <returns>A new preset with merged configuration.</returns>
     public PresetConfig WithMergedConfig(Dictionary<string, object> mergeConfig) =>
-        this with {
+        this with
+        {
             Config = new Dictionary<string, object>(Config.Concat(mergeConfig))
         };
 }
