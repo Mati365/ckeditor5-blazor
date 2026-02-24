@@ -1,9 +1,8 @@
 using CKEditor.Blazor.Exceptions;
-using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.Cloud;
 using CKEditor.Blazor.Model.SelfHosted;
 
-namespace CKEditor.Blazor.Extensions;
+namespace CKEditor.Blazor.Model;
 
 /// <summary>
 /// Helper methods that validate a <see cref="PresetConfig"/> before it is
@@ -11,7 +10,7 @@ namespace CKEditor.Blazor.Extensions;
 /// "OrThrow" to mirror existing APIs on <see cref="Services.ConfigManager"/>
 /// (e.g. <c>ResolvePresetOrThrow</c>).
 /// </summary>
-public static class PresetConfigExtensions
+public static class PresetConfigLicenseCompatibilityExtensions
 {
     /// <summary>
     /// Ensures that the provided preset contains a cloud configuration and that

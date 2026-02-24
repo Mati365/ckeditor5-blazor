@@ -1,4 +1,4 @@
-using CKEditor.Blazor.Extensions;
+using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Services;
 using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;

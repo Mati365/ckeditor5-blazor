@@ -9,7 +9,10 @@
     data-cke-content="@ValueJson"
     data-cke-language="@LanguageJson"
     data-cke-save-debounce-ms="@SaveDebounceMs"
-    @attributes="AdditionalAttributes">
+    data-cke-interactive="@(Interactive ? "true" : null)"
+    data-cke-watchdog="@(Watchdog ? "true" : null)"
+    data-cke-context-id="@(string.IsNullOrEmpty(ContextId) ? null : ContextId)"
+    data-cke-editable-height="@EditableHeight">
 
     @if (ShowInput)
     {

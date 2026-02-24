@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CKEditor.Blazor.Extensions;
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.Events;
 using CKEditor.Blazor.Serialization;
@@ -203,8 +202,6 @@ public partial class Editor : ComponentBase, IAsyncDisposable
 
     private bool ShowInput { get; set; }
 
-    private Dictionary<string, object> AdditionalAttributes { get; set; } = [];
-
     /// <summary>
     /// Disposes the <see cref="DotNetObjectReference{T}"/> and the JS interop instance.
     /// </summary>
@@ -294,13 +291,11 @@ public partial class Editor : ComponentBase, IAsyncDisposable
         var preset = ResolvePreset();
 
         StyleValue = $"position: relative; {Style}";
-        ShowInput = !EditorTypeExtensions.IsDecoupledOrMultiroot(preset.EditorType);
+        ShowInput = !preset.EditorType.IsDecoupledOrMultiroot();
 
         PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
         ValueJson = JsonSerializer.Serialize(Value, _jsonOptions);
         LanguageJson = JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
-
-        AdditionalAttributes = BuildAdditionalAttributes();
     }
 
     /// <summary>
@@ -358,47 +353,13 @@ public partial class Editor : ComponentBase, IAsyncDisposable
             preset = preset with { Translations = CustomTranslations };
         }
 
-        if (!string.IsNullOrWhiteSpace(EditorType))
+        if (
+            !string.IsNullOrWhiteSpace(EditorType) &&
+            Enum.TryParse<EditorType>(EditorType, ignoreCase: true, out var parsedEditorType))
         {
-            var editorType = Enum.Parse<EditorType>(EditorType, ignoreCase: true);
-
-            preset = preset with { EditorType = editorType };
+            preset = preset with { EditorType = parsedEditorType };
         }
 
         return preset;
-    }
-
-    /// <summary>
-    /// Builds the dictionary of <c>data-cke-*</c> HTML attributes that are conditionally
-    /// rendered on the editor's custom element based on the current parameter values.
-    /// </summary>
-    /// <returns>
-    /// A dictionary of attribute name/value pairs to be spread via <c>@attributes</c>.
-    /// </returns>
-    private Dictionary<string, object> BuildAdditionalAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        if (Interactive)
-        {
-            attributes["data-cke-interactive"] = "true";
-        }
-
-        if (Watchdog)
-        {
-            attributes["data-cke-watchdog"] = "true";
-        }
-
-        if (!string.IsNullOrEmpty(ContextId))
-        {
-            attributes["data-cke-context-id"] = ContextId;
-        }
-
-        if (EditableHeight.HasValue)
-        {
-            attributes["data-cke-editable-height"] = EditableHeight.Value;
-        }
-
-        return attributes;
     }
 }
