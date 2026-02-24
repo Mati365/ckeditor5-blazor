@@ -40,33 +40,12 @@ public sealed record PresetConfig
     public Dictionary<string, string>? Translations { get; init; }
 
     /// <summary>
-    /// Creates a new preset with the specified configuration.
-    /// </summary>
-    /// <param name="config">The configuration to apply.</param>
-    /// <returns>A new preset with the specified configuration.</returns>
-    public PresetConfig OfConfig(Dictionary<string, object> config) => this with { Config = config };
-
-    /// <summary>
     /// Creates a new preset with merged configuration.
     /// </summary>
     /// <param name="mergeConfig">The configuration to merge.</param>
     /// <returns>A new preset with merged configuration.</returns>
-    public PresetConfig OfMergedConfig(Dictionary<string, object> mergeConfig) =>
+    public PresetConfig WithMergedConfig(Dictionary<string, object> mergeConfig) =>
         this with {
             Config = new Dictionary<string, object>(Config.Concat(mergeConfig))
         };
-
-    /// <summary>
-    /// Creates a new preset with custom translations.
-    /// </summary>
-    /// <param name="translations">The custom translations to apply.</param>
-    /// <returns>A new preset with custom translations.</returns>
-    public PresetConfig OfCustomTranslations(Dictionary<string, string> translations) => this with { Translations = translations };
-
-    /// <summary>
-    /// Creates a new preset with the specified editor type.
-    /// </summary>
-    /// <param name="editorType">The editor type to use.</param>
-    /// <returns>A new preset with the specified editor type.</returns>
-    public PresetConfig OfEditorType(EditorType editorType) => this with { EditorType = editorType };
 }

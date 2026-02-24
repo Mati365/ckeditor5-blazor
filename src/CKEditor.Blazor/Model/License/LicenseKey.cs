@@ -37,4 +37,40 @@ public sealed record LicenseKey(string Raw, DistributionChannel? DistributionCha
     /// </summary>
     /// <returns>True if the license is GPL, false otherwise.</returns>
     public bool IsGPL() => Raw == "GPL";
+
+    /// <summary>
+    /// Checks if the license is intended for CKEditor Cloud usage only.
+    /// </summary>
+    /// <returns>True if the license is for CKEditor Cloud usage only, false otherwise.</returns>
+    public bool IsCloudOnly() => DistributionChannel == License.DistributionChannel.Cloud;
+
+    /// <summary>
+    /// Checks if the license is intended for self-hosted CKEditor usage only.
+    /// </summary>
+    /// <returns>>True if the license is for self-hosted usage only, false otherwise.</returns>
+    public bool IsSelfHostedOnly() => DistributionChannel == License.DistributionChannel.SH;
+
+    /// <summary>
+    /// Checks if the license is compatible with CKEditor Cloud hosting.
+    /// </summary>
+    /// <returns>>True if the license is compatible with CKEditor Cloud, false otherwise.</returns>
+    public bool IsCompatibleWithCloud() =>
+        DistributionChannel switch
+        {
+            null => true,
+            License.DistributionChannel.Cloud => true,
+            _ => false
+        };
+
+    /// <summary>
+    /// Checks if the license is compatible with self-hosted CKEditor.
+    /// </summary>
+    /// <returns>True if the license is compatible with self-hosted CKEditor, false otherwise.</returns>
+    public bool IsCompatibleWithSelfHosted() =>
+        DistributionChannel switch
+        {
+            null => true,
+            License.DistributionChannel.SH => true,
+            _ => false
+        };
 }

@@ -345,23 +345,24 @@ public partial class Editor : ComponentBase, IAsyncDisposable
 
         if (Config != null)
         {
-            preset = preset.OfConfig(Config);
+            preset = preset with { Config = Config };
         }
 
         if (MergeConfig != null)
         {
-            preset = preset.OfMergedConfig(MergeConfig);
+            preset = preset.WithMergedConfig(MergeConfig);
         }
 
         if (CustomTranslations != null)
         {
-            preset = preset.OfCustomTranslations(CustomTranslations);
+            preset = preset with { Translations = CustomTranslations };
         }
 
         if (!string.IsNullOrWhiteSpace(EditorType))
         {
             var editorType = Enum.Parse<EditorType>(EditorType, ignoreCase: true);
-            preset = preset.OfEditorType(editorType);
+
+            preset = preset with { EditorType = editorType };
         }
 
         return preset;

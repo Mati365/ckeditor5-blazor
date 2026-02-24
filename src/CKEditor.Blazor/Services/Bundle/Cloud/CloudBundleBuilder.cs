@@ -1,3 +1,4 @@
+using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.Cloud;
 using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
@@ -16,7 +17,7 @@ public class CloudBundleBuilder(
     {
         if (string.IsNullOrWhiteSpace(cloud.EditorVersion))
         {
-            throw new InvalidOperationException("Cloud config requires 'EditorVersion'.");
+            throw new CloudConfigurationException("Cloud config requires 'EditorVersion'.");
         }
 
         return BuildBundles(cloud)
@@ -36,7 +37,7 @@ public class CloudBundleBuilder(
         if (cloud.CKBox is { } ckbox)
         {
             yield return ckboxBuilder.Build(
-                ckbox.Version ?? throw new InvalidOperationException("Cloud config requires CKBox 'Version' when CKBox is enabled."),
+                ckbox.Version ?? throw new CloudConfigurationException("Cloud config requires CKBox 'Version' when CKBox is enabled."),
                 ckbox.Translations,
                 ckbox.CdnUrl,
                 ckbox.Theme ?? "lark");

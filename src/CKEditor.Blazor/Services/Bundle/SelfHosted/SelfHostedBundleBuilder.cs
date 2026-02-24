@@ -1,3 +1,4 @@
+using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.SelfHosted;
 using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
@@ -16,7 +17,7 @@ public class SelfHostedBundleBuilder(
     {
         if (string.IsNullOrWhiteSpace(selfHosted.EditorVersion))
         {
-            throw new InvalidOperationException("Self-hosted config requires 'EditorVersion'.");
+            throw new ConfigurationException("Self-hosted config requires 'EditorVersion'.");
         }
 
         return BuildBundles(selfHosted)
@@ -36,7 +37,7 @@ public class SelfHostedBundleBuilder(
         if (selfHosted.CKBox is { } ckbox)
         {
             yield return ckboxBuilder.Build(
-                ckbox.Version ?? throw new InvalidOperationException("Self-hosted config requires CKBox 'Version' when CKBox is enabled."),
+                ckbox.Version ?? throw new ConfigurationException("Self-hosted config requires CKBox 'Version' when CKBox is enabled."),
                 ckbox.Translations,
                 selfHosted.AssetsBasePath,
                 ckbox.Theme ?? "lark");

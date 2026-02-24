@@ -1,3 +1,4 @@
+using CKEditor.Blazor.Extensions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Services;
 using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
@@ -37,23 +38,24 @@ public partial class Cloud : ComponentBase
     [Parameter]
     public Dictionary<string, string> CustomImportMap { get; set; } = [];
 
+    /// <summary>
+    /// Optional injection targets and stored state for the component. All
+    /// members are protected so that the style rules (protected before private)
+    /// are satisfied even when they appear above lifecycle methods.
+    /// </summary>
     [Inject]
-    private ConfigManager ConfigManager { get; set; } = default!;
+    protected ConfigManager ConfigManager { get; set; } = default!;
 
     [Inject]
-    private ICloudBundleBuilder CloudBundleBuilder { get; set; } = default!;
+    protected ICloudBundleBuilder CloudBundleBuilder { get; set; } = default!;
 
-    private AssetsBundle? Bundle { get; set; }
+    protected AssetsBundle? Bundle { get; set; }
 
     protected override void OnInitialized()
     {
         var preset = ConfigManager.ResolvePresetOrThrow(Preset);
+        var cloud = preset.EnsureCloudCompatibilityOrThrow();
 
-        if (preset.Cloud == null)
-        {
-            return;
-        }
-
-        Bundle = CloudBundleBuilder.Build(preset.Cloud);
+        Bundle = CloudBundleBuilder.Build(cloud);
     }
 }

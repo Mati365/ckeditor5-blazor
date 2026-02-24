@@ -1,3 +1,4 @@
+using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.Cloud;
 using CKEditor.Blazor.Model.License;
@@ -58,11 +59,7 @@ public class ConfigManager
         return new PresetConfig
         {
             EditorType = EditorType.Classic,
-            Cloud = cloudConfig ?? new CloudConfig
-            {
-                EditorVersion = "47.3.0",
-                Premium = false,
-            },
+            Cloud = cloudConfig ?? new CloudConfig(),
             SelfHosted = selfHostedConfig ?? new SelfHostedConfig(),
             LicenseKey = licenseKey ?? LicenseKey.OfGPL(),
             Config = new Dictionary<string, object>
@@ -223,7 +220,7 @@ public class ConfigManager
         return preset switch
         {
             null => _presets.GetValueOrDefault("default") ?? new PresetConfig(),
-            string presetName => _presets.GetValueOrDefault(presetName) ?? throw new InvalidOperationException($"Unknown preset: {presetName}"),
+            string presetName => _presets.GetValueOrDefault(presetName) ?? throw new UnknownPresetException(presetName),
             PresetConfig presetObj => presetObj,
             _ => throw new ArgumentException("Invalid preset type", nameof(preset))
         };
@@ -237,7 +234,7 @@ public class ConfigManager
     public PresetConfig ResolvePresetOrThrow(string presetName)
     {
         return !_presets.TryGetValue(presetName, out var preset)
-            ? throw new InvalidOperationException($"Unknown preset: {presetName}")
+            ? throw new UnknownPresetException(presetName)
             : preset;
     }
 
@@ -251,7 +248,7 @@ public class ConfigManager
         return context switch
         {
             null => _contexts.GetValueOrDefault("default") ?? new ContextConfig(),
-            string contextName => _contexts.GetValueOrDefault(contextName) ?? throw new InvalidOperationException($"Unknown context: {contextName}"),
+            string contextName => _contexts.GetValueOrDefault(contextName) ?? throw new UnknownContextException(contextName),
             ContextConfig contextObj => contextObj,
             _ => throw new ArgumentException("Invalid context type", nameof(context))
         };
@@ -265,7 +262,7 @@ public class ConfigManager
     public ContextConfig ResolveContextOrThrow(string contextName)
     {
         return !_contexts.TryGetValue(contextName, out var context)
-            ? throw new InvalidOperationException($"Unknown context: {contextName}")
+            ? throw new UnknownContextException(contextName)
             : context;
     }
 

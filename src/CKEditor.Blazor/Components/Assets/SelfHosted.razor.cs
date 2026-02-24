@@ -1,3 +1,4 @@
+using CKEditor.Blazor.Extensions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Services;
 using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
@@ -48,7 +49,8 @@ public partial class SelfHosted : ComponentBase
     protected override void OnInitialized()
     {
         var preset = ConfigManager.ResolvePresetOrThrow(Preset);
+        var selfHosted = preset.EnsureSelfHostedCompatibilityOrThrow();
 
-        Bundle = SelfHostedBundleBuilder.Build(preset.SelfHosted);
+        Bundle = SelfHostedBundleBuilder.Build(selfHosted);
     }
 }
