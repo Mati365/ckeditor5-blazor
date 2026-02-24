@@ -13,8 +13,5 @@ public static class DistributionChannelExtensions
     /// <param name="channel">The current distribution channel.</param>
     /// <param name="other">The other distribution channel to compare with. If null, it's considered compatible.</param>
     /// <returns>True if compatible, false otherwise.</returns>
-    public static bool IsCompatibleWith(this DistributionChannel channel, DistributionChannel? other)
-    {
-        return other == null || channel == other;
-    }
+    public static bool IsCompatibleWith(this DistributionChannel channel, DistributionChannel? other) => other == null || channel == other;
 }

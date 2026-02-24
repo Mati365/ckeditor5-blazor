@@ -84,10 +84,7 @@ public partial class Context : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Generates a unique <see cref="Id"/> when none is provided by the consumer.
     /// </summary>
-    protected override void OnInitialized()
-    {
-        Id ??= $"cke5-context-{Guid.NewGuid():N}";
-    }
+    protected override void OnInitialized() => Id ??= $"cke5-context-{Guid.NewGuid():N}";
 
     /// <summary>
     /// On the first render, initializes the JS interop by invoking

@@ -12,8 +12,5 @@ public static class EditorTypeExtensions
     /// </summary>
     /// <param name="editorType">The editor type to check.</param>
     /// <returns>True if the editor type is Decoupled or Multiroot; otherwise, false.</returns>
-    public static bool IsDecoupledOrMultiroot(this EditorType editorType)
-    {
-        return editorType is EditorType.Multiroot or EditorType.Decoupled;
-    }
+    public static bool IsDecoupledOrMultiroot(this EditorType editorType) => editorType is EditorType.Multiroot or EditorType.Decoupled;
 }

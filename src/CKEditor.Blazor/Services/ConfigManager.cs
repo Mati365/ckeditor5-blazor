@@ -236,12 +236,9 @@ public class ConfigManager
     /// <returns>The resolved preset.</returns>
     public PresetConfig ResolvePresetOrThrow(string presetName)
     {
-        if (!_presets.TryGetValue(presetName, out var preset))
-        {
-            throw new InvalidOperationException($"Unknown preset: {presetName}");
-        }
-
-        return preset;
+        return !_presets.TryGetValue(presetName, out var preset)
+            ? throw new InvalidOperationException($"Unknown preset: {presetName}")
+            : preset;
     }
 
     /// <summary>
@@ -267,29 +264,20 @@ public class ConfigManager
     /// <returns>The resolved context.</returns>
     public ContextConfig ResolveContextOrThrow(string contextName)
     {
-        if (!_contexts.TryGetValue(contextName, out var context))
-        {
-            throw new InvalidOperationException($"Unknown context: {contextName}");
-        }
-
-        return context;
+        return !_contexts.TryGetValue(contextName, out var context)
+            ? throw new InvalidOperationException($"Unknown context: {contextName}")
+            : context;
     }
 
     /// <summary>
     /// Gets all registered presets.
     /// </summary>
     /// <returns>A read-only dictionary of all registered presets.</returns>
-    public IReadOnlyDictionary<string, PresetConfig> GetPresets()
-    {
-        return _presets;
-    }
+    public IReadOnlyDictionary<string, PresetConfig> GetPresets() => _presets;
 
     /// <summary>
     /// Gets all registered contexts.
     /// </summary>
     /// <returns>A read-only dictionary of all registered contexts.</returns>
-    public IReadOnlyDictionary<string, ContextConfig> GetContexts()
-    {
-        return _contexts;
-    }
+    public IReadOnlyDictionary<string, ContextConfig> GetContexts() => _contexts;
 }

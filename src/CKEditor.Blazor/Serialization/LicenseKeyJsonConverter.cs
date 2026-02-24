@@ -29,7 +29,5 @@ public class LicenseKeyJsonConverter : JsonConverter<LicenseKey>
     /// <param name="value">The <see cref="LicenseKey"/> to serialize.</param>
     /// <param name="options">Serializer options (ignored).</param>
     public override void Write(Utf8JsonWriter writer, LicenseKey value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(value.Raw);
-    }
+        => writer.WriteStringValue(value.Raw);
 }

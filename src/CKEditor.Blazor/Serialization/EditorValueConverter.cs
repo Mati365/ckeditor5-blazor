@@ -29,7 +29,5 @@ public class EditorValueConverter : JsonConverter<EditorValue>
     /// <param name="value">The <see cref="EditorValue"/> to serialize.</param>
     /// <param name="options">Serializer options passed to <see cref="JsonSerializer"/>.</param>
     public override void Write(Utf8JsonWriter writer, EditorValue value, JsonSerializerOptions options)
-    {
-        JsonSerializer.Serialize(writer, value.Data, options);
-    }
+        => JsonSerializer.Serialize(writer, value.Data, options);
 }

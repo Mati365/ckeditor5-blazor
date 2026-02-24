@@ -56,13 +56,5 @@ public partial class BundleRenderer : ComponentBase
 
     private string ImportMapJson => JsonSerializer.Serialize(new { imports = ImportMap });
 
-    private Dictionary<string, object> GetNonceAttribute()
-    {
-        if (string.IsNullOrEmpty(Nonce))
-        {
-            return [];
-        }
-
-        return new Dictionary<string, object> { { "nonce", Nonce } };
-    }
+    private Dictionary<string, object> GetNonceAttribute() => string.IsNullOrEmpty(Nonce) ? [] : new Dictionary<string, object> { { "nonce", Nonce } };
 }

@@ -17,12 +17,5 @@ public partial class BootstrapComponents : ComponentBase
     public string? Nonce { get; set; }
 
     private Dictionary<string, object> GetNonceAttribute()
-    {
-        if (string.IsNullOrEmpty(Nonce))
-        {
-            return [];
-        }
-
-        return new Dictionary<string, object> { { "nonce", Nonce } };
-    }
+        => string.IsNullOrEmpty(Nonce) ? [] : new Dictionary<string, object> { { "nonce", Nonce } };
 }

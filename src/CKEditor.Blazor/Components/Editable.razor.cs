@@ -157,10 +157,7 @@ public partial class Editable : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Generates a unique <see cref="Id"/> when none is provided by the consumer.
     /// </summary>
-    protected override void OnInitialized()
-    {
-        Id ??= $"cke5-editable-{Guid.NewGuid():N}";
-    }
+    protected override void OnInitialized() => Id ??= $"cke5-editable-{Guid.NewGuid():N}";
 
     /// <summary>
     /// Forwards the current <see cref="Value"/> to the JS interop whenever parameters change,

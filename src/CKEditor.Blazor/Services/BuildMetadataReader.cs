@@ -17,30 +17,21 @@ internal static class BuildMetadataReader
     /// Falls back to the default version if metadata is not found.
     /// </summary>
     /// <returns>The CKEditor version string.</returns>
-    public static string ResolveCKEditorVersion()
-    {
-        return ResolveValue(_ckeditorVersionKey) ?? "47.3.0";
-    }
+    public static string ResolveCKEditorVersion() => ResolveValue(_ckeditorVersionKey) ?? "47.3.0";
 
     /// <summary>
     /// Resolves the CKBox version from assembly metadata.
     /// Falls back to the default version if metadata is not found.
     /// </summary>
     /// <returns>The CKBox version string.</returns>
-    public static string ResolveCKBoxVersion()
-    {
-        return ResolveValue(_ckboxVersionKey) ?? "2.8.0";
-    }
+    public static string ResolveCKBoxVersion() => ResolveValue(_ckboxVersionKey) ?? "2.8.0";
 
     /// <summary>
     /// Resolves the assets output path from assembly metadata.
     /// Falls back to the default path if metadata is not found.
     /// </summary>
     /// <returns>The assets output path string.</returns>
-    public static string ResolveAssetsOutputPath()
-    {
-        return ResolveValue(_assetsOutputPathKey) ?? "_content/ckeditor5";
-    }
+    public static string ResolveAssetsOutputPath() => ResolveValue(_assetsOutputPathKey) ?? "_content/ckeditor5";
 
     /// <summary>
     /// Resolves whether premium assets are included from assembly metadata.

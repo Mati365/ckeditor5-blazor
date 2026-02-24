@@ -23,7 +23,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <!-- Include .targets file in NuGet package so consuming projects can download CKEditor assets -->
   <ItemGroup>
     <None Include="CKEditor.Blazor.targets" Pack="true" PackagePath="build;buildTransitive" />
   </ItemGroup>

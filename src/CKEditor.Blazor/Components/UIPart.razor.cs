@@ -77,10 +77,7 @@ public partial class UIPart : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Generates a unique <see cref="Id"/> when none is provided by the consumer.
     /// </summary>
-    protected override void OnInitialized()
-    {
-        Id ??= $"cke5-ui-part-{Guid.NewGuid():N}";
-    }
+    protected override void OnInitialized() => Id ??= $"cke5-ui-part-{Guid.NewGuid():N}";
 
     /// <summary>
     /// On the first render, creates a <see cref="DotNetObjectReference{T}"/> and initializes

@@ -41,21 +41,24 @@ dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:sug
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
 
 # Expression-level preferences
-dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_coalesce_expression = true:warning
 dotnet_style_collection_initializer = true:suggestion
 dotnet_style_explicit_tuple_names = true:warning
-dotnet_style_null_propagation = true:suggestion
+dotnet_style_null_propagation = true:warning
 dotnet_style_object_initializer = true:suggestion
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
-dotnet_style_prefer_auto_properties = true:suggestion
+dotnet_style_prefer_auto_properties = true:warning
 dotnet_style_prefer_compound_assignment = true:suggestion
-dotnet_style_prefer_conditional_expression_over_assignment = true:silent
-dotnet_style_prefer_conditional_expression_over_return = true:silent
+dotnet_style_prefer_conditional_expression_over_assignment = true:suggestion
+dotnet_style_prefer_conditional_expression_over_return = false:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 dotnet_style_prefer_inferred_tuple_names = true:suggestion
-dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
-dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
+dotnet_style_prefer_simplified_boolean_expressions = true:warning
 dotnet_style_prefer_simplified_interpolation = true:suggestion
+
+# Collection expressions (C# 12)
+dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
 
 # Field preferences
 dotnet_style_readonly_field = true:warning
@@ -70,33 +73,37 @@ csharp_style_var_elsewhere = true:suggestion
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 
-# Expression-bodied members
+# Expression-bodied members — short syntax everywhere it makes sense
 csharp_style_expression_bodied_accessors = true:suggestion
-csharp_style_expression_bodied_constructors = false:suggestion
+csharp_style_expression_bodied_constructors = when_on_single_line:suggestion
 csharp_style_expression_bodied_indexers = true:suggestion
 csharp_style_expression_bodied_lambdas = true:suggestion
-csharp_style_expression_bodied_local_functions = false:suggestion
-csharp_style_expression_bodied_methods = false:suggestion
-csharp_style_expression_bodied_operators = false:suggestion
+csharp_style_expression_bodied_local_functions = when_on_single_line:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_operators = when_on_single_line:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 
 # Pattern matching preferences
-csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
-csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:warning
+csharp_style_pattern_matching_over_is_with_cast_check = true:warning
 csharp_style_prefer_not_pattern = true:suggestion
-csharp_style_prefer_pattern_matching = true:silent
+csharp_style_prefer_pattern_matching = true:suggestion
 csharp_style_prefer_switch_expression = true:suggestion
+csharp_style_prefer_extended_property_pattern = true:suggestion
 
 # Null-checking preferences
-csharp_style_conditional_delegate_call = true:suggestion
+csharp_style_conditional_delegate_call = true:warning
 
 # Modifier preferences
 csharp_prefer_static_local_function = true:warning
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:warning
+csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async:warning
 
 # Code-block preferences
 csharp_prefer_braces = true:warning
 csharp_prefer_simple_using_statement = true:suggestion
+
+# Namespace preferences (C# 10 — file-scoped)
+csharp_style_namespace_declarations = file_scoped:warning
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true:suggestion
@@ -108,6 +115,15 @@ csharp_style_prefer_range_operator = true:suggestion
 csharp_style_throw_expression = true:suggestion
 csharp_style_unused_value_assignment_preference = discard_variable:suggestion
 csharp_style_unused_value_expression_statement_preference = discard_variable:silent
+
+# Primary constructors (C# 12)
+csharp_style_prefer_primary_constructors = true:suggestion
+
+# Null check (C# 11 — !! operator awareness)
+csharp_style_prefer_null_check_over_type_check = true:suggestion
+
+# Top-level statements (C# 9)
+csharp_style_prefer_top_level_statements = true:silent
 
 # 'using' directive preferences
 csharp_using_directive_placement = outside_namespace:warning

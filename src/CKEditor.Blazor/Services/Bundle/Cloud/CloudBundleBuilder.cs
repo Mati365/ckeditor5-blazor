@@ -19,37 +19,27 @@ public class CloudBundleBuilder(
             throw new InvalidOperationException("Cloud config requires 'EditorVersion'.");
         }
 
-        var editorBundle = editorBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
+        return BuildBundles(cloud)
+            .Aggregate((a, b) => a.Merge(b))
+            .WithMergedJs([AssetsBundle.BlazorIntegrationAsset]);
+    }
+
+    private IEnumerable<AssetsBundle> BuildBundles(CloudConfig cloud)
+    {
+        yield return editorBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
 
         if (cloud.Premium)
         {
-            var premiumBundle = premiumBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
-            editorBundle = editorBundle.Merge(premiumBundle);
+            yield return premiumBuilder.Build(cloud.EditorVersion, cloud.CdnUrl);
         }
 
-        if (cloud.CKBox is not null)
+        if (cloud.CKBox is { } ckbox)
         {
-            if (string.IsNullOrWhiteSpace(cloud.CKBox.Version))
-            {
-                throw new InvalidOperationException("Cloud config requires CKBox 'Version' when CKBox is enabled.");
-            }
-
-            var ckboxBundle = ckboxBuilder.Build(
-                cloud.CKBox.Version,
-                cloud.CKBox.Translations,
-                cloud.CKBox.CdnUrl,
-                cloud.CKBox.Theme ?? "lark");
-
-            editorBundle = editorBundle.Merge(ckboxBundle);
+            yield return ckboxBuilder.Build(
+                ckbox.Version ?? throw new InvalidOperationException("Cloud config requires CKBox 'Version' when CKBox is enabled."),
+                ckbox.Translations,
+                ckbox.CdnUrl,
+                ckbox.Theme ?? "lark");
         }
-
-        editorBundle.Js.Add(new JSAsset
-        {
-            Name = "ckeditor5-blazor",
-            Url = "/_content/CKEditor.Blazor/ckeditor5-blazor/index.mjs",
-            Type = JSAssetType.ESM
-        });
-
-        return editorBundle;
     }
 }

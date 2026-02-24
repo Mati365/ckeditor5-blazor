@@ -283,10 +283,7 @@ public partial class Editor : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Generates a unique <see cref="Id"/> when none is provided by the consumer.
     /// </summary>
-    protected override void OnInitialized()
-    {
-        Id ??= $"cke5-{Guid.NewGuid():N}";
-    }
+    protected override void OnInitialized() => Id ??= $"cke5-{Guid.NewGuid():N}";
 
     /// <summary>
     /// Recomputes all serialized JSON attributes and the additional HTML attributes

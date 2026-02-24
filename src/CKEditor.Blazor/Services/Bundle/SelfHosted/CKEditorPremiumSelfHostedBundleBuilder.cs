@@ -11,24 +11,24 @@ public class CKEditorPremiumSelfHostedBundleBuilder : ICKEditorPremiumSelfHosted
     public AssetsBundle Build(string version, string basePath)
     {
         var baseUrl = $"{basePath.TrimEnd('/')}/ckeditor5-premium-features/{version.Trim('/')}/";
-        var js = new List<JSAsset>
-        {
-            new()
-            {
-                Name = "ckeditor5-premium-features",
-                Url = $"{baseUrl}dist/browser/ckeditor5-premium-features.js",
-                Type = JSAssetType.ESM
-            },
-            new()
-            {
-                Name = $"ckeditor5-premium-features/translations/",
-                Url = $"{baseUrl}dist/translations/",
-                Type = JSAssetType.ESM_DIRECTORY
-            }
-        };
 
-        var css = new List<string> { $"{baseUrl}dist/browser/ckeditor5-premium-features.css" };
-
-        return new AssetsBundle(js, css);
+        return new(
+            [
+                new()
+                {
+                    Name = "ckeditor5-premium-features",
+                    Url = $"{baseUrl}dist/browser/ckeditor5-premium-features.js",
+                    Type = JSAssetType.ESM
+                },
+                new()
+                {
+                    Name = $"ckeditor5-premium-features/translations/",
+                    Url = $"{baseUrl}dist/translations/",
+                    Type = JSAssetType.ESM_DIRECTORY
+                }
+            ],
+            [
+                $"{baseUrl}dist/browser/ckeditor5-premium-features.css"
+            ]);
     }
 }

@@ -40,10 +40,7 @@ public partial class HiddenInput : ComponentBase
 
     private string StyleValue => Style ?? GetDefaultStyles();
 
-    protected override void OnInitialized()
-    {
-        Id ??= $"cke5-input-{Guid.NewGuid():N}";
-    }
+    protected override void OnInitialized() => Id ??= $"cke5-input-{Guid.NewGuid():N}";
 
     private static string GetDefaultStyles()
     {

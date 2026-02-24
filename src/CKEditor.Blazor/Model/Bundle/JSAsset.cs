@@ -3,7 +3,7 @@ namespace CKEditor.Blazor.Model.Bundle;
 /// <summary>
 /// Represents a JavaScript asset in a CKEditor cloud bundle.
 /// </summary>
-public class JSAsset
+public sealed record JSAsset
 {
     /// <summary>
     /// The name of the JavaScript asset.

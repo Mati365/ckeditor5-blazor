@@ -16,15 +16,7 @@ public static class LicenseKeyParser
     /// <param name="key">License key string (JWT or "GPL").</param>
     /// <returns>The parsed <see cref="LicenseKey"/>.</returns>
     /// <exception cref="ArgumentException">Thrown when the provided JWT is invalid.</exception>
-    public static LicenseKey Parse(string key)
-    {
-        if (key == "GPL")
-        {
-            return LicenseKey.OfGPL();
-        }
-
-        return ParseJWT(key);
-    }
+    public static LicenseKey Parse(string key) => key == "GPL" ? LicenseKey.OfGPL() : ParseJWT(key);
 
     /// <summary>
     /// Tries to parse the given license key without throwing exceptions.
@@ -96,10 +88,7 @@ public static class LicenseKeyParser
             expiresAt = expElement.GetInt64();
         }
 
-        return new LicenseKey(
-            raw: jwt,
-            distributionChannel: distributionChannel,
-            expiresAt: expiresAt);
+        return new LicenseKey(jwt, distributionChannel, expiresAt);
     }
 
     /// <summary>

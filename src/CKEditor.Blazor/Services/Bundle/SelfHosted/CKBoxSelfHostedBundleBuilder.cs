@@ -16,28 +16,18 @@ public class CKBoxSelfHostedBundleBuilder : ICKBoxSelfHostedBundleBuilder
     {
         var baseUrl = $"{basePath.TrimEnd('/')}/ckbox/{version.Trim('/')}/";
 
-        var js = new List<JSAsset>
-        {
-            new()
-            {
-                Name = "ckbox",
-                Url = $"{baseUrl}dist/ckbox.js",
-                Type = JSAssetType.UMD
-            }
-        };
-
-        foreach (var translation in translations)
-        {
-            js.Add(new JSAsset
-            {
-                Name = $"ckbox/translations/{translation}",
-                Url = $"{baseUrl}dist/translations/{translation}.js",
-                Type = JSAssetType.UMD
-            });
-        }
-
-        var css = new List<string> { $"{baseUrl}dist/styles/{theme}.css" };
-
-        return new AssetsBundle(js, css);
+        return new(
+            [
+                new() { Name = "ckbox", Url = $"{baseUrl}dist/ckbox.js", Type = JSAssetType.UMD },
+                .. translations.Select(t => new JSAsset
+                {
+                    Name = $"ckbox/translations/{t}",
+                    Url = $"{baseUrl}dist/translations/{t}.js",
+                    Type = JSAssetType.UMD
+                })
+            ],
+            [
+                $"{baseUrl}dist/styles/{theme}.css"
+            ]);
     }
 }

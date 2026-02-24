@@ -97,13 +97,10 @@ internal sealed class CKComponentJsInterop : IAsyncDisposable
     /// </exception>
     public async Task<TValue> InvokeAsync<TValue>(string identifier, params object?[] args)
     {
-        if (_jsInterop is null)
-        {
-            throw new InvalidOperationException(
-                $"Cannot invoke '{identifier}' before the JS interop has been initialized.");
-        }
-
-        return await _jsInterop.InvokeAsync<TValue>(identifier, args);
+        return _jsInterop is null
+            ? throw new InvalidOperationException(
+                $"Cannot invoke '{identifier}' before the JS interop has been initialized.")
+            : await _jsInterop.InvokeAsync<TValue>(identifier, args);
     }
 
     /// <summary>

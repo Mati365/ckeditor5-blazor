@@ -19,42 +19,27 @@ public class SelfHostedBundleBuilder(
             throw new InvalidOperationException("Self-hosted config requires 'EditorVersion'.");
         }
 
-        var editorBundle = editorBuilder.Build(
-            selfHosted.EditorVersion,
-            selfHosted.AssetsBasePath);
+        return BuildBundles(selfHosted)
+            .Aggregate((a, b) => a.Merge(b))
+            .WithMergedJs([AssetsBundle.BlazorIntegrationAsset]);
+    }
+
+    private IEnumerable<AssetsBundle> BuildBundles(SelfHostedConfig selfHosted)
+    {
+        yield return editorBuilder.Build(selfHosted.EditorVersion, selfHosted.AssetsBasePath);
 
         if (selfHosted.Premium)
         {
-            var premiumBundle = premiumBuilder.Build(
-                selfHosted.EditorVersion,
-                selfHosted.AssetsBasePath);
-
-            editorBundle = editorBundle.Merge(premiumBundle);
+            yield return premiumBuilder.Build(selfHosted.EditorVersion, selfHosted.AssetsBasePath);
         }
 
-        if (selfHosted.CKBox is not null)
+        if (selfHosted.CKBox is { } ckbox)
         {
-            if (string.IsNullOrWhiteSpace(selfHosted.CKBox.Version))
-            {
-                throw new InvalidOperationException("Self-hosted config requires CKBox 'Version' when CKBox is enabled.");
-            }
-
-            var ckboxBundle = ckboxBuilder.Build(
-                selfHosted.CKBox.Version,
-                selfHosted.CKBox.Translations,
+            yield return ckboxBuilder.Build(
+                ckbox.Version ?? throw new InvalidOperationException("Self-hosted config requires CKBox 'Version' when CKBox is enabled."),
+                ckbox.Translations,
                 selfHosted.AssetsBasePath,
-                selfHosted.CKBox.Theme ?? "lark");
-
-            editorBundle = editorBundle.Merge(ckboxBundle);
+                ckbox.Theme ?? "lark");
         }
-
-        editorBundle.Js.Add(new JSAsset
-        {
-            Name = "ckeditor5-blazor",
-            Url = "/_content/CKEditor.Blazor/ckeditor5-blazor/index.mjs",
-            Type = JSAssetType.ESM
-        });
-
-        return editorBundle;
     }
 }
