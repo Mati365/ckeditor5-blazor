@@ -13,7 +13,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 Main Component.
 /// Renders a CKEditor instance with configurable options.
 /// </summary>
-public partial class Editor : ComponentBase, IAsyncDisposable
+public partial class CKE5Editor : ComponentBase, IAsyncDisposable
 {
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -22,9 +22,9 @@ public partial class Editor : ComponentBase, IAsyncDisposable
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
-    private readonly CKComponentJsInterop _jsInterop = new();
+    private readonly CKE5ComponentJsInterop _jsInterop = new();
 
-    private DotNetObjectReference<Editor>? _dotNetHelper;
+    private DotNetObjectReference<CKE5Editor>? _dotNetHelper;
 
     /// <summary>
     /// Reference to the root DOM element of this component, captured via <c>@ref</c>.
@@ -50,12 +50,12 @@ public partial class Editor : ComponentBase, IAsyncDisposable
     /// allowing consumers to react to change events without participating in
     /// two‑way binding.
     ///
-    /// The callback now receives a <see cref="EditorChangeEventArgs"/>
+    /// The callback now receives a <see cref="CKE5EditorChangeEventArgs"/>
     /// instance containing both the new value and a JS object reference to the
     /// underlying editor.
     /// </summary>
     [Parameter]
-    public EventCallback<EditorChangeEventArgs> OnChange { get; set; }
+    public EventCallback<CKE5EditorChangeEventArgs> OnChange { get; set; }
 
     /// <summary>
     /// The preset name or object to use (default: <c>'default'</c>).
@@ -227,7 +227,7 @@ public partial class Editor : ComponentBase, IAsyncDisposable
 
         if (OnChange.HasDelegate)
         {
-            var args = new EditorChangeEventArgs(editor, roots);
+            var args = new CKE5EditorChangeEventArgs(editor, roots);
 
             await OnChange.InvokeAsync(args);
         }

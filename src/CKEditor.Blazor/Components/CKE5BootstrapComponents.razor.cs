@@ -8,7 +8,7 @@ namespace CKEditor.Blazor.Components;
 /// If you are using CKEditor components in an interactive page, this should not be used, as the main
 /// CKEditor5 component will automatically load the necessary JavaScript on demand.
 /// </summary>
-public partial class BootstrapComponents : ComponentBase
+public partial class CKE5BootstrapComponents : ComponentBase
 {
     /// <summary>
     /// Optional nonce for CSP (Content Security Policy).

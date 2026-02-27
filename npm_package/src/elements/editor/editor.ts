@@ -25,6 +25,7 @@ import {
   queryEditablesElements,
   queryEditablesSnapshotContent,
   resolveEditorConfigElementReferences,
+  resolveEditorConfigTranslations,
   setEditorEditableHeight,
   unwrapEditorContext,
   unwrapEditorWatchdog,
@@ -246,9 +247,15 @@ export class EditorComponentElement extends HTMLElement {
         sourceElementOrData = sourceElementOrData['main'];
       }
 
+      // Construct parsed config. First resolve DOM element references in the provided configuration.
+      let resolvedConfig = resolveEditorConfigElementReferences(config);
+
+      // Then resolve translation references in the provided configuration, using the mixed translations.
+      resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
+
       // Construct parsed config.
       const parsedConfig = {
-        ...resolveEditorConfigElementReferences(config),
+        ...resolvedConfig,
         initialData,
         licenseKey,
         plugins: loadedPlugins,

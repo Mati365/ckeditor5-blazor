@@ -14,9 +14,4 @@ public sealed record Language
     /// The content language code.
     /// </summary>
     public string Content { get; init; } = "en";
-
-    /// <summary>
-    /// Text part language configurations.
-    /// </summary>
-    public List<TextPartLanguage>? TextPartLanguage { get; init; }
 }

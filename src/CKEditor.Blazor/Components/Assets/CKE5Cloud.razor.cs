@@ -1,20 +1,20 @@
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Services;
-using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
+using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
 using Microsoft.AspNetCore.Components;
 
 namespace CKEditor.Blazor.Components.Assets;
 
 /// <summary>
-/// CKEditor 5 Self-Hosted Assets Component.
-/// Renders the necessary script and stylesheet tags for self-hosted CKEditor integration.
+/// CKEditor 5 Cloud Assets Component.
+/// Renders the necessary script and stylesheet tags for CKEditor Cloud integration.
 /// </summary>
-public partial class SelfHosted : ComponentBase
+public partial class CKE5Cloud : ComponentBase
 {
     /// <summary>
     /// The preset name to use (default: 'default').
-    /// Such preset should contain self-hosted configuration.
+    /// Such preset should contain cloud configuration.
     /// </summary>
     [Parameter]
     public string Preset { get; set; } = "default";
@@ -38,19 +38,24 @@ public partial class SelfHosted : ComponentBase
     [Parameter]
     public Dictionary<string, string> CustomImportMap { get; set; } = [];
 
+    /// <summary>
+    /// Optional injection targets and stored state for the component. All
+    /// members are protected so that the style rules (protected before private)
+    /// are satisfied even when they appear above lifecycle methods.
+    /// </summary>
     [Inject]
-    private ConfigManager ConfigManager { get; set; } = default!;
+    protected ConfigManager ConfigManager { get; set; } = default!;
 
     [Inject]
-    private ISelfHostedBundleBuilder SelfHostedBundleBuilder { get; set; } = default!;
+    protected ICloudBundleBuilder CloudBundleBuilder { get; set; } = default!;
 
-    private AssetsBundle? Bundle { get; set; }
+    protected AssetsBundle? Bundle { get; set; }
 
     protected override void OnInitialized()
     {
         var preset = ConfigManager.ResolvePresetOrThrow(Preset);
-        var selfHosted = preset.EnsureSelfHostedCompatibilityOrThrow();
+        var cloud = preset.EnsureCloudCompatibilityOrThrow();
 
-        Bundle = SelfHostedBundleBuilder.Build(selfHosted);
+        Bundle = CloudBundleBuilder.Build(cloud);
     }
 }

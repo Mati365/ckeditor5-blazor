@@ -9,11 +9,11 @@ namespace CKEditor.Blazor.Components;
 /// Renders a standalone editable region for CKEditor, intended for use
 /// inside multiroot or decoupled editor layouts where each root is managed independently.
 /// </summary>
-public partial class Editable : ComponentBase, IAsyncDisposable
+public partial class CKE5Editable : ComponentBase, IAsyncDisposable
 {
-    private readonly CKComponentJsInterop _jsInterop = new();
+    private readonly CKE5ComponentJsInterop _jsInterop = new();
 
-    private DotNetObjectReference<Editable>? _dotNetHelper;
+    private DotNetObjectReference<CKE5Editable>? _dotNetHelper;
 
     /// <summary>
     /// Reference to the root DOM element of this component, captured via <c>@ref</c>.
@@ -52,12 +52,12 @@ public partial class Editable : ComponentBase, IAsyncDisposable
     /// callback and may be used by consumers who don't wish to participate in
     /// two‑way binding.
     ///
-    /// The callback now receives a <see cref="EditableChangeEventArgs"/>
+    /// The callback now receives a <see cref="CKE5EditableChangeEventArgs"/>
     /// instance containing both the new data and a JS object reference for the
     /// underlying editor.
     /// </summary>
     [Parameter]
-    public EventCallback<EditableChangeEventArgs> OnChange { get; set; }
+    public EventCallback<CKE5EditableChangeEventArgs> OnChange { get; set; }
 
     /// <summary>
     /// The debounce time in milliseconds before content changes are propagated.
@@ -148,7 +148,7 @@ public partial class Editable : ComponentBase, IAsyncDisposable
 
         if (OnChange.HasDelegate)
         {
-            var args = new EditableChangeEventArgs(RootName, editor, data);
+            var args = new CKE5EditableChangeEventArgs(RootName, editor, data);
 
             await OnChange.InvokeAsync(args);
         }

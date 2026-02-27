@@ -14,7 +14,7 @@ namespace CKEditor.Blazor.Components;
 /// <see cref="InvokeVoidAsync"/> and <see cref="InvokeAsync{T}"/> to communicate
 /// with the JS-side interop object.
 /// </remarks>
-internal sealed class CKComponentJsInterop : IAsyncDisposable
+internal sealed class CKE5ComponentJsInterop : IAsyncDisposable
 {
     /// <summary>
     /// JS module loaded from the <c>ckeditor5-blazor</c> ES module.
@@ -50,7 +50,7 @@ internal sealed class CKComponentJsInterop : IAsyncDisposable
     /// <param name="dotNetHelper">
     /// An optional <see cref="DotNetObjectReference{T}"/> for the component, enabling JS
     /// to invoke <c>[JSInvokable]</c> C# callbacks. Pass <see langword="null"/> for components
-    /// that do not expose any JS-invokable methods (e.g. <see cref="Context"/>, <see cref="UIPart"/>).
+    /// that do not expose any JS-invokable methods (e.g. <see cref="CKE5Context"/>, <see cref="CKE5UIPart"/>).
     /// </param>
     /// <returns>A task representing the asynchronous initialization operation.</returns>
     public async Task InitializeAsync(

@@ -1,17 +1,16 @@
 
 @page "/decoupled"
-@using CKEditor.Blazor.Components
 @rendermode InteractiveServer
 
 <div class="mx-auto p-8 max-w-4xl">
     <a href="/" class="inline-block mb-6 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
     <h1 class="mb-6 font-bold text-3xl">Decoupled Editor Demo</h1>
 
-    <Editor EditorType="decoupled" Class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <CKE5Editor EditorType="decoupled" Class="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div class="bg-gray-50 p-2 border-gray-200 border-b">
-            <UIPart Name="toolbar" />
+            <CKE5UIPart Name="toolbar" />
         </div>
 
-        <Editable Value="Hello Decoupled World" InnerClass="p-4 min-h-[300px]" />
-    </Editor>
+        <CKE5Editable Value="Hello Decoupled World" InnerClass="p-4 min-h-[300px]" />
+    </CKE5Editor>
 </div>

@@ -1,7 +1,4 @@
 @page "/classic"
-@using CKEditor.Blazor.Components
-@using CKEditor.Blazor.Model
-@using CKEditor.Blazor.Model.Events
 @using Microsoft.JSInterop
 @using System.Text.Json
 @rendermode InteractiveServer
@@ -26,7 +23,7 @@
     </div>
 
     <div class="mt-6">
-        <Editor
+        <CKE5Editor
             EditorType="classic"
             @bind-Value="editorValue"
             OnChange="OnEditorChange"
@@ -106,7 +103,7 @@
         }
     }
 
-    private void OnEditorChange(EditorChangeEventArgs args)
+    private void OnEditorChange(CKE5EditorChangeEventArgs args)
     {
         lastChangeJson = JsonSerializer.Serialize(args.Value, new JsonSerializerOptions { WriteIndented = true });
     }

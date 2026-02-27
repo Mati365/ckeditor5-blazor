@@ -82,8 +82,10 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
     In your main layout file (e.g., App.razor, _Host.cshtml, or MainLayout.razor), add the self-hosted assets component inside the <head> tag:
 
     ```razor
+    @using CKEditor.Blazor.Components.Assets
+
     <HeadContent>
-        <CKEditor.Blazor.Components.Assets.SelfHosted />
+        <CKE5SelfHosted />
     </HeadContent>
     ```
 
@@ -107,30 +109,32 @@ Load CKEditor 5 directly from CKSource's CDN. This method requires no build conf
     In your main layout file (e.g., App.razor, _Host.cshtml, or MainLayout.razor), add the cloud-hosted assets component inside the <head> tag:
 
     ```razor
+    @using CKEditor.Blazor.Components
+
     <HeadContent>
-        <CKEditor.Blazor.Components.Assets.Cloud />
+        <CKE5Cloud />
     </HeadContent>
     ```
 
 ## Basic Usage 🏁
 
-You can now use the `<CKEditor.Blazor.Components.Editor>` component anywhere in your Blazor app.
+You can now use the `<CKE5Editor>` component anywhere in your Blazor app.
 
 ```razor
 @using CKEditor.Blazor.Components
 
-<Editor EditorType="classic" Value="@("<p>Hello world!</p>")" />
+<CKE5Editor EditorType="classic" Value="@("<p>Hello world!</p>")" />
 ```
 
 In scenarios where you need a standalone editable root (for example in a multiroot layout,
-sidebar, or custom UI part) you can use the `<Editable>` component. It behaves much like
-`<Editor>` but exposes only a single root and must be attached to an existing editor via
+sidebar, or custom UI part) you can use the `<CKE5Editable>` component. It behaves much like
+`<CKE5Editor>` but exposes only a single root and must be attached to an existing editor via
 `EditorId`.
 
 Both components support two‑way data binding via `Value`/`@bind-Value` **and** an `OnChange`
 event callback which fires every time the editor data changes. This is useful when you want
 to observe edits without mutating the bound value. The callback now provides a reference to
-the underlying CKEditor instance (analogous to the `OnFocus`/`OnBlur` events on `<Editor>`),
+the underlying CKEditor instance (analogous to the `OnFocus`/`OnBlur` events on `<CKE5Editor>`),
 so handlers can invoke JS methods directly or inspect the editor if needed.
 
 - The `EditorType` parameter accepts any CKEditor 5 build (e.g., `classic`, `inline`, `balloon`, `decoupled` or `multiroot`).
@@ -140,11 +144,15 @@ so handlers can invoke JS methods directly or inspect the editor if needed.
 - **Change notifications** – in addition to two‑way binding you may register a callback that fires every time the editor data changes without mutating your bound value. Use the `OnChange` parameter to receive both the new value and a JS object reference for the editor:
 
 ```razor
-<Editor EditorType="classic"
-        OnChange="@(args => Console.WriteLine($"Change: {args.Value}") )" />
+<CKE5Editor
+    EditorType="classic"
+    OnChange="@(args => Console.WriteLine($"Change: {args.Value}") )"
+/>
 
-<Editable EditorId="someId"
-          OnChange="@(args => Console.WriteLine($"Editable changed: {args.Data}"))" />
+<CKE5Editable
+    EditorId="someId"
+    OnChange="@(args => Console.WriteLine($"Editable changed: {args.Data}"))"
+/>
 ```
 
 ## Editors and Contexts registry 👀

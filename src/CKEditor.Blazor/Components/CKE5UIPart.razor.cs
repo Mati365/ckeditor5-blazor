@@ -9,11 +9,11 @@ namespace CKEditor.Blazor.Components;
 /// The component mounts itself into the JS interop so that CKEditor can attach
 /// the requested UI part to this DOM node.
 /// </summary>
-public partial class UIPart : ComponentBase, IAsyncDisposable
+public partial class CKE5UIPart : ComponentBase, IAsyncDisposable
 {
-    private readonly CKComponentJsInterop _jsInterop = new();
+    private readonly CKE5ComponentJsInterop _jsInterop = new();
 
-    private DotNetObjectReference<UIPart>? _dotNetHelper;
+    private DotNetObjectReference<CKE5UIPart>? _dotNetHelper;
 
     /// <summary>
     /// Reference to the root DOM element of this component, captured via <c>@ref</c>.
@@ -28,7 +28,7 @@ public partial class UIPart : ComponentBase, IAsyncDisposable
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// The HTML ID of the parent <see cref="Editor"/> instance this UI part belongs to.
+    /// The HTML ID of the parent <see cref="CKE5Editor"/> instance this UI part belongs to.
     /// </summary>
     [Parameter]
     public string? EditorId { get; set; }

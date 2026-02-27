@@ -1,7 +1,4 @@
 @page "/multiroot"
-@using CKEditor.Blazor.Components
-@using CKEditor.Blazor.Model
-@using CKEditor.Blazor.Model.Events
 @using System.Text.Json
 @rendermode InteractiveServer
 
@@ -30,8 +27,8 @@
         </button>
     </div>
 
-    <Editor Id="@EditorId" EditorType="multiroot" OnChange="OnEditorChange" />
-    <UIPart Name="toolbar" EditorId="@EditorId" Class="mb-6" />
+    <CKE5Editor Id="@EditorId" EditorType="multiroot" OnChange="OnEditorChange" />
+    <CKE5UIPart Name="toolbar" EditorId="@EditorId" Class="mb-6" />
 
     <div class="flex flex-col gap-6">
         @foreach (var root in Roots)
@@ -49,7 +46,7 @@
                     </button>
                 </div>
                 <div class="p-2">
-                    <Editable
+                    <CKE5Editable
                         @bind-Value="@root.Value"
                         RootName="@root.Name"
                         EditorId="@EditorId"
@@ -123,12 +120,12 @@
         }
     }
 
-    private void OnEditorChange(EditorChangeEventArgs args)
+    private void OnEditorChange(CKE5EditorChangeEventArgs args)
     {
         lastEditorChange = JsonSerializer.Serialize(args.Value, new JsonSerializerOptions { WriteIndented = true });
     }
 
-    private void OnRootChange(EditableChangeEventArgs args)
+    private void OnRootChange(CKE5EditableChangeEventArgs args)
     {
         lastRootChange = $"{args.RootName}: {args.Value}";
     }

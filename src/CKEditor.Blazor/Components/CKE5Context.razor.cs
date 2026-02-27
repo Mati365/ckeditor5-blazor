@@ -11,7 +11,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 Context Component.
 /// Renders a CKEditor context that can be shared among multiple editors.
 /// </summary>
-public partial class Context : ComponentBase, IAsyncDisposable
+public partial class CKE5Context : ComponentBase, IAsyncDisposable
 {
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -19,7 +19,7 @@ public partial class Context : ComponentBase, IAsyncDisposable
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    private readonly CKComponentJsInterop _jsInterop = new();
+    private readonly CKE5ComponentJsInterop _jsInterop = new();
 
     /// <summary>
     /// Reference to the root DOM element of this component, captured via <c>@ref</c>.
