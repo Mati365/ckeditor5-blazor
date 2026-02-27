@@ -29,7 +29,7 @@ public partial class CKE5Editable : ComponentBase, IAsyncDisposable
     public string RootName { get; set; } = "main";
 
     /// <summary>
-    /// The HTML ID of the parent <see cref="Editor"/> instance this editable belongs to.
+    /// The HTML ID of the parent <see cref="CKE5Editor"/> instance this editable belongs to.
     /// </summary>
     [Parameter]
     public string? EditorId { get; set; }
@@ -51,10 +51,6 @@ public partial class CKE5Editable : ComponentBase, IAsyncDisposable
     /// data changes. This is raised in addition to the <see cref="ValueChanged"/>
     /// callback and may be used by consumers who don't wish to participate in
     /// two‑way binding.
-    ///
-    /// The callback now receives a <see cref="CKE5EditableChangeEventArgs"/>
-    /// instance containing both the new data and a JS object reference for the
-    /// underlying editor.
     /// </summary>
     [Parameter]
     public EventCallback<CKE5EditableChangeEventArgs> OnChange { get; set; }
