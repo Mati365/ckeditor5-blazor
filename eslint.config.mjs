@@ -16,6 +16,7 @@ export default antfu({
     'playground/vendor',
     'playground/assets/vendor',
     'playground/assets/controllers.json',
+    '*.md',
   ],
   languageOptions: {
     parserOptions: {
@@ -67,11 +68,4 @@ export default antfu({
         ['parent', 'sibling', 'index'],
       ],
     }],
-  })
-  // Disable buggy rules.
-  .append({
-    files: ['README.md'],
-    rules: {
-      'perfectionist/sort-imports': 'off',
-    },
   });
