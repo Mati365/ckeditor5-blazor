@@ -67,4 +67,11 @@ export default antfu({
         ['parent', 'sibling', 'index'],
       ],
     }],
+  })
+  // Disable buggy rules.
+  .append({
+    files: ['README.md'],
+    rules: {
+      'perfectionist/sort-imports': 'off',
+    },
   });
