@@ -9,6 +9,8 @@ export default antfu({
     'build',
     '**/*/dist',
     '**/*/build',
+    'src/**/*.cs',
+    'src/**/*.razor',
     'node_modules',
     'vendor',
     'playground/vendor',
