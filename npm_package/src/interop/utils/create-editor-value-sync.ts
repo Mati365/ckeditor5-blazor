@@ -14,7 +14,7 @@ import type { Editor } from 'ckeditor5';
  * @param options.getCurrentValue - Returns the current value of the tracked root(s) from the editor.
  * @param options.applyValue - Applies the given value to the editor (e.g. via `editor.setData`).
  * @param options.isEqual - Returns true if two values are considered equal, used to avoid redundant updates.
- * @returns An object with `setValue`, `notifyIfChanged`, and `unmount`.
+ * @returns An object with `setValue`, `shouldNotify`, and `unmount`.
  */
 export function createEditorValueSync<T>(
   editor: Editor,
@@ -90,7 +90,7 @@ export function createEditorValueSync<T>(
      * Call this from the `CKEditor5ChangeDataEvent` handler to conditionally invoke
      * the .NET interop method.
      */
-    notifyIfChanged(value: T): boolean {
+    shouldNotify(value: T): boolean {
       if (state.lastSyncedValue !== null && options.isEqual(state.lastSyncedValue, value)) {
         return false;
       }
@@ -127,7 +127,7 @@ export function createEditorValueSync<T>(
 export function createNoopSync<T>(): EditorValueSync<T> {
   return {
     unmount() {},
-    notifyIfChanged(_value: T): boolean { return false; },
+    shouldNotify(_value: T): boolean { return false; },
     setValue(_value: T) {},
   };
 }
@@ -145,7 +145,12 @@ export type EditorValueSync<T> = {
    * Checks whether the given value differs from the last synced value and, if so,
    * updates `lastSyncedValue` and returns `true` to signal that Blazor should be notified.
    */
-  notifyIfChanged: (value: T) => boolean;
+  /**
+   * Called by the consumer to determine if a value change should trigger a
+   * notification. Returns `true` when the value differs from the last one that
+   * was synced and updates internal tracking.
+   */
+  shouldNotify: (value: T) => boolean;
 
   /**
    * Pushes a new value from Blazor into the editor.

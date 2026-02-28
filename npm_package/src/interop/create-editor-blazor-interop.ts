@@ -1,5 +1,4 @@
 import type { DotNetInterop } from '../types';
-import type { EditorValueSync } from './utils/create-editor-value-sync';
 
 import { ensureEditorElementsRegistered } from '../elements';
 import { EditorsRegistry } from '../elements/editor/editors-registry';
@@ -18,38 +17,31 @@ import { createEditorValueSync, createNoopSync } from './utils/create-editor-val
 export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetInterop) {
   const editorId = element.getAttribute('data-cke-editor-id');
 
-  ensureEditorElementsRegistered();
-  markElementAsInteractive(element);
-
-  // Placeholder so `setValue` calls queued before the editor is ready are forwarded correctly.
-  let sync: EditorValueSync<Record<string, string>> = createNoopSync();
+  let unmounted = false;
   let unmountCKEditorListeners: VoidFunction | null = null;
+
+  let sync = createNoopSync<Record<string, string>>();
   let editorRef: unknown | null = null;
 
-  /**
-   * Handles data change events dispatched by the CKEditor plugin.
-   * Dispatches updates back to Blazor if the data has changed.
-   */
+  // Handles data change events dispatched by the CKEditor plugin.
+  // Dispatches updates back to Blazor if the data has changed.
   const onDataChange = (event: Event) => {
     if (!(event instanceof CKEditor5ChangeDataEvent) || event.detail.editorId !== editorId) {
       return;
     }
 
-    if (sync.notifyIfChanged(event.detail.roots)) {
+    if (sync.shouldNotify(event.detail.roots)) {
       void interop.invokeMethodAsync('OnChangeEditorData', editorRef!, event.detail.roots);
     }
   };
-
-  document.body.addEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
 
   /**
    * Initializes the focus tracker and model listeners for the editor.
    */
   const initializeSynchronization = async () => {
     const editor = await EditorsRegistry.the.waitFor(editorId);
-    editorRef = DotNet.createJSObjectReference(editor);
 
-    // Set up synchronization between the editor and Blazor.
+    editorRef = globalThis.DotNet.createJSObjectReference(editor);
     sync = createEditorValueSync(editor, {
       getCurrentValue: () => getEditorRootsValues(editor),
       applyValue: value => editor.setData(value),
@@ -79,12 +71,20 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
   };
 
   void initializeSynchronization();
+  document.body.addEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
+
+  ensureEditorElementsRegistered();
+  markElementAsInteractive(element);
 
   return {
     /**
      * Updates the editor data from Blazor. If the editor is focused, the update is deferred until blur to avoid interrupting the user.
      */
     setValue: async (value: Record<string, string>) => {
+      if (unmounted) {
+        return;
+      }
+
       await EditorsRegistry.the.waitFor(editorId);
       sync.setValue(value);
     },
@@ -93,14 +93,20 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
      * Cleans up all event listeners when the Blazor component is disposed.
      */
     unmount() {
+      if (unmounted) {
+        return;
+      }
+
       document.body.removeEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
       sync.unmount();
       unmountCKEditorListeners?.();
 
       if (editorRef) {
-        DotNet.disposeJSObjectReference(editorRef);
+        globalThis.DotNet.disposeJSObjectReference(editorRef);
         editorRef = null;
       }
+
+      unmounted = true;
     },
   };
 }
