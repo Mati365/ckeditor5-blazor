@@ -646,7 +646,7 @@ Pass a context config object directly using `ContextPreset`:
 
 ## Custom plugins 🧩
 
-Register custom plugins in JavaScript/TypeScript using `CustomEditorPluginsRegistry`:
+To register a custom plugin, use the `registerCustomEditorPlugin` function. This function takes the plugin name and the plugin reader that returns a class extending `Plugin`.
 
 ![Custom plugin demo](docs/custom-highlight-plugin.png)
 
