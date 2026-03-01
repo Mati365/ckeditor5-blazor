@@ -1,4 +1,3 @@
-
 using CKEditor.Blazor.Exceptions;
 
 namespace CKEditor.Blazor.Tests.Exceptions;
