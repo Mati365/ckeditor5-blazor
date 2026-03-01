@@ -1,6 +1,7 @@
 using CKEditor.Blazor.Exceptions;
 
 namespace CKEditor.Blazor.Tests.Exceptions;
+
 public class SelfHostedLicenseIncompatibleExceptionTests
 {
     [Fact]
