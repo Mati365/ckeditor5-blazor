@@ -7,10 +7,8 @@ public class CKBoxCloudConfigTests
     [Fact]
     public void CKBoxCloudConfig_ShouldInitializeWithDefaultValues()
     {
-        // Act
         var config = new CKBoxCloudConfig();
 
-        // Assert
         Assert.Equal(string.Empty, config.Version);
         Assert.Null(config.Theme);
         Assert.NotNull(config.Translations);
@@ -21,10 +19,8 @@ public class CKBoxCloudConfigTests
     [Fact]
     public void CKBoxCloudConfig_ShouldAllowSettingValues()
     {
-        // Arrange
         var translations = new List<string> { "pl", "en" };
 
-        // Act
         var config = new CKBoxCloudConfig
         {
             Version = "1.2.3",
@@ -33,7 +29,6 @@ public class CKBoxCloudConfigTests
             CdnUrl = "https://custom.ckbox.io"
         };
 
-        // Assert
         Assert.Equal("1.2.3", config.Version);
         Assert.Equal("dark", config.Theme);
         Assert.Equal(translations, config.Translations);

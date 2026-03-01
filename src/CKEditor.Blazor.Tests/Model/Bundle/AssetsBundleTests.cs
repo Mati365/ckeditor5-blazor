@@ -7,14 +7,11 @@ public class AssetsBundleTests
     [Fact]
     public void AssetsBundle_ShouldInitializeCorrectly()
     {
-        // Arrange
         var jsList = new List<JSAsset> { new() { Name = "test", Url = "test.js", Type = JSAssetType.ESM } };
         var cssList = new List<string> { "style.css" };
 
-        // Act
         var bundle = new AssetsBundle(jsList, cssList);
 
-        // Assert
         Assert.Equal(jsList, bundle.Js);
         Assert.Equal(cssList, bundle.Css);
     }
@@ -22,10 +19,8 @@ public class AssetsBundleTests
     [Fact]
     public void BlazorIntegrationAsset_ShouldHaveCorrectProperties()
     {
-        // Act
         var asset = AssetsBundle.BlazorIntegrationAsset;
 
-        // Assert
         Assert.NotNull(asset);
         Assert.Equal("ckeditor5-blazor", asset.Name);
         Assert.Equal("/_content/CKEditor.Blazor/ckeditor5-blazor/index.mjs", asset.Url);
@@ -35,7 +30,6 @@ public class AssetsBundleTests
     [Fact]
     public void Merge_ShouldCombineBundles()
     {
-        // Arrange
         var bundle1 = new AssetsBundle(
             [new JSAsset { Name = "a", Url = "a.js", Type = JSAssetType.ESM }],
             ["a.css"]);
@@ -43,10 +37,8 @@ public class AssetsBundleTests
             [new JSAsset { Name = "b", Url = "b.js", Type = JSAssetType.UMD }],
             ["b.css"]);
 
-        // Act
         var result = bundle1.Merge(bundle2);
 
-        // Assert
         Assert.Equal(2, result.Js.Count);
         Assert.Equal(2, result.Css.Count);
         Assert.Contains(result.Js, x => x.Name == "a");
@@ -58,7 +50,6 @@ public class AssetsBundleTests
     [Fact]
     public void GetEsmOnlyUrls_ShouldReturnOnlyEsmAndDistinct()
     {
-        // Arrange
         var bundle = new AssetsBundle(
             [
                 new JSAsset { Name = "a", Url = "a.js", Type = JSAssetType.ESM },
@@ -67,10 +58,8 @@ public class AssetsBundleTests
             ],
             []);
 
-        // Act
         var result = bundle.GetEsmOnlyUrls();
 
-        // Assert
         Assert.Single(result);
         Assert.Equal("a.js", result[0]);
     }
@@ -78,7 +67,6 @@ public class AssetsBundleTests
     [Fact]
     public void GetUmdUrls_ShouldReturnOnlyUmdAndDistinct()
     {
-        // Arrange
         var bundle = new AssetsBundle(
             [
                 new JSAsset { Name = "a", Url = "a.js", Type = JSAssetType.UMD },
@@ -87,10 +75,8 @@ public class AssetsBundleTests
             ],
             []);
 
-        // Act
         var result = bundle.GetUmdUrls();
 
-        // Assert
         Assert.Single(result);
         Assert.Equal("a.js", result[0]);
     }
@@ -98,15 +84,12 @@ public class AssetsBundleTests
     [Fact]
     public void GetCssUrls_ShouldReturnDistinctCss()
     {
-        // Arrange
         var bundle = new AssetsBundle(
             [],
             ["a.css", "b.css", "a.css"]);
 
-        // Act
         var result = bundle.GetCssUrls();
 
-        // Assert
         Assert.Equal(2, result.Count);
         Assert.Contains("a.css", result);
         Assert.Contains("b.css", result);
@@ -115,7 +98,6 @@ public class AssetsBundleTests
     [Fact]
     public void GetImportMap_ShouldReturnDictionaryForEsmAssets()
     {
-        // Arrange
         var bundle = new AssetsBundle(
             [
                 new JSAsset { Name = "moduleA", Url = "a.js", Type = JSAssetType.ESM },
@@ -125,10 +107,8 @@ public class AssetsBundleTests
             ],
             []);
 
-        // Act
         var map = bundle.GetImportMap();
 
-        // Assert
         Assert.Equal(2, map.Count);
         Assert.Equal("a_newer.js", map["moduleA"]);
         Assert.Equal("c/", map["moduleC"]);
@@ -138,16 +118,13 @@ public class AssetsBundleTests
     [Fact]
     public void WithMergedJs_ShouldMergeJsAssets()
     {
-        // Arrange
         var bundle = new AssetsBundle(
             [new JSAsset { Name = "a", Url = "a.js", Type = JSAssetType.ESM }],
             []);
 
-        // Act
         var newJs = new List<JSAsset> { new() { Name = "b", Url = "b.js", Type = JSAssetType.UMD } };
         var result = bundle.WithMergedJs(newJs);
 
-        // Assert
         Assert.Equal(2, result.Js.Count);
         Assert.Single(bundle.Js);
     }
@@ -155,16 +132,13 @@ public class AssetsBundleTests
     [Fact]
     public void WithMergedCss_ShouldMergeCssAssets()
     {
-        // Arrange
         var bundle = new AssetsBundle(
             [],
             ["a.css"]);
 
-        // Act
         var newCss = new List<string> { "b.css" };
         var result = bundle.WithMergedCss(newCss);
 
-        // Assert
         Assert.Equal(2, result.Css.Count);
         Assert.Single(bundle.Css);
     }

@@ -7,7 +7,6 @@ public class EditorTypeTests
     [Fact]
     public void EditorType_ShouldHaveExpectedValues()
     {
-        // Act & Assert
         Assert.Equal(0, (int)EditorType.Classic);
         Assert.Equal(1, (int)EditorType.Inline);
         Assert.Equal(2, (int)EditorType.Balloon);

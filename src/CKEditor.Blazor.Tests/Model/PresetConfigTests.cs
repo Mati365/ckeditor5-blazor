@@ -7,10 +7,8 @@ public class PresetConfigTests
     [Fact]
     public void PresetConfig_ShouldInitializeWithDefaultValues()
     {
-        // Act
         var config = new PresetConfig();
 
-        // Assert
         Assert.Equal(EditorType.Classic, config.EditorType);
         Assert.NotNull(config.Config);
         Assert.Empty(config.Config);
@@ -23,17 +21,14 @@ public class PresetConfigTests
     [Fact]
     public void WithMergedConfig_ShouldReturnNewInstanceWithMergedValues()
     {
-        // Arrange
         var initialConfig = new PresetConfig
         {
             Config = new Dictionary<string, object> { { "key1", "val1" } }
         };
         var toMerge = new Dictionary<string, object> { { "key2", "val2" } };
 
-        // Act
         var result = initialConfig.WithMergedConfig(toMerge);
 
-        // Assert
         Assert.NotSame(initialConfig, result);
         Assert.Equal(2, result.Config.Count);
         Assert.Equal("val1", result.Config["key1"]);

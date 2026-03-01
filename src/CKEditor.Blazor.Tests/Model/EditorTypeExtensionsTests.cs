@@ -12,10 +12,8 @@ public class EditorTypeExtensionsTests
     [InlineData(EditorType.Balloon, false)]
     public void IsDecoupledOrMultiroot_ShouldReturnExpectedResult(EditorType editorType, bool expected)
     {
-        // Act
         var result = editorType.IsDecoupledOrMultiroot();
 
-        // Assert
         Assert.Equal(expected, result);
     }
 }

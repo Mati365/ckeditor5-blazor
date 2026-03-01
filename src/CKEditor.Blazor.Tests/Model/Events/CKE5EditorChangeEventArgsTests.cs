@@ -10,14 +10,11 @@ public class CKE5EditorChangeEventArgsTests
     [Fact]
     public void CKE5EditorChangeEventArgs_ShouldSetProperties()
     {
-        // Arrange
         var editorMock = new Mock<IJSObjectReference>();
         var value = new EditorValue("new value");
 
-        // Act
         var args = new CKE5EditorChangeEventArgs(editorMock.Object, value);
 
-        // Assert
         Assert.Same(editorMock.Object, args.Editor);
         Assert.Same(value, args.Value);
     }

@@ -7,10 +7,8 @@ public class CKBoxSelfHostedConfigTests
     [Fact]
     public void CKBoxSelfHostedConfig_ShouldInitializeCorrectly()
     {
-        // Act
         var config = new CKBoxSelfHostedConfig();
 
-        // Assert
         Assert.NotNull(config.Version);
         Assert.Null(config.Theme);
         Assert.NotNull(config.Translations);
@@ -20,10 +18,8 @@ public class CKBoxSelfHostedConfigTests
     [Fact]
     public void CKBoxSelfHostedConfig_ShouldAllowSettingValues()
     {
-        // Arrange
         var translations = new List<string> { "pl" };
 
-        // Act
         var config = new CKBoxSelfHostedConfig
         {
             Version = "2.8.0-custom",
@@ -31,7 +27,6 @@ public class CKBoxSelfHostedConfigTests
             Translations = translations
         };
 
-        // Assert
         Assert.Equal("2.8.0-custom", config.Version);
         Assert.Equal("lark", config.Theme);
         Assert.Equal(translations, config.Translations);
