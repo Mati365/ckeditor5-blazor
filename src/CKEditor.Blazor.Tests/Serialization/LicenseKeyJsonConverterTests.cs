@@ -47,6 +47,19 @@ public class LicenseKeyJsonConverterTests
     }
 
     [Fact]
+    public void Read_NullTokenDirectly_ShouldReturnNull()
+    {
+        var json = "null";
+        var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
+        reader.Read();
+
+        var converter = new LicenseKeyJsonConverter();
+        var result = converter.Read(ref reader, typeof(LicenseKey), _options);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
     public void Write_GPLKey_ShouldSerializeRawString()
     {
         var wrapper = new KeyWrapper { Key = LicenseKey.OfGPL() };

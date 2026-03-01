@@ -47,6 +47,16 @@ public class LicenseKeyParserTests
     }
 
     [Fact]
+    public void Parse_JWT_WithNullChannel_ShouldHaveNullDistributionChannel()
+    {
+        var jwt = JwtTestHelper.Build(extraClaims: new Dictionary<string, object?> { ["distributionChannel"] = null });
+
+        var result = LicenseKeyParser.Parse(jwt);
+
+        Assert.Null(result.DistributionChannel);
+    }
+
+    [Fact]
     public void Parse_JWT_WithExpiry_ShouldSetExpiresAt()
     {
         var expiry = DateTimeOffset.UtcNow.AddDays(30).ToUnixTimeSeconds();
@@ -134,6 +144,14 @@ public class LicenseKeyParserTests
     public void Parse_InvalidBase64Payload_ShouldThrow()
     {
         Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse("header.!!!invalid_base64!!!.sig"));
+    }
+
+    [Fact]
+    public void Parse_NullPayload_ShouldThrow()
+    {
+        // "bnVsbA" is the base64url encoding of "null"
+        var ex = Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse("header.bnVsbA.sig"));
+        Assert.Equal("Invalid JSON in JWT payload", ex.Message);
     }
 
     [Fact]

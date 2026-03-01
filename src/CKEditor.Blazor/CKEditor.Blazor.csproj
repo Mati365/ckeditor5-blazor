@@ -28,6 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="CKEditor.Blazor.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="CKEditor.Blazor.targets" Pack="true" PackagePath="build;buildTransitive" />
   </ItemGroup>
 </Project>
