@@ -1,9 +1,9 @@
-using Moq;
 using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.SelfHosted;
 using CKEditor.Blazor.Services.Bundle.SelfHosted;
 using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
+using Moq;
 
 namespace CKEditor.Blazor.Tests.Services.Bundle.SelfHosted;
 
@@ -65,7 +65,7 @@ public class SelfHostedBundleBuilderTests
             CKBox = new CKBoxSelfHostedConfig
             {
                 Version = "2.1.0",
-                Translations = [ "en" ]
+                Translations = ["en"]
             }
         };
 

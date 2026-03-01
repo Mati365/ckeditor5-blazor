@@ -1,9 +1,9 @@
-using Moq;
 using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.Cloud;
 using CKEditor.Blazor.Services.Bundle.Cloud;
 using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
+using Moq;
 
 namespace CKEditor.Blazor.Tests.Services.Bundle.Cloud;
 
@@ -66,7 +66,7 @@ public class CloudBundleBuilderTests
             {
                 Version = "2.1.0",
                 CdnUrl = "cdn-ckbox",
-                Translations = [ "en" ]
+                Translations = ["en"]
             }
         };
 
