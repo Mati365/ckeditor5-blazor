@@ -662,18 +662,11 @@ In some scenarios, such as when using a highly customized editor setup or when y
 
 ### Splitting Assets: Global Import Map with Per-page Styles 🗺️
 
-The typical setup places a single component — `<CKE5Cloud />` or `<CKE5SelfHosted />` — in the shared `<head>` of your layout. That works perfectly for single-page apps or when every route uses the editor.
+The typical setup places a single component — `<CKE5Cloud />` or `<CKE5SelfHosted />` — in the shared `<head>` of your layout. This works perfectly when most routes use the editor.
 
-In apps where **only some pages use the editor**, loading its import map globally is fine (the browser reads it once, it has no cost), but stylesheets are unnecessary overhead on pages that never render an editor.
+If your app only uses the editor on specific pages, loading the import map globally is fine, but stylesheets add unnecessary overhead on pages without the editor. You can solve this by splitting the assets.
 
-The solution is to **split the assets into two separate concerns**:
-
-| What | Where | Component |
-|---|---|---|
-| `<script type="importmap">` | Shared layout / `App.razor` `<head>` | `<CKE5CloudImportmap />` or `<CKE5SelfHostedImportmap />` |
-| Stylesheets + module-preload hints | Individual pages that actually use the editor | `<CKE5Cloud EmitImportMap="false" />` or `<CKE5SelfHosted EmitImportMap="false" />` |
-
-The import map **must** appear before any `import` statement that references its entries, so it still needs to be in the shared `<head>`. The stylesheet however has no such constraint and can safely live on the page that needs it.
+Place the import map component (`<CKE5CloudImportmap />` or `<CKE5SelfHostedImportmap />`) in your shared layout `<head>`, as the import map must appear before any scripts that use it. Then, place the main component (`<CKE5Cloud EmitImportMap="false" />` or `<CKE5SelfHosted EmitImportMap="false" />`) only on pages that actually render the editor. This ensures stylesheets and preload hints are loaded only when needed.
 
 #### Self-hosted variant 🏠
 
