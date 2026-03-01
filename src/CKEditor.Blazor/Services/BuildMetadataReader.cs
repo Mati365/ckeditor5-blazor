@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace CKEditor.Blazor.Services;
@@ -5,6 +6,7 @@ namespace CKEditor.Blazor.Services;
 /// <summary>
 /// Provides CKEditor version information from assembly metadata.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal static class BuildMetadataReader
 {
     private const string _ckeditorVersionKey = "CKEditor.Blazor.CKEditorVersion";
