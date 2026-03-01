@@ -36,6 +36,7 @@ CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET C
     - [Global Translation Config 🛠️](#global-translation-config-️)
     - [Custom translations 🌐](#custom-translations-)
       - [Translation references using `$translation` ✨](#translation-references-using-translation-)
+      - [Element references using `$element` 🎯](#element-references-using-element-)
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
@@ -303,11 +304,11 @@ If you use CKEditor 5 under GPL, use `GPL` as your key value.
 
 ## Localization 🌍
 
-Configure editor UI/content language and custom dictionaries for translated labels.
+Support multiple languages in the editor UI and content. Configure translation loading, custom dictionaries, and reuse translation keys or DOM element references across your configuration.
 
 ### Translation Loading 🌐
 
-For cloud and self-hosted setups, translation assets are loaded through the configured bundle. Then set language per editor/context:
+For self-hosted setups, translation assets are handled by your bundler automatically. For cloud setups, translations are loaded through the configured CDN bundle. In both cases, set the UI language per editor or context:
 
 ```razor
 <CKE5Editor
@@ -351,7 +352,7 @@ You can override translations per editor instance via `CustomTranslations`:
 
 #### Translation references using `$translation` ✨
 
-Configuration objects may contain translation references. In C#, use `PresetTranslationReference` which serializes to `{ "$translation": "key" }`:
+In addition to supplying full translation maps, configuration objects may contain reference helpers that point to existing translation keys. This is particularly handy when you want to reuse an existing label or avoid repeating the same string in multiple places. Use `PresetTranslationReference` in C# (which serializes to `{ "$translation": "key" }`) in any part of your editor or context configuration, and the package will automatically replace it with the correct localized string during initialization.
 
 ```csharp
 using CKEditor.Blazor.Model;
@@ -382,6 +383,35 @@ builder.Services.AddCKEditor(options =>
     };
 });
 ```
+
+When the editor or context is created, the helper will be resolved against the loaded translations (including any custom translations you provided). If the key is not found, a warning is printed and `null` will be used instead.
+
+#### Element references using `$element` 🎯
+
+Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use `PresetElementSelector` in C# (which serializes to `{ "$element": "selector" }`) anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization.
+
+This is useful, for example, when pointing a plugin to an external container element:
+
+```csharp
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options =>
+{
+    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
+    {
+        Config = new Dictionary<string, object>
+        {
+            ["myPlugin"] = new Dictionary<string, object>
+            {
+                ["container"] = new PresetElementSelector("#my-container")
+            }
+        }
+    };
+});
+```
+
+If no element matching the selector is found in the DOM, a warning is printed and `null` is used instead.
 
 ## Editor Types 🖊️
 
