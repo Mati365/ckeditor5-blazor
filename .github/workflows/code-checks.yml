@@ -57,6 +57,7 @@ jobs:
         run: dotnet test --results-directory ./TestResults /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
 
       - name: Show coverage summary
+        if: always()
         run: |
           dotnet tool restore
           dotnet reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:TextSummary
