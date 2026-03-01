@@ -304,7 +304,7 @@ builder.Services.AddCKEditor(options =>
 Use it in Razor:
 
 ```razor
-<CKE5Editor Preset="minimal" Value="<p>Simple editor</p>" />
+<CKE5Editor Preset="@("minimal")" Value="<p>Simple editor</p>" />
 ```
 
 ### Dynamic presets 🎯
