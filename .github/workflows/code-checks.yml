@@ -30,6 +30,15 @@ jobs:
       - name: Run tests
         run: pnpm run npm_package:test
 
+      - name: Upload JS coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./npm_package/coverage/lcov.info
+          flags: javascript
+          name: javascript-coverage
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   dotnet_checks:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -62,3 +71,12 @@ jobs:
           dotnet tool restore
           dotnet reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:TextSummary
           cat coveragereport/Summary.txt
+
+      - name: Upload .NET coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./TestResults/**/coverage.cobertura.xml
+          flags: dotnet
+          name: dotnet-coverage
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
