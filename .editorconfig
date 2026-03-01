@@ -17,6 +17,7 @@ indent_size = 4
 #### .NET Coding Conventions ####
 
 # Organize usings
+dotnet_diagnostic.IDE0005.severity = warning
 dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = true
 file_header_template = unset
