@@ -30,13 +30,13 @@ CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET C
     - [Define your configuration directly in the view 💻](#define-your-configuration-directly-in-the-view-)
     - [Define reusable configuration presets 🧩](#define-reusable-configuration-presets-)
     - [Dynamic presets 🎯](#dynamic-presets-)
+    - [Element references using `$element` 🎯](#element-references-using-element-)
   - [Providing the License Key 🗝️](#providing-the-license-key-️)
   - [Localization 🌍](#localization-)
     - [Translation Loading 🌐](#translation-loading-)
     - [Global Translation Config 🛠️](#global-translation-config-️)
     - [Custom translations 🌐](#custom-translations-)
       - [Translation references using `$translation` ✨](#translation-references-using-translation-)
-      - [Element references using `$element` 🎯](#element-references-using-element-)
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
@@ -281,6 +281,33 @@ You can also create dynamic presets that can be modified at runtime. This is use
 }
 ```
 
+### Element references using `$element` 🎯
+
+Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use `PresetElementSelector` in C# (which serializes to `{ "$element": "selector" }`) anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization.
+
+This is useful, for example, when pointing a plugin to an external container element:
+
+```csharp
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options =>
+{
+    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
+    {
+        Config = new Dictionary<string, object>
+        {
+            ["myPlugin"] = new Dictionary<string, object>
+            {
+                ["container"] = new PresetElementSelector("#my-container")
+            }
+        }
+    };
+});
+```
+
+If no element matching the selector is found in the DOM, a warning is printed and `null` is used instead.
+
 ## Providing the License Key 🗝️
 
 CKEditor 5 requires a license key for official CDN and premium features.
@@ -385,33 +412,6 @@ builder.Services.AddCKEditor(options =>
 ```
 
 When the editor or context is created, the helper will be resolved against the loaded translations (including any custom translations you provided). If the key is not found, a warning is printed and `null` will be used instead.
-
-#### Element references using `$element` 🎯
-
-Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use `PresetElementSelector` in C# (which serializes to `{ "$element": "selector" }`) anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization.
-
-This is useful, for example, when pointing a plugin to an external container element:
-
-```csharp
-using CKEditor.Blazor.Model;
-using CKEditor.Blazor.Services;
-
-builder.Services.AddCKEditor(options =>
-{
-    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
-    {
-        Config = new Dictionary<string, object>
-        {
-            ["myPlugin"] = new Dictionary<string, object>
-            {
-                ["container"] = new PresetElementSelector("#my-container")
-            }
-        }
-    };
-});
-```
-
-If no element matching the selector is found in the DOM, a warning is printed and `null` is used instead.
 
 ## Editor Types 🖊️
 
