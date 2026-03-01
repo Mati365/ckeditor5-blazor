@@ -191,11 +191,11 @@ Create a basic editor with default toolbar and plugins.
 
 ## Configuration ⚙️
 
-You can configure editor presets in `AddCKEditor(...)`. The default preset is `default`.
+You can configure editor presets in `AddCKEditor(...)`. The default preset is `default`. Presets are reusable configuration objects that can be applied to any editor instance. You can also define custom presets and override the default one.
 
 ### Override default preset configuration 🧑‍💻
 
-You can merge runtime configuration into the resolved preset using `MergeConfig`.
+You can pass initial content and merge additional configuration. In scenario below, the `MergeConfig` will extend the `default` preset configuration to make the menu bar visible. It's only shallow merge, so nested arrays will be replaced, not merged.
 
 ```razor
 <CKE5Editor
@@ -211,7 +211,7 @@ You can merge runtime configuration into the resolved preset using `MergeConfig`
 
 ### Define your configuration directly in the view 💻
 
-Use `Config` when you want to fully replace preset config for a specific instance.
+Override the default configuration with custom plugins and toolbar items. In this example, the editor will only have `Essentials`, `Paragraph`, `Bold`, `Italic`, `Link`, and `Undo` plugins, and the toolbar will contain only bold, italic, link, undo, and redo buttons. The editor locale is set to Polish (`pl`), and a custom translation for the "Bold" label is provided.
 
 ```razor
 <CKE5Editor
@@ -228,7 +228,7 @@ Use `Config` when you want to fully replace preset config for a specific instanc
 
 ### Define reusable configuration presets 🧩
 
-Define named presets once in `Program.cs`, then reuse via `Preset`.
+In order to override the default preset or add custom presets, publish the configuration file:
 
 ```csharp
 using CKEditor.Blazor.Model;
@@ -259,7 +259,7 @@ Use it in Razor:
 
 ### Dynamic presets 🎯
 
-You can pass a `PresetConfig` object directly to `Preset` and build it at runtime.
+You can also create dynamic presets that can be modified at runtime. This is useful if you want to change the editor configuration based on user input or other conditions.
 
 ```razor
 @using CKEditor.Blazor.Model
@@ -563,7 +563,9 @@ Update bound value from C# and editor content is pushed automatically:
 
 ### Editor Ready Event ✅
 
-Handle `OnReady` when you need direct JS editor reference.
+An event is fired when the editor has finished initializing and is fully ready.
+This can be useful for triggering UI updates, focusing related components, or
+performing any logic that must wait until the editor is available.
 
 ```razor
 @using Microsoft.JSInterop
@@ -580,7 +582,7 @@ Handle `OnReady` when you need direct JS editor reference.
 
 ### Focus Tracking 👁️
 
-Track focus state using `OnFocus` and `OnBlur` callbacks.
+You can track editor focus state using `OnFocus` and `OnBlur` events. This is useful for UI adjustments or validation logic based on whether the editor is active.
 
 ```razor
 <CKE5Editor
@@ -600,7 +602,7 @@ Track focus state using `OnFocus` and `OnBlur` callbacks.
 
 #### Disabling the watchdog 🚫
 
-Set `Watchdog="false"` if you need raw editor lifecycle control:
+By default, the editor is wrapped in a watchdog that automatically tries to recover from crashes by reinitializing the editor instance. This ensures a more resilient user experience, especially in cases where custom plugins or configurations might cause instability.
 
 ```razor
 <CKE5Editor Watchdog="false" />
@@ -608,7 +610,7 @@ Set `Watchdog="false"` if you need raw editor lifecycle control:
 
 ## Context 🤝
 
-Use shared contexts to run multiple editors under one `ContextWatchdog` instance.
+The **context** feature is designed to group multiple editor instances together, allowing them to share a common context. This is particularly useful in collaborative editing scenarios, where users can work together in real time. By sharing a context, editors can synchronize features such as comments, track changes, and presence indicators across different editor instances. This enables seamless collaboration and advanced workflows in your Phoenix application.
 
 ### Basic usage 🔧
 
