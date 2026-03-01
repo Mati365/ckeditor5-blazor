@@ -258,3 +258,17 @@ dotnet_diagnostic.SA1623.severity = none
 
 # XML comment analysis disabled
 dotnet_diagnostic.CS1591.severity = none
+
+#### SonarAnalyzer Rules ####
+
+# S1541: Cyclomatic complexity of methods should not be too high (threshold: 10)
+dotnet_diagnostic.S1541.severity = warning
+
+# S3776: Cognitive complexity of methods should not be too high (threshold: 15)
+dotnet_diagnostic.S3776.severity = warning
+
+# S1075: URIs should not be hardcoded
+dotnet_diagnostic.S1075.severity = none
+
+# S101: Types should be named in PascalCase
+dotnet_diagnostic.S101.severity = none

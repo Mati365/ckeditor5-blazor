@@ -87,14 +87,7 @@ internal static class BuildMetadataReader
             return null;
         }
 
-        foreach (var metadata in assembly.GetCustomAttributes<AssemblyMetadataAttribute>())
-        {
-            if (string.Equals(metadata.Key, key, StringComparison.Ordinal))
-            {
-                return metadata.Value;
-            }
-        }
-
-        return null;
+        return assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+            .FirstOrDefault(attr => string.Equals(attr.Key, key, StringComparison.Ordinal))?.Value;
     }
 }
