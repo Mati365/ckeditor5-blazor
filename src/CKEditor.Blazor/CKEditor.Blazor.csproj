@@ -8,6 +8,7 @@
     <NpmPackageDir>$(MSBuildProjectDirectory)/../../npm_package</NpmPackageDir>
     <NpmPackageDist>$(NpmPackageDir)/dist</NpmPackageDist>
     <NpmPackageWwwroot>$(MSBuildProjectDirectory)/wwwroot/ckeditor5-blazor</NpmPackageWwwroot>
+    <Description>CKEditor 5 integration for ASP.NET Core Blazor Server and WebAssembly. Supports Classic, Inline, Decoupled and Multiroot editor types, live two-way data binding, file and image upload, shared context for collaborative features, custom TypeScript plugins, full localization, self-hosted assets via MSBuild, CDN loading with import maps, reusable configuration presets, and built-in watchdog for automatic crash recovery.</Description>
     <Authors>Mateusz Bagiński</Authors>
     <Company>Mateusz Bagiński</Company>
     <PackageProjectUrl>https://github.com/Mati365/ckeditor5-blazor</PackageProjectUrl>
