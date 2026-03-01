@@ -385,9 +385,11 @@ builder.Services.AddCKEditor(options =>
 
 ## Editor Types 🖊️
 
-CKEditor 5 for Blazor supports distinct editor types for different UI layouts.
+CKEditor 5 for Blazor supports four distinct editor types, each designed for specific use cases. Choose the one that best fits your application's layout and functionality requirements.
 
 ### Classic editor 📝
+
+Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for standard content editing scenarios like blog posts, articles, or forms.
 
 ![CKEditor 5 Classic Editor in Blazor application](docs/classic.png)
 
@@ -400,6 +402,8 @@ CKEditor 5 for Blazor supports distinct editor types for different UI layouts.
 
 ### Inline editor 📝
 
+Minimalist editor that appears directly within content when clicked. Ideal for in-place editing scenarios where the editing interface should be invisible until needed.
+
 ![CKEditor 5 Inline Editor in Blazor application](docs/inline-editor.png)
 
 ```razor
@@ -409,7 +413,11 @@ CKEditor 5 for Blazor supports distinct editor types for different UI layouts.
     Class="border border-gray-300" />
 ```
 
+**Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
+
 ### Decoupled editor 🌐
+
+Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
 
 ![CKEditor 5 Decoupled Editor in Blazor application](docs/decoupled-editor.png)
 
@@ -429,6 +437,8 @@ CKEditor 5 for Blazor supports distinct editor types for different UI layouts.
 ```
 
 ### Multiroot editor 🌳
+
+Advanced editor supporting multiple separate editing areas (roots) with a shared toolbar. Perfect for complex documents with multiple editable sections like headers, sidebars, and main content.
 
 ![CKEditor 5 Multiroot Editor in Blazor application](docs/multiroot-editor.png)
 
