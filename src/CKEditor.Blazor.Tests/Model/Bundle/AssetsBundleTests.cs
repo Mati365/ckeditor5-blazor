@@ -98,7 +98,7 @@ public class AssetsBundleTests
     [Fact]
     public void GetCssUrls_ShouldReturnDistinctCss()
     {
-         // Arrange
+        // Arrange
         var bundle = new AssetsBundle(
             [],
             ["a.css", "b.css", "a.css"]);
@@ -138,7 +138,7 @@ public class AssetsBundleTests
     [Fact]
     public void WithMergedJs_ShouldMergeJsAssets()
     {
-         // Arrange
+        // Arrange
         var bundle = new AssetsBundle(
             [new JSAsset { Name = "a", Url = "a.js", Type = JSAssetType.ESM }],
             []);
