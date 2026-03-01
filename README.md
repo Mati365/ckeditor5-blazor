@@ -137,6 +137,14 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
    </HeadContent>
    ```
 
+6. **Use editor components** anywhere in your Razor UI:
+
+   ```razor
+   @using CKEditor.Blazor.Components
+
+   <CKE5Editor Value="@("<p>Hello world!</p>")" />
+   ```
+
 ### 📡 CDN Distribution
 
 Load CKEditor 5 from CKSource CDN using import maps. This method avoids local asset downloads and is good for quick setup.
@@ -181,7 +189,9 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
 4. **Use editor components** anywhere in your Razor UI:
 
    ```razor
-   <CKE5Editor Value="<p>Hello world!</p>" />
+   @using CKEditor.Blazor.Components
+
+   <CKE5Editor Value="@("<p>Hello world!</p>")" />
    ```
 
 That's it! 🎉
@@ -200,12 +210,32 @@ Create a basic editor with default toolbar and plugins.
 
 <CKE5Editor
     EditorType="classic"
-    Value="<p>Initial content</p>"
+    Value="@("<p>Initial content</p>")"
     EditableHeight="300"
     @bind-Value="content" />
 
 @code {
     private EditorValue content = "<p>Initial content</p>";
+}
+```
+
+`EditorValue` can be initialized from a plain string (mapped to the `main` root) or from a `Dictionary<string, string>` for multi-root editors, where each key is a root name:
+
+```razor
+@using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Model
+
+<CKE5Editor
+    EditorType="multiroot"
+    @bind-Value="content" />
+
+@code {
+    private EditorValue content = new Dictionary<string, string>
+    {
+        ["header"] = "<p>Header content</p>",
+        ["main"]   = "<p>Main content</p>",
+        ["footer"] = "<p>Footer content</p>"
+    };
 }
 ```
 
