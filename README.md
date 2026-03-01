@@ -6,7 +6,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/mati365/ckeditor5-blazor?style=flat-square)](https://github.com/Mati365/ckeditor5-blazor/issues)
 ![NPM Version](https://img.shields.io/npm/v/ckeditor5-blazor?style=flat-square)
 
-The fastest way to add CKEditor 5 to your Blazor app. Zero-config installation, native C# data binding, and no manual JS Interop.
+CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET Core Blazor Server and WebAssembly. It works with Razor components and .NET forms. Easy to set up, it supports self-hosted assets, CDN loading, multiple editor types, shared contexts, localization, and custom plugins.
 
 > [!IMPORTANT]
 > This integration is unofficial and not maintained by CKSource. For official CKEditor 5 documentation, visit [ckeditor.com](https://ckeditor.com/docs/ckeditor5/latest/). If you encounter any issues in editor, please report them on the [GitHub repository](https://github.com/ckeditor/ckeditor5/issues).
@@ -20,139 +20,627 @@ The fastest way to add CKEditor 5 to your Blazor app. Zero-config installation, 
 
 - [ckeditor5-blazor](#ckeditor5-blazor)
   - [Table of Contents](#table-of-contents)
-  - [Under construction 🚧](#under-construction-)
   - [Installation 🚀](#installation-)
-    - [Self hosted 🏠](#self-hosted-)
-    - [Cloud hosted ☁️](#cloud-hosted-️)
+    - [🏠 Self-hosted via MSBuild](#-self-hosted-via-msbuild)
+    - [📡 CDN Distribution](#-cdn-distribution)
   - [Basic Usage 🏁](#basic-usage-)
+    - [Simple Editor ✏️](#simple-editor-️)
+  - [Configuration ⚙️](#configuration-️)
+    - [Override default preset configuration 🧑‍💻](#override-default-preset-configuration-)
+    - [Define your configuration directly in the view 💻](#define-your-configuration-directly-in-the-view-)
+    - [Define reusable configuration presets 🧩](#define-reusable-configuration-presets-)
+    - [Dynamic presets 🎯](#dynamic-presets-)
+  - [Providing the License Key 🗝️](#providing-the-license-key-️)
+  - [Localization 🌍](#localization-)
+    - [Translation Loading 🌐](#translation-loading-)
+    - [Global Translation Config 🛠️](#global-translation-config-️)
+    - [Custom translations 🌐](#custom-translations-)
+      - [Translation references using `$translation` ✨](#translation-references-using-translation-)
+  - [Editor Types 🖊️](#editor-types-️)
+    - [Classic editor 📝](#classic-editor-)
+    - [Inline editor 📝](#inline-editor-)
+    - [Decoupled editor 🌐](#decoupled-editor-)
+    - [Multiroot editor 🌳](#multiroot-editor-)
+  - [Advanced configuration ⚙️](#advanced-configuration-️)
+    - [Blazor Data Binding 🔄](#blazor-data-binding-)
+      - [Two way binding using `@bind-Value` ⛓️](#two-way-binding-using-bind-value-️)
+        - [Multiroot Editables 🌳⛓️](#multiroot-editables-️)
+      - [Bidirectional Communication using Events 🔄](#bidirectional-communication-using-events-)
+        - [Editor → .NET: Content Change Event 📤](#editor--net-content-change-event-)
+        - [.NET → Editor: Set Content 📥](#net--editor-set-content-)
+    - [Editor Ready Event ✅](#editor-ready-event-)
+    - [Focus Tracking 👁️](#focus-tracking-️)
+    - [Watchdog 🐶](#watchdog-)
+      - [How it works ⚙️](#how-it-works-️)
+      - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
+  - [Context 🤝](#context-)
+    - [Basic usage 🔧](#basic-usage--1)
+    - [Custom context config 🌐](#custom-context-config-)
+  - [Custom plugins 🧩](#custom-plugins-)
   - [Editors and Contexts registry 👀](#editors-and-contexts-registry-)
   - [Development ⚙️](#development-️)
+    - [Running Tests 🧪](#running-tests-)
   - [Psst... 👀](#psst-)
   - [Trademarks 📜](#trademarks-)
   - [License 📜](#license-)
 
-## Under construction 🚧
-
-This project is currently under active development. In the meantime the author might be watching cat videos, brewing coffee, and negotiating with npm packages - PRs and snacks are welcome. Here's a silly cat+coffee picture for motivation:
-
-![Cat and Coffee](https://i.makeagif.com/media/6-02-2015/ipXidH.gif)
-
 ## Installation 🚀
 
-Add the package to your Blazor project using NuGet:
+Choose between two installation methods based on your needs. Both approaches provide the same editor API in Razor, but differ in how CKEditor 5 assets are loaded and managed.
 
-```bash
-dotnet add package CKEditor5.Blazor
-```
+### 🏠 Self-hosted via MSBuild
 
-and register service in `Program.cs`:
+Bundle CKEditor 5 with your application for full control over assets, versioning, and offline support. During build, the package downloads required assets automatically.
 
-```csharp
-builder.Services.AddCKEditor5();
-```
+**Complete setup:**
 
-Depending on your needs, you can choose between two installation methods: `self-hosted` or `cloud-hosted`.
+1. **Add NuGet dependency:**
 
-### Self hosted 🏠
+   ```bash
+   dotnet add package CKEditor5.Blazor
+   ```
 
-Bundle CKEditor 5 with your application for full control over assets, versioning, and offline support. This method automatically downloads the necessary assets from NPM into your project's `wwwroot` directory during the build process using MSBuild tasks.
+2. **Register CKEditor services** in `Program.cs`:
 
-1. **Configure MSBuild (Optional):**
+   ```csharp
+   using CKEditor.Blazor.Services;
 
-    The package comes with default configuration settings. You can override these in your project's .csproj file to control the version or enable premium features:
+   builder.Services.AddCKEditor();
+   ```
 
-    ```xml
-    <PropertyGroup>
-      <CKEditorVersion>47.3.0</CKEditorVersion>
-      <CKEditorIncludePremiumAssets>false</CKEditorIncludePremiumAssets>
-      <CKEditorAssetsOutputPath>$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
-    </PropertyGroup>
-    ```
+3. **(Optional) Override MSBuild asset options** in your `.csproj`:
 
-2. **Rebuild your project:**
+   ```xml
+   <PropertyGroup>
+     <CKEditorVersion>47.3.0</CKEditorVersion>
+     <CKEditorIncludePremiumAssets>false</CKEditorIncludePremiumAssets>
+     <CKBoxVersion>2.8.0</CKBoxVersion>
+     <CKBoxIncludeAssets>true</CKBoxIncludeAssets>
+     <CKEditorAssetsOutputPath>$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
+   </PropertyGroup>
+   ```
 
-    It'll trigger the asset download and bundling process. The CKEditor 5 assets will be available in the specified output path (default is `wwwroot/ckeditor5`).
+4. **Build your project** to download and prepare assets:
 
-    ```bash
-    dotnet build
-    ```
+   ```bash
+   dotnet build
+   ```
 
-3. **Add Assets to your layout:**
+5. **Add self-hosted assets component** in `<head>` (e.g. `App.razor`):
 
-    In your main layout file (e.g., App.razor, _Host.cshtml, or MainLayout.razor), add the self-hosted assets component inside the <head> tag:
+   ```razor
+   @using CKEditor.Blazor.Components.Assets
 
-    ```razor
-    @using CKEditor.Blazor.Components.Assets
+   <HeadContent>
+       <CKE5SelfHosted />
+   </HeadContent>
+   ```
 
-    <HeadContent>
-        <CKE5SelfHosted />
-    </HeadContent>
-    ```
+### 📡 CDN Distribution
 
-### Cloud hosted ☁️
+Load CKEditor 5 from CKSource CDN using import maps. This method avoids local asset downloads and is good for quick setup.
 
-Load CKEditor 5 directly from CKSource's CDN. This method requires no build configuration or asset management but **requires a valid License Key** (even for trial purposes).
+**Complete setup:**
 
-1. **Configure License Key:**
+1. **Add NuGet dependency:**
 
-    Adjust your `AddCKEditor5` service registration in `Program.cs` to include your CKEditor Cloud License Key:
+   ```bash
+   dotnet add package CKEditor5.Blazor
+   ```
 
-    ```csharp
-    builder.Services.AddCKEditor5(options =>
-    {
-        options.DefaultLicenseKey = "your-license-key-here";
-    });
-    ```
+2. **Register CKEditor with cloud preset** in `Program.cs`:
 
-2. **Add Assets to Layout:**
+   ```csharp
+   using CKEditor.Blazor.Model.Cloud;
+   using CKEditor.Blazor.Services;
 
-    In your main layout file (e.g., App.razor, _Host.cshtml, or MainLayout.razor), add the cloud-hosted assets component inside the <head> tag:
+   builder.Services.AddCKEditor(options =>
+   {
+       options.DefaultLicenseKey = "your-license-key-here";
 
-    ```razor
-    @using CKEditor.Blazor.Components
+       options.Presets["default"] = ConfigManager.CreateDefaultPreset(
+           cloudConfig: new CloudConfig
+           {
+               EditorVersion = "47.3.0",
+               Premium = false
+           });
+   });
+   ```
 
-    <HeadContent>
-        <CKE5Cloud />
-    </HeadContent>
-    ```
+3. **Add cloud assets component** in `<head>`:
+
+   ```razor
+   @using CKEditor.Blazor.Components.Assets
+
+   <HeadContent>
+       <CKE5Cloud />
+   </HeadContent>
+   ```
+
+4. **Use editor components** anywhere in your Razor UI:
+
+   ```razor
+   <CKE5Editor Value="<p>Hello world!</p>" />
+   ```
+
+That's it! 🎉
 
 ## Basic Usage 🏁
 
-You can now use the `<CKE5Editor>` component anywhere in your Blazor app.
+Get started with the most common usage pattern. This example shows how to render an editor in Razor and keep content synced with .NET state.
+
+### Simple Editor ✏️
+
+Create a basic editor with default toolbar and plugins.
 
 ```razor
 @using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Model
 
-<CKE5Editor EditorType="classic" Value="@("<p>Hello world!</p>")" />
+<CKE5Editor
+    EditorType="classic"
+    Value="<p>Initial content</p>"
+    EditableHeight="300"
+    @bind-Value="content" />
+
+@code {
+    private EditorValue content = "<p>Initial content</p>";
+}
 ```
 
-In scenarios where you need a standalone editable root (for example in a multiroot layout,
-sidebar, or custom UI part) you can use the `<CKE5Editable>` component. It behaves much like
-`<CKE5Editor>` but exposes only a single root and must be attached to an existing editor via
-`EditorId`.
+## Configuration ⚙️
 
-Both components support two‑way data binding via `Value`/`@bind-Value` **and** an `OnChange`
-event callback which fires every time the editor data changes. This is useful when you want
-to observe edits without mutating the bound value. The callback now provides a reference to
-the underlying CKEditor instance (analogous to the `OnFocus`/`OnBlur` events on `<CKE5Editor>`),
-so handlers can invoke JS methods directly or inspect the editor if needed.
+You can configure editor presets in `AddCKEditor(...)`. The default preset is `default`.
 
-- The `EditorType` parameter accepts any CKEditor 5 build (e.g., `classic`, `inline`, `balloon`, `decoupled` or `multiroot`).
+### Override default preset configuration 🧑‍💻
 
-- The `Value` parameter allows you to set the initial content of the editor, and supports two-way binding with `@bind-Value`. Keep in mind that `Value` is [`EditorValue.cs`](/src/CKEditor.Blazor/Model/EditorValue.cs) type, which also supports multiple roots. If you use classic editor, which has only single root, you can pass string content directly. For editors with multiple roots, you need to pass a directory with root names as keys and their content as values.
+You can merge runtime configuration into the resolved preset using `MergeConfig`.
 
-- **Change notifications** – in addition to two‑way binding you may register a callback that fires every time the editor data changes without mutating your bound value. Use the `OnChange` parameter to receive both the new value and a JS object reference for the editor:
+```razor
+<CKE5Editor
+    Value="<p>This is the initial content of the editor.</p>"
+    MergeConfig="@(new Dictionary<string, object>
+    {
+        [\"menuBar\"] = new Dictionary<string, object>
+        {
+            [\"isVisible\"] = true
+        }
+    })" />
+```
+
+### Define your configuration directly in the view 💻
+
+Use `Config` when you want to fully replace preset config for a specific instance.
+
+```razor
+<CKE5Editor
+    Language="pl"
+    Config="@(new Dictionary<string, object>
+    {
+        [\"plugins\"] = new[] { \"Essentials\", \"Paragraph\", \"Bold\", \"Italic\", \"Link\", \"Undo\" },
+        [\"toolbar\"] = new Dictionary<string, object>
+        {
+            [\"items\"] = new[] { \"bold\", \"italic\", \"link\", \"|\", \"undo\", \"redo\" }
+        }
+    })" />
+```
+
+### Define reusable configuration presets 🧩
+
+Define named presets once in `Program.cs`, then reuse via `Preset`.
+
+```csharp
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options =>
+{
+    options.Presets["minimal"] = new PresetConfig
+    {
+        EditorType = EditorType.Classic,
+        Config = new Dictionary<string, object>
+        {
+            ["plugins"] = new[] { "Essentials", "Paragraph", "Bold", "Italic", "Undo" },
+            ["toolbar"] = new Dictionary<string, object>
+            {
+                ["items"] = new[] { "bold", "italic", "|", "undo", "redo" }
+            }
+        }
+    };
+});
+```
+
+Use it in Razor:
+
+```razor
+<CKE5Editor Preset="minimal" Value="<p>Simple editor</p>" />
+```
+
+### Dynamic presets 🎯
+
+You can pass a `PresetConfig` object directly to `Preset` and build it at runtime.
+
+```razor
+@using CKEditor.Blazor.Model
+@using CKEditor.Blazor.Services
+
+<CKE5Editor Preset="@dynamicPreset" Value="<p>Runtime preset</p>" />
+
+@code {
+    private readonly PresetConfig dynamicPreset = ConfigManager.CreateDefaultPreset() with
+    {
+        Config = new Dictionary<string, object>
+        {
+            ["toolbar"] = new Dictionary<string, object>
+            {
+                ["items"] = new[] { "bold", "italic", "link", "|", "undo", "redo" }
+            }
+        }
+    };
+}
+```
+
+## Providing the License Key 🗝️
+
+CKEditor 5 requires a license key for official CDN and premium features.
+
+1. **Environment variable** (recommended for production):
+
+   ```bash
+   export CKEditor__DefaultLicenseKey="your-license-key-here"
+   ```
+
+2. **Programmatic config** in `Program.cs`:
+
+   ```csharp
+   builder.Services.AddCKEditor(options =>
+   {
+       options.DefaultLicenseKey = "your-license-key-here";
+   });
+   ```
+
+If you use CKEditor 5 under GPL, use `GPL` as your key value.
+
+## Localization 🌍
+
+Configure editor UI/content language and custom dictionaries for translated labels.
+
+### Translation Loading 🌐
+
+For cloud and self-hosted setups, translation assets are loaded through the configured bundle. Then set language per editor/context:
+
+```razor
+<CKE5Editor
+    Language="pl"
+    Value="<p>Treść z polskim UI</p>" />
+```
+
+### Global Translation Config 🛠️
+
+Set default language and translated labels in your preset configuration:
+
+```csharp
+builder.Services.AddCKEditor(options =>
+{
+    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
+    {
+        Config = new Dictionary<string, object>
+        {
+            ["language"] = "pl"
+        },
+        Translations = new Dictionary<string, string>
+        {
+            ["Bold"] = "Pogrubienie"
+        }
+    };
+});
+```
+
+### Custom translations 🌐
+
+You can override translations per editor instance via `CustomTranslations`:
+
+```razor
+<CKE5Editor
+    Value="<p>Custom labels</p>"
+    CustomTranslations="@(new Dictionary<string, string>
+    {
+        [\"Bold\"] = \"Pogrubienie (custom)\"
+    })" />
+```
+
+#### Translation references using `$translation` ✨
+
+Configuration objects may contain translation references. In C#, use `PresetTranslationReference` which serializes to `{ "$translation": "key" }`:
+
+```csharp
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options =>
+{
+    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
+    {
+        Config = new Dictionary<string, object>
+        {
+            ["toolbar"] = new Dictionary<string, object>
+            {
+                ["items"] = new object[]
+                {
+                    new Dictionary<string, object>
+                    {
+                        ["label"] = new PresetTranslationReference("Bold"),
+                        ["items"] = new[] { "bold" }
+                    }
+                }
+            }
+        },
+        Translations = new Dictionary<string, string>
+        {
+            ["Bold"] = "Pogrubienie"
+        }
+    };
+});
+```
+
+## Editor Types 🖊️
+
+CKEditor 5 for Blazor supports distinct editor types for different UI layouts.
+
+### Classic editor 📝
+
+![CKEditor 5 Classic Editor in Blazor application](docs/classic.png)
 
 ```razor
 <CKE5Editor
     EditorType="classic"
-    OnChange="@(args => Console.WriteLine($"Change: {args.Value}") )"
-/>
+    Value="<p>This is the initial content of the editor.</p>"
+    EditableHeight="300" />
+```
 
-<CKE5Editable
-    EditorId="someId"
-    OnChange="@(args => Console.WriteLine($"Editable changed: {args.Data}"))"
-/>
+### Inline editor 📝
+
+![CKEditor 5 Inline Editor in Blazor application](docs/inline-editor.png)
+
+```razor
+<CKE5Editor
+    EditorType="inline"
+    Value="<p>Inline editor content</p>"
+    Class="border border-gray-300" />
+```
+
+### Decoupled editor 🌐
+
+![CKEditor 5 Decoupled Editor in Blazor application](docs/decoupled-editor.png)
+
+```razor
+<CKE5Editor
+    Id="decoupled-editor"
+    EditorType="decoupled"
+    Value="<p>Editor instance content</p>">
+    <CKE5UIPart Name="toolbar" EditorId="decoupled-editor" Class="mb-4" />
+
+    <CKE5Editable
+        EditorId="decoupled-editor"
+        RootName="main"
+        Value="<p>This is the initial content of the decoupled editor editable.</p>"
+        InnerClass="p-4" />
+</CKE5Editor>
+```
+
+### Multiroot editor 🌳
+
+![CKEditor 5 Multiroot Editor in Blazor application](docs/multiroot-editor.png)
+
+```razor
+<CKE5Editor
+    Id="multiroot-editor"
+    EditorType="multiroot"
+    Value="@(new Dictionary<string, string>
+    {
+        [\"header\"] = \"<p>Header content</p>\",
+        [\"content\"] = \"<p>Main content</p>\",
+        [\"footer\"] = \"<p>Footer content</p>\"
+    })" />
+
+<CKE5UIPart Name="toolbar" EditorId="multiroot-editor" Class="mb-4" />
+
+<CKE5Editable EditorId="multiroot-editor" RootName="header" Value="<p>Header content</p>" />
+<CKE5Editable EditorId="multiroot-editor" RootName="content" Value="<p>Main content</p>" />
+<CKE5Editable EditorId="multiroot-editor" RootName="footer" Value="<p>Footer content</p>" />
+```
+
+## Advanced configuration ⚙️
+
+### Blazor Data Binding 🔄
+
+Use native Blazor binding and callbacks for full client ⇄ server synchronization.
+
+#### Two way binding using `@bind-Value` ⛓️
+
+Bind editor content to your component state.
+
+```razor
+<CKE5Editor
+    @bind-Value="content"
+    SaveDebounceMs="500" />
+
+@code {
+    private EditorValue content = "<p>Initial content</p>";
+}
+```
+
+##### Multiroot Editables 🌳⛓️
+
+For multiroot/decoupled layouts, bind each root independently:
+
+```razor
+<CKE5Editable EditorId="multiroot-editor" RootName="header" @bind-Value="header" />
+<CKE5Editable EditorId="multiroot-editor" RootName="content" @bind-Value="content" />
+
+@code {
+    private string header = "<p>Header</p>";
+    private string content = "<p>Main</p>";
+}
+```
+
+#### Bidirectional Communication using Events 🔄
+
+##### Editor → .NET: Content Change Event 📤
+
+Observe content updates without replacing your binding logic:
+
+```razor
+<CKE5Editor
+    @bind-Value="value"
+    OnChange="OnEditorChange" />
+
+@code {
+    private EditorValue value = "<p>Hello</p>";
+
+    private void OnEditorChange(CKE5EditorChangeEventArgs args)
+    {
+        Console.WriteLine(args.Value.Data["main"]);
+    }
+}
+```
+
+##### .NET → Editor: Set Content 📥
+
+Update bound value from C# and editor content is pushed automatically:
+
+```razor
+<button @onclick="LoadTemplate">Load template</button>
+<CKE5Editor @bind-Value="value" />
+
+@code {
+    private EditorValue value = "<p>Initial</p>";
+
+    private void LoadTemplate()
+        => value = "<h2>Work Report</h2><p>This is a template loaded from .NET.</p>";
+}
+```
+
+### Editor Ready Event ✅
+
+Handle `OnReady` when you need direct JS editor reference.
+
+```razor
+@using Microsoft.JSInterop
+
+<CKE5Editor OnReady="OnReady" />
+
+@code {
+    private void OnReady(IJSObjectReference editor)
+    {
+        Console.WriteLine("Editor is ready");
+    }
+}
+```
+
+### Focus Tracking 👁️
+
+Track focus state using `OnFocus` and `OnBlur` callbacks.
+
+```razor
+<CKE5Editor
+    OnFocus="() => isFocused = true"
+    OnBlur="() => isFocused = false" />
+
+@code {
+    private bool isFocused;
+}
+```
+
+### Watchdog 🐶
+
+#### How it works ⚙️
+
+`CKE5Editor` uses watchdog by default (`Watchdog="true"`) to recreate editor instances after runtime crashes.
+
+#### Disabling the watchdog 🚫
+
+Set `Watchdog="false"` if you need raw editor lifecycle control:
+
+```razor
+<CKE5Editor Watchdog="false" />
+```
+
+## Context 🤝
+
+Use shared contexts to run multiple editors under one `ContextWatchdog` instance.
+
+### Basic usage 🔧
+
+![CKEditor 5 Context in Blazor application](docs/context.png)
+
+```razor
+<CKE5Context Id="shared-context">
+    <CKE5Editor ContextId="shared-context" Value="<p>Editor 1 content</p>" />
+    <CKE5Editor ContextId="shared-context" Value="<p>Editor 2 content</p>" />
+</CKE5Context>
+```
+
+### Custom context config 🌐
+
+Pass a context config object directly using `ContextPreset`:
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Context
+    Id="shared-context"
+    ContextPreset="@(new ContextConfig
+    {
+        Plugins = new List<string> { \"Essentials\", \"Paragraph\" },
+        Config = new Dictionary<string, object>
+        {
+            [\"language\"] = \"pl\"
+        }
+    })">
+    <CKE5Editor ContextId="shared-context" Value="<p>Współdzielony context</p>" />
+</CKE5Context>
+```
+
+## Custom plugins 🧩
+
+Register custom plugins in JavaScript/TypeScript using `CustomEditorPluginsRegistry`:
+
+![Custom plugin demo](docs/custom-highlight-plugin.png)
+
+```ts
+import { CustomEditorPluginsRegistry as Registry } from 'ckeditor5-blazor';
+
+const unregister = Registry.the.register('MyCustomPlugin', async () => {
+  const { Plugin } = await import('ckeditor5');
+
+  return class extends Plugin {
+    static get pluginName() {
+      return 'MyCustomPlugin';
+    }
+
+    init() {
+      console.log('MyCustomPlugin initialized');
+    }
+  };
+});
+```
+
+Then reference plugin name in editor config (preset or `Config`):
+
+```csharp
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options =>
+{
+    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
+    {
+        Config = new Dictionary<string, object>
+        {
+            ["plugins"] = new[] { "Essentials", "Paragraph", "MyCustomPlugin" }
+        }
+    };
+});
 ```
 
 ## Editors and Contexts registry 👀
@@ -217,6 +705,20 @@ pnpm run dev
 ```
 
 The playground app will be available at [http://localhost:8000](http://localhost:8000).
+
+### Running Tests 🧪
+
+Run JavaScript package tests:
+
+```bash
+pnpm run npm_package:test
+```
+
+Run .NET tests with coverage report:
+
+```bash
+pnpm run dotnet:test
+```
 
 ## Psst... 👀
 
