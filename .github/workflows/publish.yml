@@ -44,9 +44,9 @@ jobs:
       - name: Build npm package
         run: pnpm run npm_package:build
 
-      # - name: Publish npm package
-      #  run: pnpm publish --access public --no-git-checks --provenance
-      #  working-directory: ./npm_package
+      - name: Publish npm package
+        run: pnpm publish --access public --no-git-checks --provenance
+        working-directory: ./npm_package
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4

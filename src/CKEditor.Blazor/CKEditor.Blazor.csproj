@@ -15,6 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,6 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="$(MSBuildProjectDirectory)/../../README.md" Pack="true" PackagePath="/" />
     <None Include="CKEditor.Blazor.targets" Pack="true" PackagePath="build;buildTransitive" />
   </ItemGroup>
 </Project>
