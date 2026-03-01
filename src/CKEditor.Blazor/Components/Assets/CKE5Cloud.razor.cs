@@ -33,6 +33,14 @@ public partial class CKE5Cloud : ComponentBase
     public bool EmitImportMap { get; set; } = true;
 
     /// <summary>
+    /// Whether to emit module preload link tags for ESM assets. Default is true.
+    /// Set to false when the import map is declared globally (e.g. via <c>&lt;CKE5CloudImportmap /&gt;</c>)
+    /// and you only want per-page assets such as stylesheets rendered here.
+    /// </summary>
+    [Parameter]
+    public bool EmitModulePreload { get; set; } = true;
+
+    /// <summary>
     /// Custom import map entries to merge with the generated import map.
     /// </summary>
     [Parameter]

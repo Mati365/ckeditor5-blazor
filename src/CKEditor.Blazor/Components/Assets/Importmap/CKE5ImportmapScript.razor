@@ -1,0 +1,8 @@
+@namespace CKEditor.Blazor.Components.Assets
+
+@if (ImportMap.Count > 0)
+{
+    <script type="importmap" @attributes="GetNonceAttribute()">
+        @((MarkupString)ImportMapJson)
+    </script>
+}

@@ -92,4 +92,21 @@ public class CKE5CloudTests : BunitContext
         var links = cut.FindAll("link[rel='modulepreload']").Select(l => l.GetAttribute("href")).ToList();
         Assert.Contains($"{_cdnUrl}/ckeditor5/99.0.0/ckeditor5.js", links);
     }
+
+    [Fact]
+    public void DoesNotRenderModulePreloadLinks_WhenEmitModulePreloadIsFalse()
+    {
+        var cut = Render<CKE5Cloud>(p => p.Add(p => p.EmitModulePreload, false));
+
+        Assert.Empty(cut.FindAll("link[rel='modulepreload']"));
+    }
+
+    [Fact]
+    public void StillRendersCssAndImportMap_WhenEmitModulePreloadIsFalse()
+    {
+        var cut = Render<CKE5Cloud>(p => p.Add(p => p.EmitModulePreload, false));
+
+        Assert.NotNull(cut.Find("link[rel='stylesheet']"));
+        Assert.NotNull(cut.Find("script[type='importmap']"));
+    }
 }

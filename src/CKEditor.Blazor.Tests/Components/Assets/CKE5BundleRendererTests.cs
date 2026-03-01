@@ -172,4 +172,31 @@ public class CKE5BundleRendererTests : BunitContext
 
         Assert.Single(cut.FindAll("link[rel='modulepreload']"));
     }
+
+    [Fact]
+    public void DoesNotRenderModulePreloadLinks_WhenEmitModulePreloadIsFalse()
+    {
+        var bundle = CreateBundle(js: [EsmAsset("ckeditor5", "https://cdn.example.com/ckeditor5.mjs")]);
+        var cut = Render<CKE5BundleRenderer>(p => p
+            .Add(p => p.Bundle, bundle)
+            .Add(p => p.EmitModulePreload, false));
+
+        Assert.Empty(cut.FindAll("link[rel='modulepreload']"));
+    }
+
+    [Fact]
+    public void StillRendersImportMapAndCss_WhenEmitModulePreloadIsFalse()
+    {
+        var bundle = CreateBundle(
+            js: [EsmAsset("ckeditor5", "https://cdn.example.com/ckeditor5.mjs")],
+            css: ["https://cdn.example.com/styles.css"]);
+
+        var cut = Render<CKE5BundleRenderer>(p => p
+            .Add(p => p.Bundle, bundle)
+            .Add(p => p.EmitModulePreload, false));
+
+        Assert.Empty(cut.FindAll("link[rel='modulepreload']"));
+        Assert.NotNull(cut.Find("script[type='importmap']"));
+        Assert.NotNull(cut.Find("link[rel='stylesheet']"));
+    }
 }

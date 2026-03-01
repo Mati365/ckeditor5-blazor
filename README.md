@@ -54,6 +54,10 @@ CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET C
     - [Focus Tracking 👁️](#focus-tracking-️)
     - [Watchdog 🐶](#watchdog-)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
+    - [Splitting Assets: Global Import Map with Per-page Styles 🗺️](#splitting-assets-global-import-map-with-per-page-styles-️)
+      - [Self-hosted variant 🏠](#self-hosted-variant-)
+      - [CDN variant 📡](#cdn-variant-)
+      - [Disabling module preload hints ⏳](#disabling-module-preload-hints-)
   - [Context 🤝](#context-)
     - [Basic usage 🔧](#basic-usage--1)
     - [Custom context config 🌐](#custom-context-config-)
@@ -654,6 +658,83 @@ In some scenarios, such as when using a highly customized editor setup or when y
 
 ```razor
 <CKE5Editor Watchdog="false" />
+```
+
+### Splitting Assets: Global Import Map with Per-page Styles 🗺️
+
+The typical setup places a single component — `<CKE5Cloud />` or `<CKE5SelfHosted />` — in the shared `<head>` of your layout. That works perfectly for single-page apps or when every route uses the editor.
+
+In apps where **only some pages use the editor**, loading its import map globally is fine (the browser reads it once, it has no cost), but stylesheets are unnecessary overhead on pages that never render an editor.
+
+The solution is to **split the assets into two separate concerns**:
+
+| What | Where | Component |
+|---|---|---|
+| `<script type="importmap">` | Shared layout / `App.razor` `<head>` | `<CKE5CloudImportmap />` or `<CKE5SelfHostedImportmap />` |
+| Stylesheets + module-preload hints | Individual pages that actually use the editor | `<CKE5Cloud EmitImportMap="false" />` or `<CKE5SelfHosted EmitImportMap="false" />` |
+
+The import map **must** appear before any `import` statement that references its entries, so it still needs to be in the shared `<head>`. The stylesheet however has no such constraint and can safely live on the page that needs it.
+
+#### Self-hosted variant 🏠
+
+**`App.razor` (shared layout `<head>`):**
+
+```razor
+@using CKEditor.Blazor.Components.Assets
+
+<HeadContent>
+    <%-- Declared once globally. No stylesheets, no preload hints. --%>
+    <CKE5SelfHostedImportmap />
+</HeadContent>
+```
+
+**Page that uses the editor:**
+
+```razor
+@using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Components.Assets
+
+<%-- Load stylesheets only on this page. --%>
+<CKE5SelfHosted EmitImportMap="false" />
+
+<CKE5Editor Value="<p>Hello!</p>" />
+```
+
+#### CDN variant 📡
+
+**`App.razor` (shared layout `<head>`):**
+
+```razor
+@using CKEditor.Blazor.Components.Assets
+
+<HeadContent>
+    <%-- Declared once globally. No stylesheets, no preload hints. --%>
+    <CKE5CloudImportmap />
+</HeadContent>
+```
+
+**Page that uses the editor:**
+
+```razor
+@using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Components.Assets
+
+<%-- Load stylesheets only on this page. --%>
+<CKE5Cloud EmitImportMap="false" />
+
+<CKE5Editor Value="<p>Hello!</p>" />
+```
+
+Both importmap components accept the same `Preset`, `Nonce`, and `CustomImportMap` parameters as their full counterparts.
+
+#### Disabling module preload hints ⏳
+
+By default the per-page component still emits `<link rel="modulepreload">` hints, which tell the browser to fetch ESM chunks early. If you want to opt out of that too (e.g. to reduce `<head>` size on low-traffic pages), add `EmitModulePreload="false"`:
+
+```razor
+<CKE5Cloud EmitImportMap="false" EmitModulePreload="false" />
+<%-- or --%>
+<CKE5SelfHosted EmitImportMap="false" EmitModulePreload="false" />
 ```
 
 ## Context 🤝

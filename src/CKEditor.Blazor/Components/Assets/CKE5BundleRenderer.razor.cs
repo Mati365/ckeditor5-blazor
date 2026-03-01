@@ -1,4 +1,3 @@
-using System.Text.Json;
 using CKEditor.Blazor.Model.Bundle;
 using Microsoft.AspNetCore.Components;
 
@@ -20,6 +19,14 @@ public partial class CKE5BundleRenderer : ComponentBase
     /// </summary>
     [Parameter]
     public bool EmitImportMap { get; set; } = true;
+
+    /// <summary>
+    /// Whether to emit module preload link tags for ESM assets. Default is true.
+    /// Set to false when the import map is declared globally and you only want
+    /// per-page assets (stylesheets, UMD scripts) without the preload hints.
+    /// </summary>
+    [Parameter]
+    public bool EmitModulePreload { get; set; } = true;
 
     /// <summary>
     /// The assets bundle to render.
@@ -54,7 +61,6 @@ public partial class CKE5BundleRenderer : ComponentBase
         }
     }
 
-    private string ImportMapJson => JsonSerializer.Serialize(new { imports = ImportMap });
-
-    private Dictionary<string, object> GetNonceAttribute() => string.IsNullOrEmpty(Nonce) ? [] : new Dictionary<string, object> { { "nonce", Nonce } };
+    private Dictionary<string, object> GetNonceAttribute() =>
+        string.IsNullOrEmpty(Nonce) ? [] : new Dictionary<string, object> { { "nonce", Nonce } };
 }

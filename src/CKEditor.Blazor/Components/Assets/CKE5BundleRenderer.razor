@@ -1,17 +1,18 @@
 @namespace CKEditor.Blazor.Components.Assets
 
 @* 1. Importmap for ESM assets *@
-@if (EmitImportMap && ImportMap.Count > 0)
+@if (EmitImportMap)
 {
-    <script type="importmap" @attributes="GetNonceAttribute()">
-        @((MarkupString)ImportMapJson)
-    </script>
+    <CKE5ImportmapScript ImportMap="@ImportMap" Nonce="@Nonce" />
 }
 
 @* 2. Module preload for ESM assets *@
-@foreach (var url in EsmAssets)
+@if (EmitModulePreload)
 {
-    <link rel="modulepreload" href="@url" crossorigin="anonymous" @attributes="GetNonceAttribute()">
+    @foreach (var url in EsmAssets)
+    {
+        <link rel="modulepreload" href="@url" crossorigin="anonymous" @attributes="GetNonceAttribute()">
+    }
 }
 
 @* 3. Stylesheets *@
