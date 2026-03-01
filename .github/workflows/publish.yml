@@ -24,7 +24,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       - uses: pnpm/action-setup@v4
         with:
@@ -45,7 +45,7 @@ jobs:
         run: pnpm run npm_package:build
 
       - name: Publish npm package
-        run: pnpm publish --access public --no-git-checks --provenance
+        run: pnpm publish --access public --no-git-checks
         working-directory: ./npm_package
 
       - name: Setup .NET
