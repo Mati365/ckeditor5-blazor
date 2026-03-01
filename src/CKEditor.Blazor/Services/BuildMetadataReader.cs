@@ -33,7 +33,7 @@ internal static class BuildMetadataReader
     /// Falls back to the default path if metadata is not found.
     /// </summary>
     /// <returns>The assets output path string.</returns>
-    public static string ResolveAssetsOutputPath() => ResolveValue(_assetsOutputPathKey) ?? "_content/ckeditor5";
+    public static string ResolveAssetsOutputPath() => ResolveValue(_assetsOutputPathKey) ?? "/";
 
     /// <summary>
     /// Resolves whether premium assets are included from assembly metadata.

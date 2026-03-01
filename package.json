@@ -16,6 +16,7 @@
     "npm_package:typecheck": "pnpm -F ckeditor5-blazor run typecheck",
     "npm_package:watch": "pnpm -F ckeditor5-blazor run watch",
     "npm_package:build": "pnpm -F ckeditor5-blazor run build",
+    "copy:dist:to:wwwroot": "node ./scripts/copy-dist-to-wwwroot.mjs",
     "npm_package:test": "pnpm -F ckeditor5-blazor run test",
     "npm_package:test:watch": "pnpm -F ckeditor5-blazor run test:watch",
     "dotnet:test": "dotnet test --results-directory ./TestResults /p:CollectCoverage=true; EXIT=$?; dotnet reportgenerator -reports:\"TestResults/**/coverage.cobertura.xml\" -targetdir:\"coveragereport\" -reporttypes:Html; exit $EXIT",
