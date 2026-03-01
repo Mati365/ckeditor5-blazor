@@ -37,7 +37,7 @@ CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET C
     - [Translation Loading 🌐](#translation-loading-)
     - [Global Translation Config 🛠️](#global-translation-config-️)
     - [Custom translations 🌐](#custom-translations-)
-      - [Translation references using `$translation` ✨](#translation-references-using-translation-)
+    - [Translation references using `$translation` ✨](#translation-references-using-translation-)
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
@@ -53,7 +53,6 @@ CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET C
     - [Editor Ready Event ✅](#editor-ready-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
     - [Watchdog 🐶](#watchdog-)
-      - [How it works ⚙️](#how-it-works-️)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
   - [Context 🤝](#context-)
     - [Basic usage 🔧](#basic-usage--1)
@@ -378,7 +377,7 @@ You can override translations per editor instance via `CustomTranslations`:
     })" />
 ```
 
-#### Translation references using `$translation` ✨
+### Translation references using `$translation` ✨
 
 In addition to supplying full translation maps, configuration objects may contain reference helpers that point to existing translation keys. This is particularly handy when you want to reuse an existing label or avoid repeating the same string in multiple places. Use `PresetTranslationReference` in C# (which serializes to `{ "$translation": "key" }`) in any part of your editor or context configuration, and the package will automatically replace it with the correct localized string during initialization.
 
@@ -597,13 +596,11 @@ You can track editor focus state using `OnFocus` and `OnBlur` events. This is us
 
 ### Watchdog 🐶
 
-#### How it works ⚙️
-
-`CKE5Editor` uses watchdog by default (`Watchdog="true"`) to recreate editor instances after runtime crashes.
+By default, the editor is wrapped in a watchdog that automatically tries to recover from crashes by reinitializing the editor instance. This ensures a more resilient user experience, especially in cases where custom plugins or configurations might cause instability.
 
 #### Disabling the watchdog 🚫
 
-By default, the editor is wrapped in a watchdog that automatically tries to recover from crashes by reinitializing the editor instance. This ensures a more resilient user experience, especially in cases where custom plugins or configurations might cause instability.
+In some scenarios, such as when using a highly customized editor setup or when you want to handle errors manually, you might want to disable the watchdog. You can do this by setting the `Watchdog` parameter to `false` on the `CKE5Editor` component:
 
 ```razor
 <CKE5Editor Watchdog="false" />
