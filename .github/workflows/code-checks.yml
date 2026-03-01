@@ -51,3 +51,12 @@ jobs:
 
       - name: Run analyzers
         run: dotnet build --no-restore --configuration Release /p:EnforceCodeStyleInBuild=true /p:TreatWarningsAsErrors=true
+
+      - name: Run tests with coverage
+        run: dotnet test --results-directory ./TestResults /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+
+      - name: Show coverage summary
+        run: |
+          dotnet tool restore
+          dotnet reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:TextSummary
+          cat coveragereport/Summary.txt

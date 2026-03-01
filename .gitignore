@@ -53,6 +53,10 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
+# xUnit
+TestResults/
+coveragereport/
+
 # Node
 node_modules/
 pnpm-lock.yaml
