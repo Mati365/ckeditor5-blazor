@@ -84,7 +84,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
 1. **Add NuGet dependency:**
 
    ```bash
-   dotnet add package CKEditor5.Blazor
+   dotnet add package CKEditor.Blazor
    ```
 
 2. **(Optional) Override MSBuild asset options** in your `.csproj`:
