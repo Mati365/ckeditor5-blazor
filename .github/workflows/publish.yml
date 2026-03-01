@@ -1,0 +1,87 @@
+name: Publish Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (e.g. 0.1.0)
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write
+      id-token: write # Required for npm and NuGet trusted publishing (OIDC)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set version in npm_package/package.json
+        run: |
+          jq ".version = \"${{ github.event.inputs.version }}\"" npm_package/package.json > tmp.json && mv tmp.json npm_package/package.json
+
+      - name: Set version in CKEditor.Blazor.csproj
+        run: |
+          sed -i "s|<Version>[^<]*</Version>|<Version>${{ github.event.inputs.version }}</Version>|" src/CKEditor.Blazor/CKEditor.Blazor.csproj
+
+      - name: Install JS dependencies
+        run: pnpm install
+
+      - name: Build npm package
+        run: pnpm run npm_package:build
+
+      - name: Publish npm package
+        run: pnpm publish --access public --no-git-checks --provenance
+        working-directory: ./npm_package
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore src/CKEditor.Blazor/CKEditor.Blazor.csproj
+
+      - name: Pack CKEditor.Blazor
+        run: |
+          dotnet pack src/CKEditor.Blazor/CKEditor.Blazor.csproj \
+            --configuration Release \
+            --no-restore \
+            --output ./nupkg
+
+      - name: Push to NuGet.org
+        run: |
+          dotnet nuget push ./nupkg/*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+      - name: Configure Git
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+      - name: Commit and push version bump
+        run: |
+          git add npm_package/package.json src/CKEditor.Blazor/CKEditor.Blazor.csproj
+          git commit -m "build: bump versions to v${{ github.event.inputs.version }}"
+          git push
+
+      - name: Create git tag
+        run: |
+          git tag v${{ github.event.inputs.version }}
+          git push origin v${{ github.event.inputs.version }}
