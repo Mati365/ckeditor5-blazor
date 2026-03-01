@@ -8,6 +8,13 @@
     <NpmPackageDir>$(MSBuildProjectDirectory)/../../npm_package</NpmPackageDir>
     <NpmPackageDist>$(NpmPackageDir)/dist</NpmPackageDist>
     <NpmPackageWwwroot>$(MSBuildProjectDirectory)/wwwroot/ckeditor5-blazor</NpmPackageWwwroot>
+    <Authors>Mateusz Bagiński</Authors>
+    <Company>Mateusz Bagiński</Company>
+    <PackageProjectUrl>https://github.com/Mati365/ckeditor5-blazor</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Mati365/ckeditor5-blazor</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
