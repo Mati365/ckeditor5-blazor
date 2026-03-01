@@ -81,15 +81,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
    dotnet add package CKEditor5.Blazor
    ```
 
-2. **Register CKEditor services** in `Program.cs`:
-
-   ```csharp
-   using CKEditor.Blazor.Services;
-
-   builder.Services.AddCKEditor();
-   ```
-
-3. **(Optional) Override MSBuild asset options** in your `.csproj`:
+2. **(Optional) Override MSBuild asset options** in your `.csproj`:
 
    ```xml
    <PropertyGroup>
@@ -100,6 +92,34 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
      <CKEditorAssetsOutputPath>$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
    </PropertyGroup>
    ```
+
+3. **Register CKEditor services** in `Program.cs`:
+
+   ```csharp
+   using CKEditor.Blazor.Services;
+
+   builder.Services.AddCKEditor();
+   ```
+
+   By default the package infers the correct asset URL from build metadata, so no extra configuration is needed for the typical setup.
+
+   If your static files are served from a non-standard base path (e.g. behind a reverse proxy with a path prefix, or assets placed in a subdirectory), set `AssetsBasePath` to match the actual URL prefix:
+
+   ```csharp
+   using CKEditor.Blazor.Model.SelfHosted;
+   using CKEditor.Blazor.Services;
+
+   builder.Services.AddCKEditor(options =>
+   {
+       options.Presets["default"] = ConfigManager.CreateDefaultPreset(
+           selfHostedConfig: new SelfHostedConfig
+           {
+               AssetsBasePath = "/_content/CKEditor.Demo.RCL"
+           });
+   });
+   ```
+
+   The value is the URL prefix (without a trailing slash) prepended to all generated asset URLs. It must match what the browser actually uses to fetch the files.
 
 4. **Build your project** to download and prepare assets:
 
