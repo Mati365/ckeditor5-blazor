@@ -16,7 +16,19 @@ builder.Services.AddCKEditor(options =>
 });
 
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(options =>
+    {
+        // Increase SignalR message size to allow large image payloads sent via JS interop.
+        // Default is 32 KB which is easily exceeded by Base64-encoded images.
+        options.MaxBufferedUnacknowledgedRenderBatches = 10;
+    });
+
+builder.Services.AddSignalR(options =>
+{
+    // Allow up to 50 MB for a single SignalR message so that image uploads
+    // routed through Blazor Server's JS interop do not disconnect the circuit.
+    options.MaximumReceiveMessageSize = 50 * 1024 * 1024;
+});
 
 builder.Services.AddSingleton<ImageStorageService>();
 
