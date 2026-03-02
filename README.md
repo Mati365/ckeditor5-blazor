@@ -524,7 +524,7 @@ Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for
 
 <CKE5Editor
     EditorType="EditorType.Classic"
-    Value="<p>This is the initial content of the editor.</p>"
+    Value="@("<p>This is the initial content of the editor.</p>")"
     EditableHeight="300" />
 ```
 
@@ -539,7 +539,7 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 
 <CKE5Editor
     EditorType="EditorType.Inline"
-    Value="<p>Inline editor content</p>"
+    Value="@("<p>Inline editor content</p>")"
     Class="border border-gray-300" />
 ```
 
@@ -557,7 +557,7 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 <CKE5Editor
     Id="decoupled-editor"
     EditorType="EditorType.Decoupled"
-    Value="<p>Editor instance content</p>">
+    Value="@("<p>Editor instance content</p>")">
     <CKE5UIPart Name="toolbar" EditorId="decoupled-editor" Class="mb-4" />
 
     <CKE5Editable
@@ -704,8 +704,8 @@ The editor supports image uploads triggered by drag-and-drop, clipboard paste, o
 
 Behavior depends on whether the `OnImageUpload` callback is set:
 
-- **With `OnImageUpload`** — the file is encoded as Base64 and passed to your .NET handler. Your handler stores it wherever you like (disk, cloud, database) and returns the public URL to embed in the document.
-- **Without `OnImageUpload`** — the editor falls back to embedding the image as a Base64 `data:` URI directly in the content. This is fine for quick prototyping but not recommended for production because it significantly inflates document size.
+- **With `OnImageUpload`** - the file is encoded as Base64 and passed to your .NET handler. Your handler stores it wherever you like (disk, cloud, database) and returns the public URL to embed in the document.
+- **Without `OnImageUpload`** - the editor falls back to embedding the image as a Base64 `data:` URI directly in the content. This is fine for quick prototyping but not recommended for production because it significantly inflates document size.
 
 ```razor
 @using CKEditor.Blazor.Components
@@ -782,7 +782,7 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 <%-- Load stylesheets only on this page. --%>
 <CKE5Assets Distribution="DistributionChannel.SH" EmitImportMap="false" />
 
-<CKE5Editor Value="<p>Hello!</p>" />
+<CKE5Editor Value="@("<p>Hello!</p>")" />
 ```
 
 #### CDN variant 📡
@@ -809,7 +809,7 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 <%-- Load stylesheets only on this page. --%>
 <CKE5Assets Distribution="DistributionChannel.Cloud" EmitImportMap="false" />
 
-<CKE5Editor Value="<p>Hello!</p>" />
+<CKE5Editor Value="@("<p>Hello!</p>")" />
 ```
 
 Both `CKE5Importmap` and `CKE5Assets` accept the same `Preset`, `Nonce`, and `CustomImportMap` parameters.
@@ -856,7 +856,7 @@ Pass a context config object directly using `ContextPreset`:
             ["language"] = "pl"
         }
     })">
-    <CKE5Editor ContextId="shared-context" Value="<p>Współdzielony context</p>" />
+    <CKE5Editor ContextId="shared-context" Value="@("<p>Współdzielony context</p>")" />
 </CKE5Context>
 ```
 
