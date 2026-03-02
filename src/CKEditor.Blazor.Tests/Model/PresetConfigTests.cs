@@ -15,7 +15,7 @@ public class PresetConfigTests
         Assert.Null(config.Cloud);
         Assert.NotNull(config.SelfHosted);
         Assert.True(config.LicenseKey.IsGPL());
-        Assert.Null(config.Translations);
+        Assert.Null(config.CustomTranslations);
     }
 
     [Fact]

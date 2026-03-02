@@ -1,6 +1,7 @@
 using CKEditor.Blazor.Model.SelfHosted;
 using CKEditor.Blazor.Services;
 using CKEditor.Demo.Server.Components;
+using CKEditor.Demo.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Services.AddCKEditor(options =>
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddSingleton<ImageStorageService>();
 
 var app = builder.Build();
 
@@ -35,6 +38,18 @@ else
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.MapGet("/api/images/{id}", (string id, ImageStorageService storage) =>
+{
+    var image = storage.Get(id);
+
+    if (image is null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.File(image.Data, image.MimeType, image.FileName);
+});
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

@@ -314,6 +314,24 @@ public class CKE5EditorTests : BunitContext
     }
 
     [Fact]
+    public async Task AttachImageUploadAdapter_IsInvoked_WhenOnImageUploadSetAfterInitialization()
+    {
+        Func<CKE5ImageUploadEventArgs, Task<string?>> handler =
+            _ => Task.FromResult<string?>("https://example.com/img.jpg");
+
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.OnImageUpload, handler));
+
+        // After first render IsInitializing is false; updating OnImageUpload triggers attachImageUploadAdapter via JS interop
+        await cut.InvokeAsync(() => cut.Instance.SetParametersAsync(
+            ParameterView.FromDictionary(new Dictionary<string, object?>
+            {
+                [nameof(CKE5Editor.OnImageUpload)] = handler
+            })));
+    }
+
+    [Fact]
     public void RendersEditor_WithCustomConfig_WhenConfigProvided()
     {
         var customConfig = new Dictionary<string, object> { ["myToolbar"] = new[] { "bold" } };
@@ -347,7 +365,7 @@ public class CKE5EditorTests : BunitContext
     [Fact]
     public void RendersEditor_WithCustomTranslations_WhenTranslationsProvided()
     {
-        var translations = new Dictionary<string, string> { ["Save"] = "Speichern" };
+        var translations = new EditorTranslations { ["de"] = new Dictionary<string, string> { ["Save"] = "Speichern" } };
 
         var cut = Render<CKE5Editor>(p => p
             .Add(p => p.Id, "test-editor")
@@ -364,7 +382,7 @@ public class CKE5EditorTests : BunitContext
     {
         var cut = Render<CKE5Editor>(p => p
             .Add(p => p.Id, "test-editor")
-            .Add(p => p.EditorType, "inline"));
+            .Add(p => p.EditorType, EditorType.Inline));
 
         var preset = cut.Find("cke5-editor").GetAttribute("data-cke-preset");
 
@@ -389,5 +407,52 @@ public class CKE5EditorTests : BunitContext
         field!.SetValue(cut.Instance, null);
 
         await cut.Instance.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task OnEditorImageUpload_ReturnsNull_WhenNoHandlerProvided()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+        var args = new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "abc123");
+
+        var result = await cut.Instance.OnEditorImageUpload(args);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task OnEditorImageUpload_InvokesHandler_AndReturnsUrl_WhenHandlerSet()
+    {
+        const string expectedUrl = "https://example.com/photo.jpg";
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.OnImageUpload, _ => Task.FromResult<string?>(expectedUrl)));
+
+        var args = new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "abc123");
+        var result = await cut.Instance.OnEditorImageUpload(args);
+
+        Assert.Equal(expectedUrl, result);
+    }
+
+    [Fact]
+    public async Task OnEditorImageUpload_PassesCorrectArgs_ToHandler()
+    {
+        CKE5ImageUploadEventArgs? capturedArgs = null;
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.OnImageUpload, args =>
+            {
+                capturedArgs = args;
+                return Task.FromResult<string?>("https://example.com/image.jpg");
+            }));
+
+        var uploadArgs = new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "base64payload");
+
+        await cut.Instance.OnEditorImageUpload(uploadArgs);
+
+        Assert.NotNull(capturedArgs);
+        Assert.Equal("photo.jpg", capturedArgs.FileName);
+        Assert.Equal("image/jpeg", capturedArgs.MimeType);
+        Assert.Equal("base64payload", capturedArgs.Payload);
     }
 }

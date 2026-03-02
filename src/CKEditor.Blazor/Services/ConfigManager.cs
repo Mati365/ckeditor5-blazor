@@ -176,10 +176,13 @@ public class ConfigManager
                 {
                     ["toolbar"] = new[]
                     {
-                        "imageTextAlternative",
-                        "imageStyle",
+                        "imageStyle:inline",
+                        "imageStyle:block",
+                        "imageStyle:wrapText",
                         "imageResize",
-                        "imageInsertViaUrl"
+                        "|",
+                        "toggleImageCaption",
+                        "imageTextAlternative"
                     }
                 }
             }

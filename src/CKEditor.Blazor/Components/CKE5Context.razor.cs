@@ -11,7 +11,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 Context Component.
 /// Renders a CKEditor context that can be shared among multiple editors.
 /// </summary>
-public partial class CKE5Context : ComponentBase, IAsyncDisposable
+public partial class CKE5Context : ComponentBase, IAsyncDisposable, ICKE5InteractiveComponent
 {
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -52,11 +52,7 @@ public partial class CKE5Context : ComponentBase, IAsyncDisposable
     [Parameter]
     public string? Id { get; set; }
 
-    /// <summary>
-    /// When <see langword="true"/>, the context bootstraps itself automatically via
-    /// the JS Web Component without waiting for the Blazor interop initialization.
-    /// Default is <see langword="false"/>.
-    /// </summary>
+    /// <inheritdoc cref="ICKE5InteractiveComponent.Interactive"/>
     [Parameter]
     public bool Interactive { get; set; } = false;
 

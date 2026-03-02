@@ -1,0 +1,67 @@
+@page "/languages"
+@using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Model
+@rendermode InteractiveServer
+
+<div class="mx-auto px-8 py-12 max-w-4xl">
+    <a href="/" class="inline-block mb-8 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
+    <h1 class="mb-2 font-bold text-4xl">Languages &amp; Translations</h1>
+    <p class="mb-12 text-gray-500 text-lg">Examples of language configuration, custom translations, and text direction.</p>
+
+    <section class="mb-16">
+        <div class="mb-6">
+            <h2 class="mb-2 font-semibold text-2xl">Localized Editor (Polish)</h2>
+            <p class="text-gray-500">
+                The <code class="bg-gray-100 px-1 rounded text-sm">Language</code> parameter sets the UI language.
+                Toolbar buttons and menus will be rendered in Polish.
+            </p>
+        </div>
+        <CKE5Editor
+            EditorType="EditorType.Classic"
+            Language="@("pl")"
+            Value="@("<p>Ten edytor jest skonfigurowany w języku polskim.</p>")" />
+    </section>
+
+    <hr class="my-12 border-gray-200" />
+
+    <section class="mb-16">
+        <div class="mb-6">
+            <h2 class="mb-2 font-semibold text-2xl">Custom Translations</h2>
+            <p class="text-gray-500">
+                Use <code class="bg-gray-100 px-1 rounded text-sm">CustomTranslations</code> to override specific UI strings per language.
+                Here, the <strong>Bold</strong> tooltip is replaced with <em>"BOLDIFY!"</em> and <strong>Italic</strong> with <em>"SLANT!"</em> for the English locale.
+            </p>
+        </div>
+        <CKE5Editor
+            EditorType="EditorType.Classic"
+            CustomTranslations="@customTranslations"
+            Value="@("<p>Hover over the Bold and Italic toolbar buttons to see the custom tooltips.</p>")" />
+    </section>
+
+    <hr class="my-12 border-gray-200" />
+
+    <section class="mb-16">
+        <div class="mb-6">
+            <h2 class="mb-2 font-semibold text-2xl">RTL Content (Arabic)</h2>
+            <p class="text-gray-500">
+                Pass a <code class="bg-gray-100 px-1 rounded text-sm">Language</code> object to control
+                the UI and content directions independently. This example sets both to Arabic with right-to-left layout.
+            </p>
+        </div>
+        <CKE5Editor
+            EditorType="EditorType.Classic"
+            Language="@(new Language { UI = "ar", Content = "ar" })"
+            Value="@("<p dir=\"rtl\">هذا المحرر مُهيَّأ باللغة العربية مع دعم الاتجاه من اليمين إلى اليسار.</p>")" />
+    </section>
+</div>
+
+@code {
+    private EditorTranslations customTranslations = new()
+    {
+        ["en"] = new Dictionary<string, string>
+        {
+            { "Bold", "BOLDIFY!" },
+            { "Italic", "SLANT!" }
+        }
+    };
+}

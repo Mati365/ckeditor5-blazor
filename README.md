@@ -28,6 +28,7 @@ CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET C
     - [📡 CDN Distribution](#-cdn-distribution)
   - [Basic Usage 🏁](#basic-usage-)
     - [Simple Editor ✏️](#simple-editor-️)
+    - [Static rendering with `Interactive=true` 🧱](#static-rendering-with-interactivetrue-)
   - [Configuration ⚙️](#configuration-️)
     - [Override default preset configuration 🧑‍💻](#override-default-preset-configuration-)
     - [Define your configuration directly in the view 💻](#define-your-configuration-directly-in-the-view-)
@@ -54,6 +55,7 @@ CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET C
         - [.NET → Editor: Set Content 📥](#net--editor-set-content-)
     - [Editor Ready Event ✅](#editor-ready-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
+    - [Image Upload 🖼️](#image-upload-️)
     - [Watchdog 🐶](#watchdog-)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
     - [Splitting Assets: Global Import Map with Per-page Styles 🗺️](#splitting-assets-global-import-map-with-per-page-styles-️)
@@ -139,7 +141,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
    @using CKEditor.Blazor.Components.Assets
 
    <HeadContent>
-       <CKE5SelfHosted />
+       <CKE5Assets />
    </HeadContent>
    ```
 
@@ -186,9 +188,10 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
 
    ```razor
    @using CKEditor.Blazor.Components.Assets
+   @using CKEditor.Blazor.Model.License
 
    <HeadContent>
-       <CKE5Cloud />
+       <CKE5Assets Distribution="DistributionChannel.Cloud" />
    </HeadContent>
    ```
 
@@ -215,7 +218,7 @@ Create a basic editor with default toolbar and plugins.
 @using CKEditor.Blazor.Model
 
 <CKE5Editor
-    EditorType="classic"
+    EditorType="EditorType.Classic"
     Value="@("<p>Initial content</p>")"
     EditableHeight="300"
     @bind-Value="content" />
@@ -232,7 +235,7 @@ Create a basic editor with default toolbar and plugins.
 @using CKEditor.Blazor.Model
 
 <CKE5Editor
-    EditorType="multiroot"
+    EditorType="EditorType.Multiroot"
     @bind-Value="content" />
 
 @code {
@@ -244,6 +247,24 @@ Create a basic editor with default toolbar and plugins.
     };
 }
 ```
+
+### Static rendering with `Interactive=true` 🧱
+
+By default, components initialize through Blazor .NET interop callbacks.
+If your page is rendered in a non-interactive/static mode, those callbacks are not available.
+
+Set `Interactive="true"` to let CKEditor web components bootstrap directly in the browser without .NET interop initialization:
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Editor
+    EditorType="EditorType.Classic"
+    Interactive="true"
+    Value="@("<p>Static page content</p>")" />
+```
+
+This is useful when rendering static pages where you still want the editor UI to initialize on the client.
 
 ## Configuration ⚙️
 
@@ -258,9 +279,9 @@ You can pass initial content and merge additional configuration. In scenario bel
     Value="<p>This is the initial content of the editor.</p>"
     MergeConfig="@(new Dictionary<string, object>
     {
-        [\"menuBar\"] = new Dictionary<string, object>
+        ["menuBar"] = new Dictionary<string, object>
         {
-            [\"isVisible\"] = true
+            ["isVisible"] = true
         }
     })" />
 ```
@@ -271,15 +292,23 @@ Override the default configuration with custom plugins and toolbar items. In thi
 
 ```razor
 <CKE5Editor
-    Language="pl"
+    Language="@("pl")"
     Config="@(new Dictionary<string, object>
     {
-        [\"plugins\"] = new[] { \"Essentials\", \"Paragraph\", \"Bold\", \"Italic\", \"Link\", \"Undo\" },
-        [\"toolbar\"] = new Dictionary<string, object>
+        ["plugins"] = new[] { "Essentials", "Paragraph", "Bold", "Italic", "Link", "Undo" },
+        ["toolbar"] = new Dictionary<string, object>
         {
-            [\"items\"] = new[] { \"bold\", \"italic\", \"link\", \"|\", \"undo\", \"redo\" }
+            ["items"] = new[] { "bold", "italic", "link", "|", "undo", "redo" }
         }
     })" />
+```
+
+In order to specify the `UI` and `Content` language separately, use the `Language` object:
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Editor Language="@(new Language { UI = "pl", Content = "en" })" />
 ```
 
 ### Define reusable configuration presets 🧩
@@ -395,7 +424,7 @@ For self-hosted setups, translation assets are handled by your bundler automatic
 
 ```razor
 <CKE5Editor
-    Language="pl"
+    Language="@("pl")"
     Value="<p>Treść z polskim UI</p>" />
 ```
 
@@ -412,9 +441,12 @@ builder.Services.AddCKEditor(options =>
         {
             ["language"] = "pl"
         },
-        Translations = new Dictionary<string, string>
+        Translations = new EditorTranslations
         {
-            ["Bold"] = "Pogrubienie"
+            ["pl"] = new Dictionary<string, string>
+            {
+                ["Bold"] = "Pogrubienie"
+            }
         }
     };
 });
@@ -425,11 +457,16 @@ builder.Services.AddCKEditor(options =>
 You can override translations per editor instance via `CustomTranslations`:
 
 ```razor
+@using CKEditor.Blazor.Model
+
 <CKE5Editor
     Value="<p>Custom labels</p>"
-    CustomTranslations="@(new Dictionary<string, string>
+    CustomTranslations="@(new EditorTranslations
     {
-        [\"Bold\"] = \"Pogrubienie (custom)\"
+        ["pl"] = new Dictionary<string, string>
+        {
+            ["Bold"] = "Pogrubienie (custom)"
+        }
     })" />
 ```
 
@@ -459,9 +496,12 @@ builder.Services.AddCKEditor(options =>
                 }
             }
         },
-        Translations = new Dictionary<string, string>
+        Translations = new EditorTranslations
         {
-            ["Bold"] = "Pogrubienie"
+            ["pl"] = new Dictionary<string, string>
+            {
+                ["Bold"] = "Pogrubienie"
+            }
         }
     };
 });
@@ -480,8 +520,10 @@ Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for
 ![CKEditor 5 Classic Editor in Blazor application](docs/classic.png)
 
 ```razor
+@using CKEditor.Blazor.Model
+
 <CKE5Editor
-    EditorType="classic"
+    EditorType="EditorType.Classic"
     Value="<p>This is the initial content of the editor.</p>"
     EditableHeight="300" />
 ```
@@ -493,8 +535,10 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 ![CKEditor 5 Inline Editor in Blazor application](docs/inline-editor.png)
 
 ```razor
+@using CKEditor.Blazor.Model
+
 <CKE5Editor
-    EditorType="inline"
+    EditorType="EditorType.Inline"
     Value="<p>Inline editor content</p>"
     Class="border border-gray-300" />
 ```
@@ -508,9 +552,11 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 ![CKEditor 5 Decoupled Editor in Blazor application](docs/decoupled-editor.png)
 
 ```razor
+@using CKEditor.Blazor.Model
+
 <CKE5Editor
     Id="decoupled-editor"
-    EditorType="decoupled"
+    EditorType="EditorType.Decoupled"
     Value="<p>Editor instance content</p>">
     <CKE5UIPart Name="toolbar" EditorId="decoupled-editor" Class="mb-4" />
 
@@ -529,14 +575,16 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
 ![CKEditor 5 Multiroot Editor in Blazor application](docs/multiroot-editor.png)
 
 ```razor
+@using CKEditor.Blazor.Model
+
 <CKE5Editor
     Id="multiroot-editor"
-    EditorType="multiroot"
+    EditorType="EditorType.Multiroot"
     Value="@(new Dictionary<string, string>
     {
-        [\"header\"] = \"<p>Header content</p>\",
-        [\"content\"] = \"<p>Main content</p>\",
-        [\"footer\"] = \"<p>Footer content</p>\"
+        ["header"] = "<p>Header content</p>",
+        ["content"] = "<p>Main content</p>",
+        ["footer"] = "<p>Footer content</p>"
     })" />
 
 <CKE5UIPart Name="toolbar" EditorId="multiroot-editor" Class="mb-4" />
@@ -650,6 +698,46 @@ You can track editor focus state using `OnFocus` and `OnBlur` events. This is us
 }
 ```
 
+### Image Upload 🖼️
+
+The editor supports image uploads triggered by drag-and-drop, clipboard paste, or the toolbar image button.
+
+Behavior depends on whether the `OnImageUpload` callback is set:
+
+- **With `OnImageUpload`** — the file is encoded as Base64 and passed to your .NET handler. Your handler stores it wherever you like (disk, cloud, database) and returns the public URL to embed in the document.
+- **Without `OnImageUpload`** — the editor falls back to embedding the image as a Base64 `data:` URI directly in the content. This is fine for quick prototyping but not recommended for production because it significantly inflates document size.
+
+```razor
+@using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Model
+@using CKEditor.Blazor.Model.Events
+
+<CKE5Editor
+    @bind-Value="content"
+    OnImageUpload="HandleImageUpload" />
+
+@code {
+    private EditorValue content = "<p>Drop an image here.</p>";
+
+    private async Task<string?> HandleImageUpload(CKE5ImageUploadEventArgs args)
+    {
+        // args.FileName  — original file name, e.g. "photo.jpg"
+        // args.MimeType  — MIME type, e.g. "image/jpeg"
+        // args.Payload   — Base64-encoded file content
+
+        var bytes = Convert.FromBase64String(args.Payload);
+
+        // Save to your storage and return the public URL:
+        var url = await MyStorageService.SaveAsync(args.FileName, args.MimeType, bytes);
+
+        return url; // CKEditor 5 embeds this URL in the document
+    }
+}
+```
+
+> [!NOTE]
+> The `OnImageUpload` callback must be set on a server-interactive component (`@rendermode InteractiveServer` or `InteractiveWebAssembly`). It will not be invoked in static rendering mode.
+
 ### Watchdog 🐶
 
 By default, the editor is wrapped in a watchdog that automatically tries to recover from crashes by reinitializing the editor instance. This ensures a more resilient user experience, especially in cases where custom plugins or configurations might cause instability.
@@ -664,11 +752,11 @@ In some scenarios, such as when using a highly customized editor setup or when y
 
 ### Splitting Assets: Global Import Map with Per-page Styles 🗺️
 
-The typical setup places a single component — `<CKE5Cloud />` or `<CKE5SelfHosted />` — in the shared `<head>` of your layout. This works perfectly when most routes use the editor.
+The typical setup places `<CKE5Assets Distribution="..." />` in the shared `<head>` of your layout. This works perfectly when most routes use the editor.
 
 If your app only uses the editor on specific pages, loading the import map globally is fine, but stylesheets add unnecessary overhead on pages without the editor. You can solve this by splitting the assets.
 
-Place the import map component (`<CKE5CloudImportmap />` or `<CKE5SelfHostedImportmap />`) in your shared layout `<head>`, as the import map must appear before any scripts that use it. Then, place the main component (`<CKE5Cloud EmitImportMap="false" />` or `<CKE5SelfHosted EmitImportMap="false" />`) only on pages that actually render the editor. This ensures stylesheets and preload hints are loaded only when needed.
+Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as the import map must appear before any scripts that use it. Then, place `<CKE5Assets Distribution="..." EmitImportMap="false" />` only on pages that actually render the editor. This ensures stylesheets and preload hints are loaded only when needed.
 
 #### Self-hosted variant 🏠
 
@@ -676,10 +764,11 @@ Place the import map component (`<CKE5CloudImportmap />` or `<CKE5SelfHostedImpo
 
 ```razor
 @using CKEditor.Blazor.Components.Assets
+@using CKEditor.Blazor.Model.License
 
 <HeadContent>
     <%-- Declared once globally. No stylesheets, no preload hints. --%>
-    <CKE5SelfHostedImportmap />
+    <CKE5Importmap Distribution="DistributionChannel.SH" />
 </HeadContent>
 ```
 
@@ -688,9 +777,10 @@ Place the import map component (`<CKE5CloudImportmap />` or `<CKE5SelfHostedImpo
 ```razor
 @using CKEditor.Blazor.Components
 @using CKEditor.Blazor.Components.Assets
+@using CKEditor.Blazor.Model.License
 
 <%-- Load stylesheets only on this page. --%>
-<CKE5SelfHosted EmitImportMap="false" />
+<CKE5Assets Distribution="DistributionChannel.SH" EmitImportMap="false" />
 
 <CKE5Editor Value="<p>Hello!</p>" />
 ```
@@ -701,10 +791,11 @@ Place the import map component (`<CKE5CloudImportmap />` or `<CKE5SelfHostedImpo
 
 ```razor
 @using CKEditor.Blazor.Components.Assets
+@using CKEditor.Blazor.Model.License
 
 <HeadContent>
     <%-- Declared once globally. No stylesheets, no preload hints. --%>
-    <CKE5CloudImportmap />
+    <CKE5Importmap Distribution="DistributionChannel.Cloud" />
 </HeadContent>
 ```
 
@@ -713,23 +804,24 @@ Place the import map component (`<CKE5CloudImportmap />` or `<CKE5SelfHostedImpo
 ```razor
 @using CKEditor.Blazor.Components
 @using CKEditor.Blazor.Components.Assets
+@using CKEditor.Blazor.Model.License
 
 <%-- Load stylesheets only on this page. --%>
-<CKE5Cloud EmitImportMap="false" />
+<CKE5Assets Distribution="DistributionChannel.Cloud" EmitImportMap="false" />
 
 <CKE5Editor Value="<p>Hello!</p>" />
 ```
 
-Both importmap components accept the same `Preset`, `Nonce`, and `CustomImportMap` parameters as their full counterparts.
+Both `CKE5Importmap` and `CKE5Assets` accept the same `Preset`, `Nonce`, and `CustomImportMap` parameters.
 
 #### Disabling module preload hints ⏳
 
 By default the per-page component still emits `<link rel="modulepreload">` hints, which tell the browser to fetch ESM chunks early. If you want to opt out of that too (e.g. to reduce `<head>` size on low-traffic pages), add `EmitModulePreload="false"`:
 
 ```razor
-<CKE5Cloud EmitImportMap="false" EmitModulePreload="false" />
+<CKE5Assets Distribution="DistributionChannel.Cloud" EmitImportMap="false" EmitModulePreload="false" />
 <%-- or --%>
-<CKE5SelfHosted EmitImportMap="false" EmitModulePreload="false" />
+<CKE5Assets Distribution="DistributionChannel.SH" EmitImportMap="false" EmitModulePreload="false" />
 ```
 
 ## Context 🤝
@@ -758,10 +850,10 @@ Pass a context config object directly using `ContextPreset`:
     Id="shared-context"
     ContextPreset="@(new ContextConfig
     {
-        Plugins = new List<string> { \"Essentials\", \"Paragraph\" },
+        Plugins = new List<string> { "Essentials", "Paragraph" },
         Config = new Dictionary<string, object>
         {
-            [\"language\"] = \"pl\"
+            ["language"] = "pl"
         }
     })">
     <CKE5Editor ContextId="shared-context" Value="<p>Współdzielony context</p>" />

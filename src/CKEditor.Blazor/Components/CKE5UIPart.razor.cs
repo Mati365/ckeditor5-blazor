@@ -9,7 +9,7 @@ namespace CKEditor.Blazor.Components;
 /// The component mounts itself into the JS interop so that CKEditor can attach
 /// the requested UI part to this DOM node.
 /// </summary>
-public partial class CKE5UIPart : ComponentBase, IAsyncDisposable
+public partial class CKE5UIPart : ComponentBase, IAsyncDisposable, ICKE5InteractiveComponent
 {
     private readonly CKE5ComponentJsInterop _jsInterop = new();
 
@@ -52,11 +52,7 @@ public partial class CKE5UIPart : ComponentBase, IAsyncDisposable
     [Parameter]
     public string? Id { get; set; }
 
-    /// <summary>
-    /// When <see langword="true"/>, the UI part bootstraps itself automatically via
-    /// the JS Web Component without waiting for the Blazor interop initialization.
-    /// Default is <see langword="false"/>.
-    /// </summary>
+    /// <inheritdoc cref="ICKE5InteractiveComponent.Interactive"/>
     [Parameter]
     public bool Interactive { get; set; } = false;
 

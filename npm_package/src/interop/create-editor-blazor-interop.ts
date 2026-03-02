@@ -1,4 +1,5 @@
 import type { DotNetInterop } from '../types';
+import type { Editor, FileRepository } from 'ckeditor5';
 
 import { ensureEditorElementsRegistered } from '../elements';
 import { EditorsRegistry } from '../elements/editor/editors-registry';
@@ -108,5 +109,89 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
 
       unmounted = true;
     },
+
+    /**
+     * Installs the custom image upload adapter that delegates uploads to Blazor.
+     * This is called lazily from Blazor when the consumer sets the `OnImageUpload` callback
+     * to avoid unnecessary overhead for consumers that don't use this feature.
+     */
+    attachImageUploadAdapter: async () => {
+      if (unmounted) {
+        return;
+      }
+
+      const editor = await EditorsRegistry.the.waitFor(editorId);
+
+      installImageUploadAdapter(editor, interop);
+    },
   };
+}
+
+/**
+ * Installs a custom CKEditor 5 upload adapter that delegates image uploads to Blazor.
+ * When the user inserts an image the adapter encodes the file as Base64 and calls
+ * `OnEditorImageUpload` on the .NET interop object, which returns the public URL to embed.
+ */
+function installImageUploadAdapter(editor: Editor, interop: DotNetInterop) {
+  if (!editor.plugins.has('FileRepository')) {
+    return;
+  }
+
+  const fileRepository = editor.plugins.get('FileRepository') as FileRepository;
+
+  fileRepository.createUploadAdapter = (loader: any) => {
+    let aborted = false;
+
+    return {
+      async upload() {
+        const file: File = await loader.file;
+
+        if (aborted) {
+          throw new Error('Upload aborted.');
+        }
+
+        const payload = await fileToBase64(file);
+        const url = await interop.invokeMethodAsync<string | null>('OnEditorImageUpload', {
+          fileName: file.name,
+          mimeType: file.type,
+          payload,
+        });
+
+        if (!url) {
+          throw new Error(
+            'OnImageUpload handler returned null. '
+            + 'Make sure the OnImageUpload parameter is set on the <CKE5Editor> component.',
+          );
+        }
+
+        return { default: url };
+      },
+
+      abort() {
+        aborted = true;
+      },
+    };
+  };
+}
+
+/**
+ * Converts a File object to a Base64-encoded string (data-URL prefix stripped).
+ */
+function fileToBase64(file: File): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = reader.result as string;
+
+      /* v8 ignore next -- @preserve */
+      const base64 = result.split(',')[1] ?? result;
+
+      resolve(base64);
+    };
+
+    /* v8 ignore next -- @preserve */
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }

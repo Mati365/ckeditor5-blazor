@@ -13,7 +13,7 @@ namespace CKEditor.Blazor.Components;
 /// CKEditor 5 Main Component.
 /// Renders a CKEditor instance with configurable options.
 /// </summary>
-public partial class CKE5Editor : ComponentBase, IAsyncDisposable
+public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5InteractiveComponent
 {
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -137,17 +137,18 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable
     public Dictionary<string, object>? MergeConfig { get; set; }
 
     /// <summary>
-    /// Optional dictionary of custom UI translations keyed by the original string.
+    /// Optional dictionary of custom UI translations.
+    /// The outer key is a language code (e.g., <c>"en"</c>, <c>"pl"</c>),
+    /// and the inner dictionary maps original UI strings to their translated equivalents.
     /// </summary>
     [Parameter]
-    public Dictionary<string, string>? CustomTranslations { get; set; }
+    public EditorTranslations? CustomTranslations { get; set; }
 
     /// <summary>
-    /// Optional editor type override (e.g. <c>"classic"</c>, <c>"inline"</c>,
-    /// <c>"balloon"</c>, <c>"decoupled"</c>, <c>"multiroot"</c>).
+    /// Optional editor type override.
     /// </summary>
     [Parameter]
-    public string? EditorType { get; set; }
+    public EditorType? EditorType { get; set; }
 
     /// <summary>
     /// Optional child content rendered inside the editor's custom element,
@@ -156,11 +157,7 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    /// <summary>
-    /// When <see langword="true"/>, the editor bootstraps itself automatically via
-    /// the JS Web Component without waiting for the Blazor interop initialization.
-    /// Default is <see langword="false"/>.
-    /// </summary>
+    /// <inheritdoc cref="ICKE5InteractiveComponent.Interactive"/>
     [Parameter]
     public bool Interactive { get; set; } = false;
 
@@ -185,6 +182,17 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable
     /// </summary>
     [Parameter]
     public EventCallback<IJSObjectReference> OnReady { get; set; }
+
+    /// <summary>
+    /// Optional asynchronous handler invoked whenever the user uploads an image through
+    /// the editor's file-repository (drag-and-drop, paste, toolbar button, etc.).
+    /// The handler receives a <see cref="CKE5ImageUploadEventArgs"/> with the file name,
+    /// MIME type and Base64-encoded payload, and must return the public URL that
+    /// CKEditor 5 should embed in the document for the uploaded image.
+    /// When <see langword="null"/> the built-in upload adapter (if any) is used instead.
+    /// </summary>
+    [Parameter]
+    public Func<CKE5ImageUploadEventArgs, Task<string?>>? OnImageUpload { get; set; }
 
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
@@ -278,6 +286,25 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable
     }
 
     /// <summary>
+    /// JS-invokable callback that fires when the editor's file repository requests an image upload.
+    /// Delegates to <see cref="OnImageUpload"/> when a handler has been configured and returns
+    /// the URL that CKEditor 5 should embed in the document, or <see langword="null"/> if no
+    /// handler is registered (which causes the upload to be rejected on the JS side).
+    /// </summary>
+    /// <param name="args">Upload event arguments: file name, MIME type and Base64 payload.</param>
+    /// <returns>The public URL for the uploaded image, or <see langword="null"/>.</returns>
+    [JSInvokable]
+    public async Task<string?> OnEditorImageUpload(CKE5ImageUploadEventArgs args)
+    {
+        if (OnImageUpload is not null)
+        {
+            return await OnImageUpload(args);
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Generates a unique <see cref="Id"/> when none is provided by the consumer.
     /// </summary>
     protected override void OnInitialized() => Id ??= $"cke5-{Guid.NewGuid():N}";
@@ -305,9 +332,19 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable
     /// <returns>A task representing the asynchronous operation.</returns>
     protected override async Task OnParametersSetAsync()
     {
-        if (!_jsInterop.IsInitializing && Value is not null)
+        if (_jsInterop.IsInitializing)
+        {
+            return;
+        }
+
+        if (Value is not null)
         {
             await _jsInterop.InvokeVoidAsync("setValue", Value);
+        }
+
+        if (OnImageUpload is not null)
+        {
+            await _jsInterop.InvokeVoidAsync("attachImageUploadAdapter");
         }
     }
 
@@ -350,14 +387,12 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable
 
         if (CustomTranslations != null)
         {
-            preset = preset with { Translations = CustomTranslations };
+            preset = preset with { CustomTranslations = CustomTranslations };
         }
 
-        if (
-            !string.IsNullOrWhiteSpace(EditorType) &&
-            Enum.TryParse<EditorType>(EditorType, ignoreCase: true, out var parsedEditorType))
+        if (EditorType is not null)
         {
-            preset = preset with { EditorType = parsedEditorType };
+            preset = preset with { EditorType = EditorType.Value };
         }
 
         return preset;

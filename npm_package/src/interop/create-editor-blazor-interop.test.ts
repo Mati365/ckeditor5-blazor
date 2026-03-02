@@ -180,4 +180,112 @@ describe('createEditorBlazorInterop', () => {
       }).not.toThrow();
     });
   });
+
+  describe('attachImageUploadAdapter', () => {
+    it('should do nothing when already unmounted', async () => {
+      const interop = createEditorBlazorInterop(element, dotnetInterop);
+
+      await waitForTestEditor();
+      interop.unmount();
+
+      await expect(interop.attachImageUploadAdapter()).resolves.toBeUndefined();
+      expect(dotnetInterop.invokeMethodAsync).not.toHaveBeenCalledWith(
+        'OnEditorImageUpload',
+        expect.anything(),
+      );
+    });
+
+    it('should do nothing when FileRepository plugin is not available', async () => {
+      const { attachImageUploadAdapter } = createEditorBlazorInterop(element, dotnetInterop);
+      const editor = await waitForTestEditor();
+
+      expect(editor.plugins.has('FileRepository')).toBe(false);
+
+      await expect(attachImageUploadAdapter()).resolves.toBeUndefined();
+    });
+
+    it('should set createUploadAdapter on FileRepository when plugin is available', async () => {
+      const { attachImageUploadAdapter } = createEditorBlazorInterop(element, dotnetInterop);
+      const editor = await waitForTestEditor();
+
+      const mockFileRepository: { createUploadAdapter: any; } = { createUploadAdapter: null };
+
+      vi.spyOn(editor.plugins, 'has').mockReturnValue(true);
+      vi.spyOn(editor.plugins, 'get').mockReturnValue(mockFileRepository as any);
+
+      await attachImageUploadAdapter();
+
+      expect(mockFileRepository.createUploadAdapter).toBeTypeOf('function');
+    });
+
+    it('upload adapter should call OnEditorImageUpload with file details and return the url', async () => {
+      const { attachImageUploadAdapter } = createEditorBlazorInterop(element, dotnetInterop);
+      const editor = await waitForTestEditor();
+
+      const mockFileRepository: { createUploadAdapter: any; } = { createUploadAdapter: null };
+
+      vi.spyOn(editor.plugins, 'has').mockReturnValue(true);
+      vi.spyOn(editor.plugins, 'get').mockReturnValue(mockFileRepository as any);
+
+      await attachImageUploadAdapter();
+
+      const expectedUrl = 'https://example.com/uploaded.jpg';
+
+      (dotnetInterop.invokeMethodAsync as Mock).mockResolvedValueOnce(expectedUrl);
+
+      const mockFile = new File(['fake image data'], 'photo.jpg', { type: 'image/jpeg' });
+      const adapter = mockFileRepository.createUploadAdapter({ file: Promise.resolve(mockFile) });
+
+      const result = await adapter.upload();
+
+      expect(dotnetInterop.invokeMethodAsync).toHaveBeenCalledWith(
+        'OnEditorImageUpload',
+        expect.objectContaining({
+          fileName: 'photo.jpg',
+          mimeType: 'image/jpeg',
+          payload: expect.any(String),
+        }),
+      );
+
+      expect(result).toEqual({ default: expectedUrl });
+    });
+
+    it('upload adapter should throw when OnEditorImageUpload returns null', async () => {
+      const { attachImageUploadAdapter } = createEditorBlazorInterop(element, dotnetInterop);
+      const editor = await waitForTestEditor();
+
+      const mockFileRepository: { createUploadAdapter: any; } = { createUploadAdapter: null };
+
+      vi.spyOn(editor.plugins, 'has').mockReturnValue(true);
+      vi.spyOn(editor.plugins, 'get').mockReturnValue(mockFileRepository as any);
+
+      await attachImageUploadAdapter();
+
+      (dotnetInterop.invokeMethodAsync as Mock).mockResolvedValueOnce(null);
+
+      const mockFile = new File(['fake image data'], 'photo.jpg', { type: 'image/jpeg' });
+      const adapter = mockFileRepository.createUploadAdapter({ file: Promise.resolve(mockFile) });
+
+      await expect(adapter.upload()).rejects.toThrow('OnImageUpload handler returned null');
+    });
+
+    it('upload adapter should throw when aborted before file read completes', async () => {
+      const { attachImageUploadAdapter } = createEditorBlazorInterop(element, dotnetInterop);
+      const editor = await waitForTestEditor();
+
+      const mockFileRepository: { createUploadAdapter: any; } = { createUploadAdapter: null };
+
+      vi.spyOn(editor.plugins, 'has').mockReturnValue(true);
+      vi.spyOn(editor.plugins, 'get').mockReturnValue(mockFileRepository as any);
+
+      await attachImageUploadAdapter();
+
+      const mockFile = new File(['fake image data'], 'photo.jpg', { type: 'image/jpeg' });
+      const adapter = mockFileRepository.createUploadAdapter({ file: Promise.resolve(mockFile) });
+
+      adapter.abort();
+
+      await expect(adapter.upload()).rejects.toThrow('Upload aborted.');
+    });
+  });
 });

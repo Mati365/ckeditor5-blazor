@@ -4,6 +4,6 @@ import { vi } from 'vitest';
 
 export function createDotNetInteropMock(): DotNetInterop {
   return {
-    invokeMethodAsync: vi.fn(() => Promise.resolve(undefined)),
+    invokeMethodAsync: vi.fn(() => Promise.resolve(undefined)) as unknown as DotNetInterop['invokeMethodAsync'],
   };
 }

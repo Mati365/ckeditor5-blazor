@@ -1,20 +1,30 @@
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.Bundle;
+using CKEditor.Blazor.Model.License;
 using CKEditor.Blazor.Services;
+using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
 using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
 using Microsoft.AspNetCore.Components;
 
 namespace CKEditor.Blazor.Components.Assets;
 
 /// <summary>
-/// CKEditor 5 Self-Hosted Assets Component.
-/// Renders the necessary script and stylesheet tags for self-hosted CKEditor integration.
+/// CKEditor 5 Assets Component.
+/// Renders the necessary script and stylesheet tags for CKEditor integration.
+/// Use <see cref="Distribution"/> to select between CDN and self-hosted assets.
 /// </summary>
-public partial class CKE5SelfHosted : ComponentBase
+public partial class CKE5Assets : ComponentBase
 {
     /// <summary>
+    /// The distribution channel that determines which bundle builder to use.
+    /// Use <see cref="DistributionChannel.Cloud"/> for CDN-hosted assets
+    /// or <see cref="DistributionChannel.SH"/> for self-hosted assets.
+    /// </summary>
+    [Parameter]
+    public DistributionChannel Distribution { get; set; } = DistributionChannel.SH;
+
+    /// <summary>
     /// The preset name to use (default: 'default').
-    /// Such preset should contain self-hosted configuration.
     /// </summary>
     [Parameter]
     public string Preset { get; set; } = "default";
@@ -27,14 +37,14 @@ public partial class CKE5SelfHosted : ComponentBase
 
     /// <summary>
     /// Whether to emit the import map script tag. Default is true.
-    /// Set to false if you want to manage the import map yourself.
+    /// Set to false if you want to manage the import map yourself (e.g. via <c>&lt;CKE5Importmap /&gt;</c>).
     /// </summary>
     [Parameter]
     public bool EmitImportMap { get; set; } = true;
 
     /// <summary>
     /// Whether to emit module preload link tags for ESM assets. Default is true.
-    /// Set to false when the import map is declared globally (e.g. via <c>&lt;CKE5SelfHostedImportmap /&gt;</c>)
+    /// Set to false when the import map is declared globally (e.g. via <c>&lt;CKE5Importmap /&gt;</c>)
     /// and you only want per-page assets such as stylesheets rendered here.
     /// </summary>
     [Parameter]
@@ -50,6 +60,9 @@ public partial class CKE5SelfHosted : ComponentBase
     private ConfigManager ConfigManager { get; set; } = default!;
 
     [Inject]
+    private ICloudBundleBuilder CloudBundleBuilder { get; set; } = default!;
+
+    [Inject]
     private ISelfHostedBundleBuilder SelfHostedBundleBuilder { get; set; } = default!;
 
     private AssetsBundle? Bundle { get; set; }
@@ -57,8 +70,12 @@ public partial class CKE5SelfHosted : ComponentBase
     protected override void OnInitialized()
     {
         var preset = ConfigManager.ResolvePresetOrThrow(Preset);
-        var selfHosted = preset.EnsureSelfHostedCompatibilityOrThrow();
 
-        Bundle = SelfHostedBundleBuilder.Build(selfHosted);
+        Bundle = Distribution switch
+        {
+            DistributionChannel.Cloud => CloudBundleBuilder.Build(preset.EnsureCloudCompatibilityOrThrow()),
+            DistributionChannel.SH => SelfHostedBundleBuilder.Build(preset.EnsureSelfHostedCompatibilityOrThrow()),
+            _ => throw new InvalidOperationException($"Unsupported distribution channel: {Distribution}.")
+        };
     }
 }

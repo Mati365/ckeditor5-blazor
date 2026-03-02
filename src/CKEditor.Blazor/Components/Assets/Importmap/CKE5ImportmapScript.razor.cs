@@ -5,8 +5,8 @@ namespace CKEditor.Blazor.Components.Assets;
 
 /// <summary>
 /// Internal primitive that renders a <c>&lt;script type="importmap"&gt;</c> tag.
-/// Emits nothing when the map is empty. Shared by <see cref="CKE5BundleRenderer"/>,
-/// <see cref="CKE5CloudImportmap"/>, and <see cref="CKE5SelfHostedImportmap"/>.
+/// Emits nothing when the map is empty. Shared by <see cref="CKE5BundleRenderer"/>
+/// and <see cref="CKE5Importmap"/>.
 /// </summary>
 public partial class CKE5ImportmapScript : ComponentBase
 {

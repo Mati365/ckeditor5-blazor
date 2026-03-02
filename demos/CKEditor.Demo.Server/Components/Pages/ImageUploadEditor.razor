@@ -1,0 +1,76 @@
+@page "/image-upload"
+@using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Model
+@using CKEditor.Blazor.Model.Events
+@using CKEditor.Demo.Server.Services
+@inject ImageStorageService ImageStorage
+@rendermode InteractiveServer
+
+<div class="mx-auto p-8 max-w-4xl text-gray-900">
+    <a href="/" class="inline-block mb-6 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
+    <h1 class="mb-6 font-bold text-3xl">Image Upload Demo</h1>
+
+    <p class="mb-4 text-gray-600 text-sm">
+        Drag &amp; drop an image into the editor, paste an image from the clipboard,
+        or use the toolbar&rsquo;s image button. Uploaded images are kept in
+        server memory for the lifetime of the process.
+    </p>
+
+    <CKE5Editor
+        @bind-Value="editorValue"
+        OnImageUpload="HandleImageUpload" />
+
+    @if (uploadedImages.Count > 0)
+    {
+        <div class="mt-8">
+            <h2 class="mb-3 font-semibold text-xl">Uploaded images (@uploadedImages.Count)</h2>
+            <div class="gap-4 grid grid-cols-2 sm:grid-cols-3">
+                @foreach (var img in uploadedImages)
+                {
+                    <div class="border border-gray-200 rounded overflow-hidden">
+                        <img src="@img.Url" alt="@img.FileName" class="w-full h-32 object-cover" />
+                        <div class="bg-gray-50 p-2 text-gray-600 text-xs truncate">
+                            <div class="font-medium truncate" title="@img.FileName">@img.FileName</div>
+                            <div class="text-gray-400">@img.MimeType &bull; @FormatBytes(img.Size)</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private EditorValue editorValue = new("<p>Insert an image to try the upload callback.</p>");
+
+    private readonly List<UploadedImageInfo> uploadedImages = [];
+
+    private async Task<string?> HandleImageUpload(CKE5ImageUploadEventArgs args)
+    {
+        var data = Convert.FromBase64String(args.Payload);
+        var url = ImageStorage.Store(args.FileName, args.MimeType, data);
+
+        // Keep the sidebar list up to date on the Blazor side.
+        uploadedImages.Add(new UploadedImageInfo(args.FileName, args.MimeType, data.Length, url));
+        await InvokeAsync(StateHasChanged);
+
+        return url;
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes < 1024)
+        {
+            return $"{bytes} B";
+        }
+
+        if (bytes < 1024 * 1024)
+        {
+            return $"{bytes / 1024.0:F1} KB";
+        }
+
+        return $"{bytes / (1024.0 * 1024):F1} MB";
+    }
+
+    private sealed record UploadedImageInfo(string FileName, string MimeType, long Size, string Url);
+}

@@ -9,7 +9,7 @@ namespace CKEditor.Blazor.Components;
 /// Renders a standalone editable region for CKEditor, intended for use
 /// inside multiroot or decoupled editor layouts where each root is managed independently.
 /// </summary>
-public partial class CKE5Editable : ComponentBase, IAsyncDisposable
+public partial class CKE5Editable : ComponentBase, IAsyncDisposable, ICKE5InteractiveComponent
 {
     private readonly CKE5ComponentJsInterop _jsInterop = new();
 
@@ -106,11 +106,7 @@ public partial class CKE5Editable : ComponentBase, IAsyncDisposable
     [Parameter]
     public string? InnerStyle { get; set; }
 
-    /// <summary>
-    /// When <see langword="true"/>, the editable bootstraps itself automatically via
-    /// the JS Web Component without waiting for the Blazor interop initialization.
-    /// Default is <see langword="false"/>.
-    /// </summary>
+    /// <inheritdoc cref="ICKE5InteractiveComponent.Interactive"/>
     [Parameter]
     public bool Interactive { get; set; } = false;
 

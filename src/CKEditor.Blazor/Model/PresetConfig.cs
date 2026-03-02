@@ -37,7 +37,7 @@ public sealed record PresetConfig
     /// <summary>
     /// Custom translations dictionary.
     /// </summary>
-    public Dictionary<string, string>? Translations { get; init; }
+    public EditorTranslations? CustomTranslations { get; init; }
 
     /// <summary>
     /// Creates a new preset with merged configuration.
