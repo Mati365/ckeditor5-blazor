@@ -441,7 +441,7 @@ builder.Services.AddCKEditor(options =>
         {
             ["language"] = "pl"
         },
-        Translations = new EditorTranslations
+        CustomTranslations = new EditorTranslations
         {
             ["pl"] = new Dictionary<string, string>
             {
@@ -496,7 +496,7 @@ builder.Services.AddCKEditor(options =>
                 }
             }
         },
-        Translations = new EditorTranslations
+        CustomTranslations = new EditorTranslations
         {
             ["pl"] = new Dictionary<string, string>
             {
