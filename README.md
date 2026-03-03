@@ -44,6 +44,7 @@ CKEditor 5 for Blazor — a lightweight WYSIWYG editor integration for ASP.NET C
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
+    - [Balloon editor 🎈](#balloon-editor-)
     - [Decoupled editor 🌐](#decoupled-editor-)
     - [Multiroot editor 🌳](#multiroot-editor-)
   - [Advanced configuration ⚙️](#advanced-configuration-️)
@@ -544,6 +545,22 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 ```
 
 **Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
+
+### Balloon editor 🎈
+
+Contextual editor that shows a floating toolbar near the selected text. Great for comment editing, annotations, or any scenario where a non-intrusive editing experience is desired.
+
+![CKEditor 5 Balloon Editor in Blazor application](docs/balloon-editor.png)
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Editor
+    EditorType="EditorType.Balloon"
+    Value="<p>Balloon editor content</p>"
+    Class="border border-gray-300" />
+```
+
 
 ### Decoupled editor 🌐
 
