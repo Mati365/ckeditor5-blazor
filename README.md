@@ -561,7 +561,6 @@ Contextual editor that shows a floating toolbar near the selected text. Great fo
     Class="border border-gray-300" />
 ```
 
-
 ### Decoupled editor 🌐
 
 Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
