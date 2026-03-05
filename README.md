@@ -9,7 +9,7 @@
 ![NPM Version](https://img.shields.io/npm/v/ckeditor5-blazor?style=flat-square)
 ![NuGet Version](https://img.shields.io/nuget/v/CKEditor.Blazor?style=flat-square&color=%239245ba)
 
-CKEditor 5 for Blazor is a lightweight, multi-platform, WYSIWYG editor that can be integrated with ASP.NET Core Blazor Server and WebAssembly. It is compatible with Razor components and .NET forms. It is easy to set up and supports self-hosted assets, CDN loading, multiple editor types, shared contexts, localisation and custom plugins.
+CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration for ASP.NET Core Blazor Server and WebAssembly. It works with Razor components and .NET forms. Easy to set up, it supports self-hosted assets, CDN loading, multiple editor types, shared contexts, localization, and custom plugins.
 
 > [!IMPORTANT]
 > This integration is unofficial and not maintained by CKSource. For official CKEditor 5 documentation, visit [ckeditor.com](https://ckeditor.com/docs/ckeditor5/latest/). If you encounter any issues in editor, please report them on the [GitHub repository](https://github.com/ckeditor/ckeditor5/issues).
