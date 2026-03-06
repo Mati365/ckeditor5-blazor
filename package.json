@@ -2,9 +2,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n \"dist,dotnet\" -c \"blue,yellow\" \"pnpm:watch:dist\" \"pnpm:dotnet:server\"",
+    "dev": "( test -d demos/CKEditor.Demo.RCL/wwwroot/ckeditor5 || pnpm run dotnet:install-local-package ) && concurrently -n \"dist,dotnet\" -c \"blue,yellow\" \"pnpm:watch:dist\" \"pnpm:dotnet:server\"",
     "watch:dist": "concurrently -n \"npm,copy\" -c \"cyan,blue\" \"pnpm:npm_package:watch\" \"node ./scripts/watch-dist.mjs\"",
     "typecheck": "pnpm run npm_package:typecheck",
+    "dotnet:install-local-package": "ruby demos/CKEditor.Demo.RCL/install-local-package.rb",
     "dotnet:format": "dotnet format",
     "dotnet:format:check": "dotnet format --verify-no-changes",
     "dotnet:server": "concurrently -n \"tailwind,server\" -c \"cyan,green\" \"pnpm:dotnet:tailwind:watch\" \"pnpm:dotnet:server:watch\"",
