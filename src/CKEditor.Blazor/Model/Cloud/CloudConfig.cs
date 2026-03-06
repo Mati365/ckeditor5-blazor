@@ -13,7 +13,7 @@ public sealed record CloudConfig
     /// <summary>
     /// The CKEditor 5 version to import (e.g. "36.0.0").
     /// </summary>
-    public string EditorVersion { get; init; } = "47.3.0";
+    public string EditorVersion { get; init; } = "47.6.0";
 
     /// <summary>
     /// Whether the premium package is used.

@@ -8,7 +8,7 @@ namespace CKEditor.Blazor.Model.SelfHosted;
 public sealed record SelfHostedConfig
 {
     /// <summary>
-    /// The CKEditor 5 version to use (e.g. "47.3.0").
+    /// The CKEditor 5 version to use (e.g. "47.6.0").
     /// Defaults to the version from build metadata.
     /// </summary>
     public string EditorVersion { get; init; } = BuildMetadataReader.ResolveCKEditorVersion();

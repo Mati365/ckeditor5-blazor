@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <!-- CKEditor NPM package configuration - can be overridden in consuming project -->
-    <CKEditorVersion Condition="'$(CKEditorVersion)' == ''">47.3.0</CKEditorVersion>
+    <CKEditorVersion Condition="'$(CKEditorVersion)' == ''">47.6.0</CKEditorVersion>
     <CKEditorIncludePremiumAssets Condition="'$(CKEditorIncludePremiumAssets)' == ''">false</CKEditorIncludePremiumAssets>
     <CKBoxVersion Condition="'$(CKBoxVersion)' == ''">2.8.0</CKBoxVersion>
     <CKBoxIncludeAssets Condition="'$(CKBoxIncludeAssets)' == ''">true</CKBoxIncludeAssets>

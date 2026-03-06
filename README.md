@@ -94,7 +94,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
 
    ```xml
    <PropertyGroup>
-     <CKEditorVersion>47.3.0</CKEditorVersion>
+     <CKEditorVersion>47.6.0</CKEditorVersion>
      <CKEditorIncludePremiumAssets>false</CKEditorIncludePremiumAssets>
      <CKBoxVersion>2.8.0</CKBoxVersion>
      <CKBoxIncludeAssets>true</CKBoxIncludeAssets>
@@ -179,7 +179,7 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
        options.Presets["default"] = ConfigManager.CreateDefaultPreset(
            cloudConfig: new CloudConfig
            {
-               EditorVersion = "47.3.0",
+               EditorVersion = "47.6.0",
                Premium = false
            });
    });
