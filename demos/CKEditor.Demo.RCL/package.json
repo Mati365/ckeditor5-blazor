@@ -6,8 +6,8 @@
   "scripts": {
     "build:css": "tailwindcss -i ./wwwroot/app.css -o ./wwwroot/app.min.css --minify",
     "watch:css": "tailwindcss -i ./wwwroot/app.css -o ./wwwroot/app.min.css --watch",
-    "pkg:base": "ruby install-local-package.rb",
-    "pkg:premium": "ruby install-local-package.rb --premium"
+    "pkg:base": "dotnet run --project ../../tools/CKEditor.LocalPackageInstaller/",
+    "pkg:premium": "dotnet run --project ../../tools/CKEditor.LocalPackageInstaller/ -- --premium"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1"
