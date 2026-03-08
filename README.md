@@ -91,10 +91,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
    dotnet add package CKEditor.Blazor
    ```
 
-   <details>
-   <summary>Override MSBuild asset options</summary>
-
-   (Optional) Override MSBuild asset options in your `.csproj`:
+2. **(Optional) Override MSBuild asset options** in your `.csproj`:
 
    ```xml
    <PropertyGroup>
@@ -105,9 +102,8 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
      <CKEditorAssetsOutputPath>$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
    </PropertyGroup>
    ```
-   </details>
 
-2. **Register CKEditor services** in `Program.cs`:
+3. **Register CKEditor services** in `Program.cs`:
 
    ```csharp
    using CKEditor.Blazor.Services;
@@ -137,13 +133,13 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
    The value is the URL prefix (without a trailing slash) prepended to all generated asset URLs. It must match what the browser actually uses to fetch the files.
    </details>
 
-3. **Build your project** to download and prepare assets:
+4. **Build your project** to download and prepare assets:
 
    ```bash
    dotnet build
    ```
 
-4. **Add self-hosted assets component** in `<head>` (e.g. `App.razor`):
+5. **Add self-hosted assets component** in `<head>` (e.g. `App.razor`):
 
    ```razor
    @using CKEditor.Blazor.Components.Assets
@@ -153,7 +149,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
    </HeadContent>
    ```
 
-5. **Use editor components** anywhere in your Razor UI:
+6. **Use editor components** anywhere in your Razor UI:
 
    ```razor
    @using CKEditor.Blazor.Components
@@ -189,10 +185,7 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
             })));
    ```
 
-   <details>
-   <summary>Override MSBuild asset options</summary>
-
-   (Optional) Override MSBuild asset options in your `.csproj`:
+3. (Optional) **Override MSBuild asset options** in your `.csproj`:
 
    ```xml
    <PropertyGroup>
@@ -201,9 +194,8 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
      <CKBoxIncludeAssets>false</CKBoxIncludeAssets>
    </PropertyGroup>
    ```
-   </details>
 
-3. **Add cloud assets component** in `<head>`:
+4. **Add cloud assets component** in `<head>`:
 
    ```razor
    @using CKEditor.Blazor.Components.Assets
