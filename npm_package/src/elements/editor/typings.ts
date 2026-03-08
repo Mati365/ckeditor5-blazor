@@ -10,9 +10,22 @@ export type EditorId = string;
 export type EditorType = 'inline' | 'classic' | 'balloon' | 'decoupled' | 'multiroot';
 
 /**
- * Represents a CKEditor5 plugin as a string identifier.
+ * Represents a custom plugin loaded from a JavaScript module path.
+ * Serialized from C# as <c>{ "$import": { "name": "...", "path": "..." } }</c>.
  */
-export type EditorPlugin = string;
+export type EditorPluginImport = {
+  $import: {
+    name: string;
+    path: string;
+  };
+};
+
+/**
+ * Represents a CKEditor5 plugin — either a built-in string identifier or a
+ * custom {@link EditorPluginImport} descriptor that loads a named export from
+ * the given JavaScript module path.
+ */
+export type EditorPlugin = string | EditorPluginImport;
 
 /**
  * Configuration object for CKEditor5 editor instance.

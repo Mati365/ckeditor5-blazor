@@ -121,10 +121,45 @@ public sealed record PresetConfig
 
     /// <summary>
     /// Creates a new preset with the editor plugins set to <paramref name="plugins"/>.
+    /// Accepts string plugin names (e.g. <c>"Bold"</c>) as well as <see cref="PresetPluginImport"/>
+    /// instances created via <see cref="Plugin.Import"/> for loading plugins from custom module paths.
     /// </summary>
-    /// <param name="plugins">The plugin names to activate (e.g. <c>"Bold"</c>, <c>"Italic"</c>).</param>
+    /// <param name="plugins">
+    /// The plugins to activate: string names for built-in plugins, or <see cref="PresetPluginImport"/>
+    /// instances for plugins loaded from a custom JavaScript module path.
+    /// </param>
     /// <returns>A new preset with the plugins configuration applied.</returns>
-    public PresetConfig WithPlugins(params string[] plugins) => ExtendConfig(config => config["plugins"] = plugins);
+    /// <example>
+    /// <code>
+    /// preset.WithPlugins("Essentials", "Bold", Plugin.Import("MyPlugin", "./my-plugin.js"));
+    /// </code>
+    /// </example>
+    public PresetConfig WithPlugins(params object[] plugins) => ExtendConfig(config => config["plugins"] = plugins);
+
+    /// <summary>
+    /// Appends <paramref name="plugins"/> to the existing plugin list.
+    /// If no plugins have been set yet, behaves identically to <see cref="WithPlugins"/>.
+    /// Accepts string plugin names (e.g. <c>"Bold"</c>) as well as <see cref="PresetPluginImport"/>
+    /// instances created via <see cref="Plugin.Import"/>.
+    /// </summary>
+    /// <param name="plugins">The plugins to append.</param>
+    /// <returns>A new preset with the combined plugin list.</returns>
+    /// <example>
+    /// <code>
+    /// preset
+    ///     .WithPlugins("Essentials", "Bold")
+    ///     .AddPlugins("Italic", Plugin.Import("MyPlugin", "./my-plugin.js"));
+    /// </code>
+    /// </example>
+    public PresetConfig AddPlugins(params object[] plugins) =>
+        ExtendConfig(config =>
+        {
+            var existing = config.TryGetValue("plugins", out var raw) && raw is object[] arr
+                ? arr
+                : [];
+
+            config["plugins"] = existing.Concat(plugins).ToArray();
+        });
 
     /// <summary>
     /// Creates a new preset with a single config entry added or overwritten.
@@ -186,4 +221,22 @@ public sealed record PresetConfig
 
         return this with { CustomTranslations = merged };
     }
+
+    /// <summary>
+    /// Creates a DOM element reference that resolves the given CSS selector to an <c>HTMLElement</c>
+    /// during editor initialization.
+    /// Serialized as <c>{ "$element": "selector" }</c>.
+    /// </summary>
+    /// <param name="selector">A CSS selector string (e.g. <c>"#my-container"</c>).</param>
+    /// <returns>A <see cref="PresetElementSelector"/> to pass inside any config entry.</returns>
+    public static PresetElementSelector ElementSelector(string selector) => new(selector);
+
+    /// <summary>
+    /// Creates a translation key reference that is resolved to the matching localized string
+    /// during editor initialization.
+    /// Serialized as <c>{ "$translation": "key" }</c>.
+    /// </summary>
+    /// <param name="key">The translation key (e.g. <c>"Bold"</c>).</param>
+    /// <returns>A <see cref="PresetTranslationReference"/> to pass inside any config entry.</returns>
+    public static PresetTranslationReference TranslationReference(string key) => new(key);
 }

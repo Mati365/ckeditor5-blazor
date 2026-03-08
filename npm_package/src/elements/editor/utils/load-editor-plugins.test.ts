@@ -1,6 +1,6 @@
 import type { EditorPlugin } from '../typings';
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CustomEditorPluginsRegistry } from '../custom-editor-plugins';
 import { loadEditorPlugins } from './load-editor-plugins';
@@ -10,6 +10,22 @@ class CustomPlugin {
     return 'CustomPlugin';
   }
 }
+
+class ImportedPlugin {
+  static get pluginName() {
+    return 'ImportedPlugin';
+  }
+}
+
+vi.mock('custom-import-module', () => ({
+  ImportedPlugin,
+}));
+
+vi.mock('default-export-module', () => ({
+  default: ImportedPlugin,
+}));
+
+vi.mock('empty-module', () => ({}));
 
 describe('loadEditorPlugins', () => {
   it('should load plugins from base package', async () => {
@@ -95,6 +111,37 @@ describe('loadEditorPlugins', () => {
 
       expect(loadedPlugins).toHaveLength(1);
       expect(loadedPlugins[0]).toEqual(CustomPlugin);
+    });
+  });
+
+  describe('import descriptor plugins', () => {
+    it('should load plugin from named export via $import descriptor', async () => {
+      const plugins: EditorPlugin[] = [{ $import: { name: 'ImportedPlugin', path: 'custom-import-module' } }];
+      const { loadedPlugins } = await loadEditorPlugins(plugins);
+
+      expect(loadedPlugins).toHaveLength(1);
+      expect(loadedPlugins[0]).toEqual(ImportedPlugin);
+    });
+
+    it('should fall back to default export when named export is absent', async () => {
+      const plugins: EditorPlugin[] = [{ $import: { name: 'NonExistent', path: 'default-export-module' } }];
+      const { loadedPlugins } = await loadEditorPlugins(plugins);
+
+      expect(loadedPlugins).toHaveLength(1);
+      expect(loadedPlugins[0]).toEqual(ImportedPlugin);
+    });
+
+    it('should throw when neither named nor default export is found', async () => {
+      const plugins: EditorPlugin[] = [{ $import: { name: 'MissingExport', path: 'empty-module' } }];
+      await expect(loadEditorPlugins(plugins)).rejects.toThrowError(/not found in module/);
+    });
+
+    it('should mix string plugins and import descriptors', async () => {
+      const plugins: EditorPlugin[] = ['Bold', { $import: { name: 'ImportedPlugin', path: 'custom-import-module' } }];
+      const { loadedPlugins } = await loadEditorPlugins(plugins);
+
+      expect(loadedPlugins).toHaveLength(2);
+      expect(loadedPlugins[1]).toEqual(ImportedPlugin);
     });
   });
 });

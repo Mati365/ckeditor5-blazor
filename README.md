@@ -398,7 +398,7 @@ You can also create dynamic presets that can be modified at runtime. This is use
 
 ### Element references using `$element` 🎯
 
-Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use `PresetElementSelector` in C# (which serializes to `{ "$element": "selector" }`) anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization.
+Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use `PresetConfig.ElementSelector` anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization (serializes to `{ "$element": "selector" }`).
 
 This is useful, for example, when pointing a plugin to an external container element:
 
@@ -410,7 +410,7 @@ builder.Services.AddCKEditor(options => options
     .ExtendDefaultPreset(preset => preset
         .WithConfigEntry("myPlugin", new Dictionary<string, object>
         {
-            ["container"] = new PresetElementSelector("#my-container")
+            ["container"] = PresetConfig.ElementSelector("#my-container")
         })));
 ```
 
@@ -487,7 +487,7 @@ You can override translations per editor instance via `CustomTranslations`:
 
 ### Translation references using `$translation` ✨
 
-In addition to supplying full translation maps, configuration objects may contain reference helpers that point to existing translation keys. This is particularly handy when you want to reuse an existing label or avoid repeating the same string in multiple places. Use `PresetTranslationReference` in C# (which serializes to `{ "$translation": "key" }`) in any part of your editor or context configuration, and the package will automatically replace it with the correct localized string during initialization.
+In addition to supplying full translation maps, configuration objects may contain reference helpers that point to existing translation keys. This is particularly handy when you want to reuse an existing label or avoid repeating the same string in multiple places. Use `PresetConfig.TranslationReference` in any part of your editor or context configuration, and the package will automatically replace it with the correct localized string during initialization (serializes to `{ "$translation": "key" }`).
 
 ```csharp
 using CKEditor.Blazor.Model;
@@ -497,11 +497,11 @@ builder.Services.AddCKEditor(options => options
     .ExtendDefaultPreset(preset => preset
         .WithCustomTranslations("pl", new Dictionary<string, string>
         {
-            ["Bold"] = 'Pogrubienie'
+            ["Bold"] = "Pogrubienie"
         })
         .WithConfigEntry("myPlugin", new Dictionary<string, object>
         {
-            ["buttonLabel"] = new PresetTranslationReference("Bold")
+            ["buttonLabel"] = PresetConfig.TranslationReference("Bold")
         })));
 ```
 
@@ -873,6 +873,38 @@ Pass a context config object directly using `ContextPreset`:
 </CKE5Context>
 ```
 
+### Context config DSL 🛠️
+
+`ContextConfig` exposes the same fluent builder API as `PresetConfig`, so you can compose context configuration without working directly with raw collections:
+
+```csharp
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultContext(context => context
+        .AddPlugins(Plugin.Import("MyCustomPlugin", "./my-custom-plugin.js")))
+
+    .AddContext("shared", context => context
+        .WithPlugins("Essentials", "Paragraph", "Bold")
+        .WithLanguage("pl")
+        .WithConfigEntry("toolbar", new[] { "bold" })));
+```
+
+You can also build a context inline in Razor using the same API:
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Context
+    Id="shared-context"
+    ContextPreset="@(new ContextConfig()
+        .WithPlugins("Essentials", "Paragraph")
+        .WithLanguage("pl"))">
+    <CKE5Editor ContextId="shared-context" Value="@("<p>Shared context</p>")" />
+</CKE5Context>
+```
+
 ## Custom plugins 🧩
 
 To register a custom plugin, use the `registerCustomEditorPlugin` function. This function takes the plugin name and the plugin reader that returns a class extending `Plugin`.
@@ -897,14 +929,31 @@ const unregister = Registry.the.register('MyCustomPlugin', async () => {
 });
 ```
 
-Then reference plugin name in editor config (preset or `Config`):
+Then reference plugin name in editor config (preset or `Config`) using `WithPlugins` or `AddPlugins`:
 
 ```csharp
 using CKEditor.Blazor.Services;
 
+// Set the full plugin list:
 builder.Services.AddCKEditor(options => options
     .ExtendDefaultPreset(preset => preset
         .WithPlugins("Essentials", "Paragraph", /* ... */, "MyCustomPlugin")));
+
+// Or append to an existing list without replacing it:
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .AddPlugins("MyCustomPlugin")));
+```
+
+You can also load a plugin from a custom JavaScript module path using `Plugin.Import`:
+
+```csharp
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .AddPlugins(Plugin.Import("MyCustomPlugin", "./my-custom-plugin.js"))));
 ```
 
 ## Editors and Contexts registry 👀

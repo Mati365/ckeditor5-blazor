@@ -175,7 +175,82 @@ public class PresetConfigTests
     }
 
     [Fact]
-    public void FluentChaining_ShouldBuildPresetCorrectly()
+    public void WithPlugins_StringItems_ShouldSetPluginsInConfig()
+    {
+        var preset = new PresetConfig().WithPlugins("Essentials", "Bold");
+
+        Assert.Equal(new object[] { "Essentials", "Bold" }, preset.Config["plugins"]);
+    }
+
+    [Fact]
+    public void WithPlugins_WithImportDescriptor_ShouldIncludePluginImportInConfig()
+    {
+        var preset = new PresetConfig().WithPlugins("Bold", Plugin.Import("MyPlugin", "./my-plugin.js"));
+
+        var plugins = Assert.IsType<object[]>(preset.Config["plugins"]);
+        Assert.Equal(2, plugins.Length);
+        Assert.Equal("Bold", plugins[0]);
+
+        var importDescriptor = Assert.IsType<PresetPluginImport>(plugins[1]);
+        Assert.Equal("MyPlugin", importDescriptor.Name);
+        Assert.Equal("./my-plugin.js", importDescriptor.ImportPath);
+    }
+
+    [Fact]
+    public void WithPlugins_ShouldNotMutateOriginalPreset()
+    {
+        var original = new PresetConfig();
+        var updated = original.WithPlugins("Bold");
+
+        Assert.Empty(original.Config);
+        Assert.NotEmpty(updated.Config);
+    }
+
+    [Fact]
+    public void AddPlugins_ShouldAppendToExistingPlugins()
+    {
+        var preset = new PresetConfig()
+            .WithPlugins("Essentials", "Bold")
+            .AddPlugins("Italic", "Underline");
+
+        Assert.Equal(new object[] { "Essentials", "Bold", "Italic", "Underline" }, preset.Config["plugins"]);
+    }
+
+    [Fact]
+    public void AddPlugins_WhenNoPluginsSet_ShouldBehaveAsWithPlugins()
+    {
+        var preset = new PresetConfig().AddPlugins("Bold", "Italic");
+
+        Assert.Equal(new object[] { "Bold", "Italic" }, preset.Config["plugins"]);
+    }
+
+    [Fact]
+    public void AddPlugins_WithImportDescriptor_ShouldAppendImportToExistingPlugins()
+    {
+        var importDescriptor = Plugin.Import("MyPlugin", "./my-plugin.js");
+
+        var preset = new PresetConfig()
+            .WithPlugins("Bold")
+            .AddPlugins(importDescriptor);
+
+        var plugins = Assert.IsType<object[]>(preset.Config["plugins"]);
+        Assert.Equal(2, plugins.Length);
+        Assert.Equal("Bold", plugins[0]);
+        Assert.Equal(importDescriptor, plugins[1]);
+    }
+
+    [Fact]
+    public void AddPlugins_ShouldNotMutateOriginalPreset()
+    {
+        var original = new PresetConfig().WithPlugins("Bold");
+        var updated = original.AddPlugins("Italic");
+
+        Assert.Equal(new object[] { "Bold" }, original.Config["plugins"]);
+        Assert.Equal(new object[] { "Bold", "Italic" }, updated.Config["plugins"]);
+    }
+
+    [Fact]
+    public void CombinedUsage_ShouldChainMethodsCorrectly()
     {
         var preset = new PresetConfig()
             .WithEditorType(EditorType.Inline)
@@ -234,5 +309,23 @@ public class PresetConfigTests
 
         Assert.Null(original.CustomTranslations);
         Assert.NotNull(updated.CustomTranslations);
+    }
+
+    [Fact]
+    public void ElementSelector_ShouldReturnPresetElementSelectorWithGivenSelector()
+    {
+        var result = PresetConfig.ElementSelector("#my-container");
+
+        Assert.IsType<PresetElementSelector>(result);
+        Assert.Equal("#my-container", result.Selector);
+    }
+
+    [Fact]
+    public void TranslationReference_ShouldReturnPresetTranslationReferenceWithGivenKey()
+    {
+        var result = PresetConfig.TranslationReference("Bold");
+
+        Assert.IsType<PresetTranslationReference>(result);
+        Assert.Equal("Bold", result.Key);
     }
 }

@@ -1,3 +1,4 @@
+using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.SelfHosted;
 using CKEditor.Blazor.Services;
 using CKEditor.Demo.Server.Components;
@@ -6,14 +7,15 @@ using CKEditor.Demo.Server.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddCKEditor(options =>
-{
-    options.ExtendDefaultPreset(p => p
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultContext(p => p
+        .AddPlugins(Plugin.Import("CustomContextPlugin", "/_content/CKEditor.Demo.RCL/js/custom-context-plugin.js")))
+    .ExtendDefaultPreset(p => p
+        .AddPlugins(Plugin.Import("CustomPlugin", "/_content/CKEditor.Demo.RCL/js/custom-plugin.js"))
         .WithSelfHosted(new SelfHostedConfig
         {
             AssetsBasePath = "/_content/CKEditor.Demo.RCL"
-        }));
-});
+        })));
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents(options =>
