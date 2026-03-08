@@ -287,7 +287,6 @@ Alternatively, you can extend the default configuration directly in `Program.cs`
 
 ```csharp
 builder.Services.AddCKEditor(options =>
-{
     options.ExtendDefaultPreset(preset => preset
         .WithMergedConfig(new Dictionary<string, object>
         {
@@ -295,8 +294,7 @@ builder.Services.AddCKEditor(options =>
             {
                 ["isVisible"] = true
             }
-        }));
-});
+        })));
 ```
 
 ### Define your configuration directly in the view 💻
