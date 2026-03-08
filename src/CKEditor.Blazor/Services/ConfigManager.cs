@@ -30,6 +30,11 @@ public class ConfigManager
         {
             RegisterPreset(name, preset);
         }
+
+        foreach (var (name, context) in options.Value.Contexts)
+        {
+            RegisterContext(name, context);
+        }
     }
 
     /// <summary>

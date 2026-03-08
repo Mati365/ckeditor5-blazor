@@ -42,6 +42,23 @@ public class ConfigManagerTests
     }
 
     [Fact]
+    public void Constructor_RegistersContextsFromOptions()
+    {
+        var options = new CKEditorOptions
+        {
+            Contexts = new Dictionary<string, ContextConfig>
+            {
+                ["my_context"] = new ContextConfig()
+            }
+        };
+
+        var manager = new ConfigManager(Options.Create(options));
+
+        Assert.True(manager.GetContexts().ContainsKey("my_context"));
+        Assert.True(manager.GetContexts().ContainsKey("default"));
+    }
+
+    [Fact]
     public void CreateDefaultContext_ReturnsEmptyConfig()
     {
         var context = ConfigManager.CreateDefaultContext();

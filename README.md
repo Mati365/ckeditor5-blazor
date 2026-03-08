@@ -32,6 +32,7 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
   - [Configuration ⚙️](#configuration-️)
     - [Override default preset configuration 🧑‍💻](#override-default-preset-configuration-)
     - [Define your configuration directly in the view 💻](#define-your-configuration-directly-in-the-view-)
+    - [Preset DSL 🛠️](#preset-dsl-️)
     - [Define reusable configuration presets 🧩](#define-reusable-configuration-presets-)
     - [Dynamic presets 🎯](#dynamic-presets-)
     - [Element references using `$element` 🎯](#element-references-using-element-)
@@ -118,14 +119,12 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
    using CKEditor.Blazor.Model.SelfHosted;
    using CKEditor.Blazor.Services;
 
-   builder.Services.AddCKEditor(options =>
-   {
-       options.Presets["default"] = ConfigManager.CreateDefaultPreset(
-           selfHostedConfig: new SelfHostedConfig
-           {
-               AssetsBasePath = "/_content/CKEditor.Demo.RCL"
-           });
-   });
+   builder.Services.AddCKEditor(options => options
+       .ExtendDefaultPreset(preset => preset
+            .WithSelfHosted(new SelfHostedConfig
+            {
+                AssetsBasePath = "/static/ckeditor"
+            })));
    ```
 
    The value is the URL prefix (without a trailing slash) prepended to all generated asset URLs. It must match what the browser actually uses to fetch the files.
@@ -172,17 +171,14 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
    using CKEditor.Blazor.Model.Cloud;
    using CKEditor.Blazor.Services;
 
-   builder.Services.AddCKEditor(options =>
-   {
-       options.DefaultLicenseKey = "your-license-key-here";
-
-       options.Presets["default"] = ConfigManager.CreateDefaultPreset(
-           cloudConfig: new CloudConfig
-           {
-               EditorVersion = "47.6.0",
-               Premium = false
-           });
-   });
+   builder.Services.AddCKEditor(options => options
+        .SetLicenseKey("your-license-key-here")
+        .ExtendDefaultPreset(preset => preset
+            .WithCloud(new CloudConfig
+            {
+                EditorVersion = "47.6.0",
+                Premium = false
+            })));
    ```
 
 3. **Add cloud assets component** in `<head>`:
@@ -287,6 +283,22 @@ You can pass initial content and merge additional configuration. In scenario bel
     })" />
 ```
 
+Alternatively, you can extend the default configuration directly in `Program.cs` when registering services:
+
+```csharp
+builder.Services.AddCKEditor(options =>
+{
+    options.ExtendDefaultPreset(preset => preset
+        .WithMergedConfig(new Dictionary<string, object>
+        {
+            ["menuBar"] = new Dictionary<string, object>
+            {
+                ["isVisible"] = true
+            }
+        }));
+});
+```
+
 ### Define your configuration directly in the view 💻
 
 Override the default configuration with custom plugins and toolbar items. In this example, the editor will only have `Essentials`, `Paragraph`, `Bold`, `Italic`, `Link`, and `Undo` plugins, and the toolbar will contain only bold, italic, link, undo, and redo buttons. The editor locale is set to Polish (`pl`), and a custom translation for the "Bold" label is provided.
@@ -312,29 +324,40 @@ In order to specify the `UI` and `Content` language separately, use the `Languag
 <CKE5Editor Language="@(new Language { UI = "pl", Content = "en" })" />
 ```
 
-### Define reusable configuration presets 🧩
+### Preset DSL 🛠️
 
-In order to override the default preset or add custom presets, publish the configuration file:
+If you prefer strongly typed, fluent configuration over raw dictionaries, build presets with `PresetConfig` and register them through `CKEditorOptions`:
 
 ```csharp
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Services;
 
-builder.Services.AddCKEditor(options =>
-{
-    options.Presets["minimal"] = new PresetConfig
-    {
-        EditorType = EditorType.Classic,
-        Config = new Dictionary<string, object>
+builder.Services.AddCKEditor(options => options
+    .SetLicenseKey("GPL")
+    .AddDefaultPreset(preset => preset
+        .WithEditorType(EditorType.Classic)
+        .WithPlugins("Essentials", "Paragraph", "Bold", "Italic", "Undo")
+        .WithToolbar("bold", "italic", Toolbar.Separator, "undo", "redo")
+        .WithLanguage("pl")
+        .WithCustomTranslations("pl", new Dictionary<string, string>
         {
-            ["plugins"] = new[] { "Essentials", "Paragraph", "Bold", "Italic", "Undo" },
-            ["toolbar"] = new Dictionary<string, object>
-            {
-                ["items"] = new[] { "bold", "italic", "|", "undo", "redo" }
-            }
-        }
-    };
-});
+            ["Bold"] = "Pogrubienie"
+        })));
+```
+
+### Define reusable configuration presets 🧩
+
+In order to override the default preset or add custom presets, use the fluent `AddPreset` helper:
+
+```csharp
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options => options
+    .AddPreset("minimal", preset => preset
+        .WithEditorType(EditorType.Classic)
+        .WithPlugins("Essentials", "Paragraph", "Bold", "Italic", "Undo")
+        .WithToolbar("bold", "italic", Toolbar.Separator, "undo", "redo")));
 ```
 
 Use it in Razor:
@@ -354,16 +377,8 @@ You can also create dynamic presets that can be modified at runtime. This is use
 <CKE5Editor Preset="@dynamicPreset" Value="<p>Runtime preset</p>" />
 
 @code {
-    private readonly PresetConfig dynamicPreset = ConfigManager.CreateDefaultPreset() with
-    {
-        Config = new Dictionary<string, object>
-        {
-            ["toolbar"] = new Dictionary<string, object>
-            {
-                ["items"] = new[] { "bold", "italic", "link", "|", "undo", "redo" }
-            }
-        }
-    };
+    private readonly PresetConfig dynamicPreset = ConfigManager.CreateDefaultPreset()
+        .WithToolbar("bold", "italic", "link", Toolbar.Separator, "undo", "redo");
 }
 ```
 
@@ -377,19 +392,12 @@ This is useful, for example, when pointing a plugin to an external container ele
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Services;
 
-builder.Services.AddCKEditor(options =>
-{
-    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
-    {
-        Config = new Dictionary<string, object>
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .WithConfigEntry("myPlugin", new Dictionary<string, object>
         {
-            ["myPlugin"] = new Dictionary<string, object>
-            {
-                ["container"] = new PresetElementSelector("#my-container")
-            }
-        }
-    };
-});
+            ["container"] = new PresetElementSelector("#my-container")
+        })));
 ```
 
 If no element matching the selector is found in the DOM, a warning is printed and `null` is used instead.
@@ -407,10 +415,8 @@ CKEditor 5 requires a license key for official CDN and premium features.
 2. **Programmatic config** in `Program.cs`:
 
    ```csharp
-   builder.Services.AddCKEditor(options =>
-   {
-       options.DefaultLicenseKey = "your-license-key-here";
-   });
+   builder.Services.AddCKEditor(options => options
+       .SetLicenseKey("your-license-key-here"));
    ```
 
 If you use CKEditor 5 under GPL, use `GPL` as your key value.
@@ -434,23 +440,17 @@ For self-hosted setups, translation assets are handled by your bundler automatic
 Set default language and translated labels in your preset configuration:
 
 ```csharp
-builder.Services.AddCKEditor(options =>
-{
-    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
-    {
-        Config = new Dictionary<string, object>
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .WithLanguage("pl")
+        .WithCustomTranslations("pl", new Dictionary<string, string>
         {
-            ["language"] = "pl"
-        },
-        CustomTranslations = new EditorTranslations
-        {
-            ["pl"] = new Dictionary<string, string>
-            {
-                ["Bold"] = "Pogrubienie"
-            }
-        }
-    };
-});
+            ["Bold"] = "Pogrubienie",
+            ["Italic"] = "Kursywa",
+            ["Link"] = "Link",
+            ["Undo"] = "Cofnij",
+            ["Redo"] = "Ponów"
+        })));
 ```
 
 ### Custom translations 🌐
@@ -479,33 +479,16 @@ In addition to supplying full translation maps, configuration objects may contai
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Services;
 
-builder.Services.AddCKEditor(options =>
-{
-    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
-    {
-        Config = new Dictionary<string, object>
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .WithCustomTranslations("pl", new Dictionary<string, string>
         {
-            ["toolbar"] = new Dictionary<string, object>
-            {
-                ["items"] = new object[]
-                {
-                    new Dictionary<string, object>
-                    {
-                        ["label"] = new PresetTranslationReference("Bold"),
-                        ["items"] = new[] { "bold" }
-                    }
-                }
-            }
-        },
-        CustomTranslations = new EditorTranslations
+            ["Bold"] = 'Pogrubienie'
+        })
+        .WithConfigEntry("myPlugin", new Dictionary<string, object>
         {
-            ["pl"] = new Dictionary<string, string>
-            {
-                ["Bold"] = "Pogrubienie"
-            }
-        }
-    };
-});
+            ["buttonLabel"] = new PresetTranslationReference("Bold")
+        })));
 ```
 
 When the editor or context is created, the helper will be resolved against the loaded translations (including any custom translations you provided). If the key is not found, a warning is printed and `null` will be used instead.
@@ -905,16 +888,9 @@ Then reference plugin name in editor config (preset or `Config`):
 ```csharp
 using CKEditor.Blazor.Services;
 
-builder.Services.AddCKEditor(options =>
-{
-    options.Presets["default"] = ConfigManager.CreateDefaultPreset() with
-    {
-        Config = new Dictionary<string, object>
-        {
-            ["plugins"] = new[] { "Essentials", "Paragraph", "MyCustomPlugin" }
-        }
-    };
-});
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .WithPlugins("Essentials", "Paragraph", /* ... */, "MyCustomPlugin")));
 ```
 
 ## Editors and Contexts registry 👀

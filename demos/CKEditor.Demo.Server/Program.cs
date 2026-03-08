@@ -8,11 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddCKEditor(options =>
 {
-    options.Presets["default"] = ConfigManager.CreateDefaultPreset(
-        selfHostedConfig: new SelfHostedConfig
+    options.ExtendDefaultPreset(p => p
+        .WithSelfHosted(new SelfHostedConfig
         {
             AssetsBasePath = "/_content/CKEditor.Demo.RCL"
-        });
+        }));
 });
 
 builder.Services.AddRazorComponents()
