@@ -911,7 +911,7 @@ You can also build a context inline in Razor using the same API:
 
 There are two ways to register a custom plugin, depending on whether you have a JavaScript bundle in your app.
 
-### Method 1: Import from a JS module (recommended) 📦
+### Import from a JS module (recommended) 📦
 
 If you don't have a custom JavaScript bundle, point the editor directly at your plugin file using `Plugin.Import` in Blazor. No extra JavaScript setup is needed — the editor will load the module on demand.
 
@@ -955,7 +955,7 @@ builder.Services.AddCKEditor(options => options
         .AddPlugins("MyCustomPlugin")));
 ```
 
-### Method 2: Register in a JS bundle 🗂️
+### Register in a JS bundle 🗂️
 
 If your app already has a JavaScript bundle that runs before the editor, you can register plugins there using `CustomEditorPluginsRegistry`. The plugin must be registered **before** the editor initializes.
 
