@@ -941,20 +941,6 @@ export default class MyCustomPlugin extends Plugin {
 }
 ```
 
-You can also reference the plugin by name alone (without a path) when you have registered it via the registry (see Method 2):
-
-```csharp
-// Set the full plugin list:
-builder.Services.AddCKEditor(options => options
-    .ExtendDefaultPreset(preset => preset
-        .WithPlugins("Essentials", "Paragraph", /* ... */, "MyCustomPlugin")));
-
-// Or append to an existing list without replacing it:
-builder.Services.AddCKEditor(options => options
-    .ExtendDefaultPreset(preset => preset
-        .AddPlugins("MyCustomPlugin")));
-```
-
 ### Register in a JS bundle 🗂️
 
 If your app already has a JavaScript bundle that runs before the editor, you can register plugins there using `CustomEditorPluginsRegistry`. The plugin must be registered **before** the editor initializes.
