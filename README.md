@@ -68,6 +68,8 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
     - [Basic usage 🔧](#basic-usage--1)
     - [Custom context config 🌐](#custom-context-config-)
   - [Custom plugins 🧩](#custom-plugins-)
+    - [Import from a JS module 📦](#import-from-a-js-module-)
+    - [Register in a JS bundle 🗂️](#register-in-a-js-bundle-️)
   - [Editors and Contexts registry 👀](#editors-and-contexts-registry-)
   - [Development ⚙️](#development-️)
     - [Running Tests 🧪](#running-tests-)
@@ -911,7 +913,7 @@ You can also build a context inline in Razor using the same API:
 
 There are two ways to register a custom plugin, depending on whether you have a JavaScript bundle in your app.
 
-### Import from a JS module (recommended) 📦
+### Import from a JS module 📦
 
 If you don't have a custom JavaScript bundle, point the editor directly at your plugin file using `Plugin.Import` in Blazor. No extra JavaScript setup is needed — the editor will load the module on demand.
 
