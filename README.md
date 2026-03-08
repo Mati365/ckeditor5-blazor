@@ -907,9 +907,57 @@ You can also build a context inline in Razor using the same API:
 
 ## Custom plugins 🧩
 
-To register a custom plugin, use the `registerCustomEditorPlugin` function. This function takes the plugin name and the plugin reader that returns a class extending `Plugin`.
-
 ![Custom plugin demo](docs/custom-highlight-plugin.png)
+
+There are two ways to register a custom plugin, depending on whether you have a JavaScript bundle in your app.
+
+### Method 1: Import from a JS module (recommended) 📦
+
+If you don't have a custom JavaScript bundle, point the editor directly at your plugin file using `Plugin.Import` in Blazor. No extra JavaScript setup is needed — the editor will load the module on demand.
+
+```csharp
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .AddPlugins(Plugin.Import("MyCustomPlugin", "./my-custom-plugin.js"))));
+```
+
+The module at `./my-custom-plugin.js` must export the plugin class as its default export:
+
+```ts
+// my-custom-plugin.js
+import { Plugin } from 'ckeditor5';
+
+export default class MyCustomPlugin extends Plugin {
+  static get pluginName() {
+    return 'MyCustomPlugin';
+  }
+
+  init() {
+    console.log('MyCustomPlugin initialized');
+  }
+}
+```
+
+You can also reference the plugin by name alone (without a path) when you have registered it via the registry (see Method 2):
+
+```csharp
+// Set the full plugin list:
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .WithPlugins("Essentials", "Paragraph", /* ... */, "MyCustomPlugin")));
+
+// Or append to an existing list without replacing it:
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(preset => preset
+        .AddPlugins("MyCustomPlugin")));
+```
+
+### Method 2: Register in a JS bundle 🗂️
+
+If your app already has a JavaScript bundle that runs before the editor, you can register plugins there using `CustomEditorPluginsRegistry`. The plugin must be registered **before** the editor initializes.
 
 ```ts
 import { CustomEditorPluginsRegistry as Registry } from 'ckeditor5-blazor';
@@ -929,31 +977,14 @@ const unregister = Registry.the.register('MyCustomPlugin', async () => {
 });
 ```
 
-Then reference plugin name in editor config (preset or `Config`) using `WithPlugins` or `AddPlugins`:
+Then reference the plugin by name in your Blazor config:
 
 ```csharp
 using CKEditor.Blazor.Services;
 
-// Set the full plugin list:
-builder.Services.AddCKEditor(options => options
-    .ExtendDefaultPreset(preset => preset
-        .WithPlugins("Essentials", "Paragraph", /* ... */, "MyCustomPlugin")));
-
-// Or append to an existing list without replacing it:
 builder.Services.AddCKEditor(options => options
     .ExtendDefaultPreset(preset => preset
         .AddPlugins("MyCustomPlugin")));
-```
-
-You can also load a plugin from a custom JavaScript module path using `Plugin.Import`:
-
-```csharp
-using CKEditor.Blazor.Model;
-using CKEditor.Blazor.Services;
-
-builder.Services.AddCKEditor(options => options
-    .ExtendDefaultPreset(preset => preset
-        .AddPlugins(Plugin.Import("MyCustomPlugin", "./my-custom-plugin.js"))));
 ```
 
 ## Editors and Contexts registry 👀
