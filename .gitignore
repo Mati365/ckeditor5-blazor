@@ -60,7 +60,6 @@ coverage.json
 
 # Node
 node_modules/
-pnpm-lock.yaml
 dist/
 
 # Blazor static web assets output
