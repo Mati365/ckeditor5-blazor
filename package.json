@@ -36,7 +36,8 @@
     "eslint": "^9.37.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wait-on": "^9.0.4"
   },
   "lint-staged": {
     "*.{ts,js,mjs,yml,yaml,json,css,scss,html}": [
