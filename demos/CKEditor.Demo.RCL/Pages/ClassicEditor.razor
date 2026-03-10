@@ -70,10 +70,14 @@
 
 @code {
     private EditorValue editorValue { get; set; } = "Hello World";
+
     private string pendingContent = "New content";
+
     private bool isFocused;
 
+
     private bool isReady;
+
     private string? lastChangeJson;
 
     private string CurrentValue => editorValue?.Data.TryGetValue("main", out var v) == true ? v : string.Empty;
