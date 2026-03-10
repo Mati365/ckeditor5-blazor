@@ -67,12 +67,14 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
   - [Context 🤝](#context-)
     - [Basic usage 🔧](#basic-usage--1)
     - [Custom context config 🌐](#custom-context-config-)
+    - [Context config DSL 🛠️](#context-config-dsl-️)
   - [Custom plugins 🧩](#custom-plugins-)
     - [Import from a JS module 📦](#import-from-a-js-module-)
     - [Register in a JS bundle 🗂️](#register-in-a-js-bundle-️)
   - [Editors and Contexts registry 👀](#editors-and-contexts-registry-)
   - [Development ⚙️](#development-️)
     - [Running Tests 🧪](#running-tests-)
+      - [Running E2E tests 🧪](#running-e2e-tests-)
   - [Psst... 👀](#psst-)
   - [Trademarks 📜](#trademarks-)
   - [License 📜](#license-)
@@ -782,7 +784,7 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 @using CKEditor.Blazor.Model.License
 
 <HeadContent>
-    <%-- Declared once globally. No stylesheets, no preload hints. --%>
+    @* Declared once globally. No stylesheets, no preload hints. *@
     <CKE5Importmap Distribution="DistributionChannel.SH" />
 </HeadContent>
 ```
@@ -794,7 +796,7 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 @using CKEditor.Blazor.Components.Assets
 @using CKEditor.Blazor.Model.License
 
-<%-- Load stylesheets only on this page. --%>
+@* Load stylesheets only on this page. *@
 <CKE5Assets Distribution="DistributionChannel.SH" EmitImportMap="false" />
 
 <CKE5Editor Value="@("<p>Hello!</p>")" />
@@ -809,7 +811,7 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 @using CKEditor.Blazor.Model.License
 
 <HeadContent>
-    <%-- Declared once globally. No stylesheets, no preload hints. --%>
+    @* Declared once globally. No stylesheets, no preload hints. *@
     <CKE5Importmap Distribution="DistributionChannel.Cloud" />
 </HeadContent>
 ```
@@ -821,7 +823,7 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 @using CKEditor.Blazor.Components.Assets
 @using CKEditor.Blazor.Model.License
 
-<%-- Load stylesheets only on this page. --%>
+@* Load stylesheets only on this page. *@
 <CKE5Assets Distribution="DistributionChannel.Cloud" EmitImportMap="false" />
 
 <CKE5Editor Value="@("<p>Hello!</p>")" />
@@ -835,7 +837,7 @@ By default the per-page component still emits `<link rel="modulepreload">` hints
 
 ```razor
 <CKE5Assets Distribution="DistributionChannel.Cloud" EmitImportMap="false" EmitModulePreload="false" />
-<%-- or --%>
+@* or *@
 <CKE5Assets Distribution="DistributionChannel.SH" EmitImportMap="false" EmitModulePreload="false" />
 ```
 
@@ -1036,7 +1038,7 @@ To start the development environment, run:
 pnpm run dev
 ```
 
-The playground app will be available at [http://localhost:8000](http://localhost:8000).
+The playground app will be available at [http://localhost:5173](http://localhost:5173).
 
 ### Running Tests 🧪
 
@@ -1050,6 +1052,14 @@ Run .NET tests with coverage report:
 
 ```bash
 pnpm run dotnet:test
+```
+
+#### Running E2E tests 🧪
+
+Make sure the development environment is running (`pnpm run dev`), then execute:
+
+```bash
+pnpm run dotnet:e2e:headed
 ```
 
 ## Psst... 👀

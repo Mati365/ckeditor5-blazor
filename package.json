@@ -21,6 +21,9 @@
     "npm_package:test": "pnpm -F ckeditor5-blazor run test",
     "npm_package:test:watch": "pnpm -F ckeditor5-blazor run test:watch",
     "dotnet:test": "dotnet test --results-directory ./TestResults /p:CollectCoverage=true; EXIT=$?; dotnet reportgenerator -reports:\"TestResults/**/coverage.cobertura.xml\" -targetdir:\"coveragereport\" -reporttypes:Html; exit $EXIT",
+    "dotnet:e2e": "dotnet test demos/CKEditor.Demo.Tests/CKEditor.Demo.Tests.csproj",
+    "dotnet:e2e:headed": "PLAYWRIGHT_HEADLESS=false dotnet test demos/CKEditor.Demo.Tests/CKEditor.Demo.Tests.csproj",
+    "dotnet:e2e:install": "npx playwright@1.58.2 install chromium",
     "pkg:base": "pnpm -F ckeditor5-blazor-playground run pkg:base",
     "pkg:premium": "pnpm -F ckeditor5-blazor-playground run pkg:premium"
   },

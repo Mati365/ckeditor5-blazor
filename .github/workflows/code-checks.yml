@@ -80,3 +80,35 @@ jobs:
           name: dotnet-coverage
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  e2e_tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install JS dependencies
+        run: pnpm install
+
+      - name: Restore .NET dependencies
+        run: dotnet restore
+
+      - name: Install Playwright Browsers
+        run: pnpm run dotnet:e2e:install
+
+      - name: Start dev server in background and wait
+        run: |
+          pnpm run dev &
+          npx wait-on http://localhost:5175 --delay 300 --timeout 200000
+
+      - name: Run E2E tests
+        run: pnpm run dotnet:e2e
