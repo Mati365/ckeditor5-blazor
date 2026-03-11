@@ -6,5 +6,7 @@
     data-cke-language="@LanguageJson"
     data-cke-context="@ContextJson"
     data-cke-interactive="@Interactive">
-    @ChildContent
+    <CascadingValue Value="this" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
 </cke5-context>

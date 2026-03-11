@@ -119,6 +119,12 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
     public string? ContextId { get; set; }
 
     /// <summary>
+    /// The parent <see cref="CKE5Context"/> if this editor is nested inside one.
+    /// </summary>
+    [CascadingParameter]
+    public CKE5Context? Context { get; set; }
+
+    /// <summary>
     /// Optional language configuration. Accepts a language code string or a language config object.
     /// </summary>
     [Parameter]
@@ -207,6 +213,8 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
     private string? ValueJson { get; set; }
 
     private string? LanguageJson { get; set; }
+
+    private string? ResolvedContextId => ContextId ?? Context?.Id;
 
     private bool ShowInput { get; set; }
 

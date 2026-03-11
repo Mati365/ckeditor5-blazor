@@ -101,6 +101,18 @@ public class CKE5EditorTests : BunitContext
     }
 
     [Fact]
+    public void RendersEditor_WithContextIdInheritedFromCascadingContext()
+    {
+        var cut = Render<CKE5Context>(p => p
+            .Add(p => p.Id, "parent-context")
+            .AddChildContent<CKE5Editor>(e => e.Add(e => e.Id, "test-editor")));
+
+        var editor = cut.Find("cke5-editor");
+
+        Assert.Equal("parent-context", editor.GetAttribute("data-cke-context-id"));
+    }
+
+    [Fact]
     public void RendersEditor_WithHiddenInput_WhenNameProvided()
     {
         var cut = Render<CKE5Editor>(p => p

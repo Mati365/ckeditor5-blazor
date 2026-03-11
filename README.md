@@ -854,9 +854,13 @@ The **context** feature is designed to group multiple editor instances together,
 
 ```razor
 <CKE5Context Id="shared-context">
-    <CKE5Editor ContextId="shared-context" Value="<p>Editor 1 content</p>" />
-    <CKE5Editor ContextId="shared-context" Value="<p>Editor 2 content</p>" />
+    @* ContextId is inferred automatically for nested editors *@
+    <CKE5Editor Value="<p>Editor 1 content</p>" />
+    <CKE5Editor Value="<p>Editor 2 content</p>" />
 </CKE5Context>
+
+@* Editors outside the context can reference it by Id to share the same context *@
+<CKE5Editor ContextId="shared-context" Value="<p>Editor 3 content</p>" />
 ```
 
 ### Custom context config 🌐
@@ -867,7 +871,6 @@ Pass a context config object directly using `ContextPreset`:
 @using CKEditor.Blazor.Model
 
 <CKE5Context
-    Id="shared-context"
     ContextPreset="@(new ContextConfig
     {
         Plugins = new List<string> { "Essentials", "Paragraph" },
@@ -876,7 +879,7 @@ Pass a context config object directly using `ContextPreset`:
             ["language"] = "pl"
         }
     })">
-    <CKE5Editor ContextId="shared-context" Value="@("<p>Współdzielony context</p>")" />
+    <CKE5Editor Value="@("<p>Shared context</p>")" />
 </CKE5Context>
 ```
 

@@ -2,6 +2,7 @@ import type { DotNetInterop } from '../types';
 
 import { EditorsRegistry } from '../elements/editor/editors-registry';
 import { CKEditor5ChangeDataEvent } from '../elements/editor/plugins/dispatch-editor-roots-change-event';
+import { queryAllEditorIds } from '../elements/editor/utils';
 import { markElementAsInteractive } from '../shared';
 import { createEditorValueSync, createNoopSync } from './utils/create-editor-value-sync';
 
@@ -14,7 +15,7 @@ import { createEditorValueSync, createNoopSync } from './utils/create-editor-val
  * @returns An object containing lifecycle and synchronization methods.
  */
 export function createEditableBlazorInterop(element: HTMLElement, interop: DotNetInterop) {
-  const editorId = element.getAttribute('data-cke-editor-id');
+  const editorId = element.getAttribute('data-cke-editor-id') ?? queryAllEditorIds()[0]!;
   const rootName = element.getAttribute('data-cke-root-name') ?? 'main';
 
   let unmounted = false;

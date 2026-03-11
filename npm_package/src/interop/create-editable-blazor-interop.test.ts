@@ -78,6 +78,27 @@ describe('createEditableBlazorInterop', () => {
     );
   });
 
+  it('falls back to the first available editor id when data-cke-editor-id attribute is missing', async () => {
+    element.removeAttribute('data-cke-editor-id');
+
+    createEditableBlazorInterop(element, dotnetInterop);
+
+    const editor = await waitForTestEditor();
+    const changeEvent = new CKEditor5ChangeDataEvent({
+      editorId: DEFAULT_TEST_EDITOR_ID,
+      editor,
+      roots: { main: 'fallback changed' },
+    });
+
+    document.body.dispatchEvent(changeEvent);
+
+    expect(dotnetInterop.invokeMethodAsync).toHaveBeenCalledWith(
+      'OnChangeEditableData',
+      expect.anything(),
+      'fallback changed',
+    );
+  });
+
   it('should ignore ckeditor5 change events from other editors', async () => {
     createEditableBlazorInterop(element, dotnetInterop);
 

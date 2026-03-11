@@ -5,15 +5,15 @@
     <a href="/" class="inline-block mb-6 text-blue-600 hover:text-blue-800 hover:underline">&larr; Back to home</a>
     <h1 class="mb-6 font-bold text-3xl">Context (Multiple Editors) Demo</h1>
 
-    <CKE5Context Id="shared-context">
+    <CKE5Context>
         <div class="gap-6 grid grid-cols-1 md:grid-cols-2">
             <div class="bg-white p-4 border border-gray-200 rounded-lg">
                 <h2 class="mb-2 font-bold">Editor 1</h2>
-                <CKE5Editor ContextId="shared-context" Value="@("Editor 1 content")" />
+                <CKE5Editor Value="@("Editor 1 content")" />
             </div>
             <div class="bg-white p-4 border border-gray-200 rounded-lg">
                 <h2 class="mb-2 font-bold">Editor 2</h2>
-                <CKE5Editor ContextId="shared-context" Value="@("Editor 2 content")" />
+                <CKE5Editor Value="@("Editor 2 content")" />
             </div>
         </div>
     </CKE5Context>

@@ -11,9 +11,8 @@
     data-cke-save-debounce-ms="@SaveDebounceMs"
     data-cke-interactive="@(Interactive ? "true" : null)"
     data-cke-watchdog="@(Watchdog ? "true" : null)"
-    data-cke-context-id="@(string.IsNullOrEmpty(ContextId) ? null : ContextId)"
-    data-cke-editable-height="@EditableHeight">
-
+    data-cke-editable-height="@EditableHeight"
+    data-cke-context-id="@(string.IsNullOrEmpty(ResolvedContextId) ? null : ResolvedContextId)">
     @if (ShowInput)
     {
         <div id="@($"{Id}_editor")"></div>

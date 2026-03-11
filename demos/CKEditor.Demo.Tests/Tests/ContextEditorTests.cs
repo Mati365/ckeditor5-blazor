@@ -47,18 +47,14 @@ public class ContextEditorTests : PageTestBase, IClassFixture<BrowserFixture>
     [Fact]
     public async Task BothEditors_ShareTheSameContextId()
     {
-        var contextAttr1 = await Page
-            .Locator("cke5-editor")
-            .Nth(0)
-            .GetAttributeAsync("data-cke-context-id");
+        var editor1 = Page.Locator("cke5-editor").Nth(0);
+        var editor2 = Page.Locator("cke5-editor").Nth(1);
 
-        var contextAttr2 = await Page
-            .Locator("cke5-editor")
-            .Nth(1)
-            .GetAttributeAsync("data-cke-context-id");
+        var contextAttr1 = await editor1.GetAttributeAsync("data-cke-context-id");
 
-        Assert.Equal("shared-context", contextAttr1);
-        Assert.Equal("shared-context", contextAttr2);
+        Assert.False(string.IsNullOrEmpty(contextAttr1));
+
+        await Assertions.Expect(editor2).ToHaveAttributeAsync("data-cke-context-id", contextAttr1);
     }
 
     [Fact]
