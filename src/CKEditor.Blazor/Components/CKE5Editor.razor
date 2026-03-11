@@ -26,5 +26,7 @@
             Required="@Required" />
     }
 
-    @ChildContent
+    <CascadingValue Value="this" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
 </cke5-editor>

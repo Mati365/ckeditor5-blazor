@@ -35,6 +35,12 @@ public partial class CKE5Editable : ComponentBase, IAsyncDisposable, ICKE5Intera
     public string? EditorId { get; set; }
 
     /// <summary>
+    /// The parent <see cref="CKE5Editor"/> instance this editable belongs to.
+    /// </summary>
+    [CascadingParameter]
+    public CKE5Editor? Editor { get; set; }
+
+    /// <summary>
     /// The initial HTML content for this editable root.
     /// </summary>
     [Parameter]
@@ -112,6 +118,8 @@ public partial class CKE5Editable : ComponentBase, IAsyncDisposable, ICKE5Intera
 
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
+
+    private string? ResolvedEditorId => EditorId ?? Editor?.Id;
 
     private string StyleValue => $"position: relative;{(string.IsNullOrEmpty(Style) ? string.Empty : $" {Style}")}";
 

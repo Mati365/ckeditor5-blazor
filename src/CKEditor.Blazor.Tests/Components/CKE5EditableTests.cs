@@ -1,6 +1,7 @@
 using System.Reflection;
 using CKEditor.Blazor.Components;
 using CKEditor.Blazor.Model.Events;
+using CKEditor.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Moq;
@@ -41,6 +42,21 @@ public class CKE5EditableTests : BunitContext
         var cut = Render<CKE5Editable>(p => p
             .Add(p => p.Id, "test-editable")
             .Add(p => p.EditorId, "parent-editor"));
+
+        var editable = cut.Find("cke5-editable");
+
+        Assert.Equal("parent-editor", editable.GetAttribute("data-cke-editor-id"));
+    }
+
+    [Fact]
+    public void RendersEditable_WithEditorId_InheritedFromCascadingEditor()
+    {
+        Services.AddCKEditor();
+
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "parent-editor")
+            .AddChildContent<CKE5Editable>(u => u
+                .Add(u => u.Id, "test-editable")));
 
         var editable = cut.Find("cke5-editable");
 

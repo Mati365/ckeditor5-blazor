@@ -545,7 +545,8 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
     Class="border border-gray-300" />
 ```
 
-**Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
+> [!NOTE]
+> Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
 
 ### Balloon editor 🎈
 
@@ -581,13 +582,15 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 ```
 
 > [!NOTE]
-> If there are multiple editors on the page, make sure to set `EditorId` on each `CKE5Editable`, and its corresponding `CKE5UIPart` to link them together. Otherwise, all editables will bind to the first editor instance found in the DOM.
+> `EditorId` is passed down automatically to `CKE5Editable` and `CKE5UIPart` components via cascading parameters if they are placed inside the `<CKE5Editor>`. If placed outside, you must manually set `EditorId` on each of them to link them to the specific editor. Otherwise, all editables will bind to the first editor instance found in the DOM.
 
 ### Multiroot editor 🌳
 
 Advanced editor supporting multiple separate editing areas (roots) with a shared toolbar. Perfect for complex documents with multiple editable sections like headers, sidebars, and main content.
 
 ![CKEditor 5 Multiroot Editor in Blazor application](docs/multiroot-editor.png)
+
+You can set the content for all roots at once via the `<CKE5Editor>` component using a dictionary. Both `Value` and `@bind-Value` are supported (see [Blazor Data Binding](#blazor-data-binding-)).
 
 ```razor
 @using CKEditor.Blazor.Model
@@ -599,17 +602,32 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
         ["header"] = "<p>Header content</p>",
         ["content"] = "<p>Main content</p>",
         ["footer"] = "<p>Footer content</p>"
-    })" />
+    })">
 
-<CKE5UIPart Name="toolbar" Class="mb-4" />
+    <CKE5UIPart Name="toolbar" Class="mb-4" />
 
-<CKE5Editable RootName="header" Value="<p>Header content</p>" />
-<CKE5Editable RootName="content" Value="<p>Main content</p>" />
-<CKE5Editable RootName="footer" Value="<p>Footer content</p>" />
+    <CKE5Editable RootName="header" />
+    <CKE5Editable RootName="content" />
+    <CKE5Editable RootName="footer" />
+</CKE5Editor>
+```
+
+Alternatively, you can provide the initial `Value` or use two-way binding (`@bind-Value`) directly on the individual editable components (see [Multiroot Editables binding](#multiroot-editables-️)):
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Editor EditorType="EditorType.Multiroot">
+    <CKE5UIPart Name="toolbar" Class="mb-4" />
+
+    <CKE5Editable RootName="header" Value="<p>Header content</p>" />
+    <CKE5Editable RootName="content" Value="<p>Main content</p>" />
+    <CKE5Editable RootName="footer" Value="<p>Footer content</p>" />
+</CKE5Editor>
 ```
 
 > [!NOTE]
-> If there are multiple editors on the page, make sure to set `EditorId` on each `CKE5Editable`, and its corresponding `CKE5UIPart` to link them together. Otherwise, all editables will bind to the first editor instance found in the DOM.
+> `EditorId` is passed down automatically to `CKE5Editable` and `CKE5UIPart` components via cascading parameters if they are placed inside the `<CKE5Editor>`. If placed outside, you must manually set `EditorId` on each of them to link them to the specific editor. Otherwise, all editables will bind to the first editor instance found in the DOM.
 
 ## Advanced configuration ⚙️
 
@@ -646,7 +664,7 @@ For multiroot/decoupled layouts, bind each root independently:
 ```
 
 > [!NOTE]
-> If there are multiple editors on the page, make sure to set `EditorId` on each `CKE5Editable`, and its corresponding `CKE5UIPart` to link them together. Otherwise, all editables will bind to the first editor instance found in the DOM.
+> `EditorId` is passed down automatically to `CKE5Editable` and `CKE5UIPart` components via cascading parameters if they are placed inside the `<CKE5Editor>`. If placed outside, you must manually set `EditorId` on each of them to link them to the specific editor. Otherwise, all editables will bind to the first editor instance found in the DOM.
 
 #### Bidirectional Communication using Events 🔄
 

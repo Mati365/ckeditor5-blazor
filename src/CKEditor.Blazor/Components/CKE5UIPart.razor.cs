@@ -34,6 +34,12 @@ public partial class CKE5UIPart : ComponentBase, IAsyncDisposable, ICKE5Interact
     public string? EditorId { get; set; }
 
     /// <summary>
+    /// The parent <see cref="CKE5Editor"/> instance this UI part belongs to.
+    /// </summary>
+    [CascadingParameter]
+    public CKE5Editor? Editor { get; set; }
+
+    /// <summary>
     /// Optional CSS class applied to the UI part container element.
     /// </summary>
     [Parameter]
@@ -58,6 +64,8 @@ public partial class CKE5UIPart : ComponentBase, IAsyncDisposable, ICKE5Interact
 
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
+
+    private string? ResolvedEditorId => EditorId ?? Editor?.Id;
 
     /// <summary>
     /// Disposes the <see cref="DotNetObjectReference{T}"/> and the JS interop instance.

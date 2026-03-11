@@ -1,5 +1,6 @@
 using System.Reflection;
 using CKEditor.Blazor.Components;
+using CKEditor.Blazor.Services;
 
 namespace CKEditor.Blazor.Tests.Components;
 
@@ -35,6 +36,21 @@ public class CKE5UIPartTests : BunitContext
         var cut = Render<CKE5UIPart>(p => p
             .Add(p => p.Id, "test-ui-part")
             .Add(p => p.EditorId, "parent-editor"));
+
+        var uiPart = cut.Find("cke5-ui-part");
+
+        Assert.Equal("parent-editor", uiPart.GetAttribute("data-cke-editor-id"));
+    }
+
+    [Fact]
+    public void RendersUIPart_WithEditorId_InheritedFromCascadingEditor()
+    {
+        Services.AddCKEditor();
+
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "parent-editor")
+            .AddChildContent<CKE5UIPart>(u => u
+                .Add(u => u.Id, "test-ui-part")));
 
         var uiPart = cut.Find("cke5-ui-part");
 
