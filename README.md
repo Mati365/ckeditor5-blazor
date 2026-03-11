@@ -571,19 +571,17 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 ```razor
 @using CKEditor.Blazor.Model
 
-<CKE5Editor
-    Id="decoupled-editor"
-    EditorType="EditorType.Decoupled"
-    Value="@("<p>Editor instance content</p>")">
-    <CKE5UIPart Name="toolbar" EditorId="decoupled-editor" Class="mb-4" />
-
+<CKE5Editor EditorType="EditorType.Decoupled">
+    <CKE5UIPart Name="toolbar" Class="mb-4" />
     <CKE5Editable
-        EditorId="decoupled-editor"
         RootName="main"
         Value="<p>This is the initial content of the decoupled editor editable.</p>"
         InnerClass="p-4" />
 </CKE5Editor>
 ```
+
+> [!NOTE]
+> If there are multiple editors on the page, make sure to set `EditorId` on each `CKE5Editable`, and its corresponding `CKE5UIPart` to link them together. Otherwise, all editables will bind to the first editor instance found in the DOM.
 
 ### Multiroot editor 🌳
 
@@ -595,7 +593,6 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
 @using CKEditor.Blazor.Model
 
 <CKE5Editor
-    Id="multiroot-editor"
     EditorType="EditorType.Multiroot"
     Value="@(new Dictionary<string, string>
     {
@@ -604,12 +601,15 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
         ["footer"] = "<p>Footer content</p>"
     })" />
 
-<CKE5UIPart Name="toolbar" EditorId="multiroot-editor" Class="mb-4" />
+<CKE5UIPart Name="toolbar" Class="mb-4" />
 
-<CKE5Editable EditorId="multiroot-editor" RootName="header" Value="<p>Header content</p>" />
-<CKE5Editable EditorId="multiroot-editor" RootName="content" Value="<p>Main content</p>" />
-<CKE5Editable EditorId="multiroot-editor" RootName="footer" Value="<p>Footer content</p>" />
+<CKE5Editable RootName="header" Value="<p>Header content</p>" />
+<CKE5Editable RootName="content" Value="<p>Main content</p>" />
+<CKE5Editable RootName="footer" Value="<p>Footer content</p>" />
 ```
+
+> [!NOTE]
+> If there are multiple editors on the page, make sure to set `EditorId` on each `CKE5Editable`, and its corresponding `CKE5UIPart` to link them together. Otherwise, all editables will bind to the first editor instance found in the DOM.
 
 ## Advanced configuration ⚙️
 
@@ -636,14 +636,17 @@ Bind editor content to your component state.
 For multiroot/decoupled layouts, bind each root independently:
 
 ```razor
-<CKE5Editable EditorId="multiroot-editor" RootName="header" @bind-Value="header" />
-<CKE5Editable EditorId="multiroot-editor" RootName="content" @bind-Value="content" />
+<CKE5Editable RootName="header" @bind-Value="header" />
+<CKE5Editable RootName="content" @bind-Value="content" />
 
 @code {
     private string header = "<p>Header</p>";
     private string content = "<p>Main</p>";
 }
 ```
+
+> [!NOTE]
+> If there are multiple editors on the page, make sure to set `EditorId` on each `CKE5Editable`, and its corresponding `CKE5UIPart` to link them together. Otherwise, all editables will bind to the first editor instance found in the DOM.
 
 #### Bidirectional Communication using Events 🔄
 

@@ -27,8 +27,8 @@
         </button>
     </div>
 
-    <CKE5Editor Id="@EditorId" EditorType="EditorType.Multiroot" OnChange="OnEditorChange" />
-    <CKE5UIPart Name="toolbar" EditorId="@EditorId" Class="mb-6" />
+    <CKE5Editor EditorType="EditorType.Multiroot" OnChange="OnEditorChange" />
+    <CKE5UIPart Name="toolbar" Class="mb-6" />
 
     <div class="flex flex-col gap-6">
         @foreach (var root in Roots)
@@ -49,7 +49,6 @@
                     <CKE5Editable
                         @bind-Value="@root.Value"
                         RootName="@root.Name"
-                        EditorId="@EditorId"
                         OnChange="@(OnRootChange)"
                         Class="focus:outline-none" />
                     <p class="mt-1 text-gray-400 text-xs">@root.Value</p>
@@ -80,8 +79,8 @@
         public string Value { get; set; } = string.Empty;
     }
 
-    private string EditorId { get; } = $"cke5-multiroot-{Guid.NewGuid():N}";
     private string? lastEditorChange;
+
     private string? lastRootChange;
 
     private List<EditorRoot> Roots { get; } =
