@@ -635,6 +635,8 @@ Alternatively, you can provide the initial `Value` or use two-way binding (`@bin
 
 Use native Blazor binding and callbacks for full client ⇄ server synchronization.
 
+![CKEditor 5 Live Sync demo](docs/live-sync.gif)
+
 #### Two way binding using `@bind-Value` ⛓️
 
 Bind editor content to your component state.
