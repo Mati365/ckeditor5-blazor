@@ -1,6 +1,7 @@
 using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.Cloud;
+using CKEditor.Blazor.Services.Interfaces.Bundle;
 using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
 
 namespace CKEditor.Blazor.Services.Bundle.Cloud;
@@ -11,7 +12,8 @@ namespace CKEditor.Blazor.Services.Bundle.Cloud;
 public class CloudBundleBuilder(
     ICKEditorCloudBundleBuilder editorBuilder,
     ICKEditorPremiumCloudBundleBuilder premiumBuilder,
-    ICKBoxCloudBundleBuilder ckboxBuilder) : ICloudBundleBuilder
+    ICKBoxCloudBundleBuilder ckboxBuilder,
+    IBlazorIntegrationBundleBuilder blazorIntegrationAssetFactory) : ICloudBundleBuilder
 {
     public AssetsBundle Build(CloudConfig cloud)
     {
@@ -20,9 +22,7 @@ public class CloudBundleBuilder(
             throw new CloudConfigurationException("Cloud config requires 'EditorVersion'.");
         }
 
-        return BuildBundles(cloud)
-            .Aggregate((a, b) => a.Merge(b))
-            .WithMergedJs([AssetsBundle.GetBlazorIntegrationAsset(cloud.IntegrationBasePath)]);
+        return BuildBundles(cloud).Aggregate((a, b) => a.Merge(b));
     }
 
     private IEnumerable<AssetsBundle> BuildBundles(CloudConfig cloud)
@@ -42,5 +42,7 @@ public class CloudBundleBuilder(
                 ckbox.CdnUrl,
                 ckbox.Theme ?? "lark");
         }
+
+        yield return blazorIntegrationAssetFactory.Build(cloud.IntegrationBasePath);
     }
 }

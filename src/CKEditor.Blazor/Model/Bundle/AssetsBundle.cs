@@ -11,18 +11,6 @@ namespace CKEditor.Blazor.Model.Bundle;
 public sealed record AssetsBundle(IReadOnlyList<JSAsset> Js, IReadOnlyList<string> Css)
 {
     /// <summary>
-    /// A predefined JavaScript asset for CKEditor Blazor integration, included in all bundles.
-    /// </summary>
-    /// <param name="integrationBasePath">The base path for integration scripts.</param>
-    /// <returns>A <see cref="JSAsset"/> representing the Blazor integration script.</returns>
-    public static JSAsset GetBlazorIntegrationAsset(string integrationBasePath) => new()
-    {
-        Name = "ckeditor5-blazor",
-        Url = $"{integrationBasePath.TrimEnd('/')}/ckeditor5-blazor/index.mjs",
-        Type = JSAssetType.ESM
-    };
-
-    /// <summary>
     /// Creates a new bundle by merging this bundle with another one.
     /// </summary>
     /// <param name="other">The bundle to merge.</param>

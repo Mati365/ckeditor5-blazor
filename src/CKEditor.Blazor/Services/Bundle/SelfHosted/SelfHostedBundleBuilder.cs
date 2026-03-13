@@ -1,6 +1,7 @@
 using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.SelfHosted;
+using CKEditor.Blazor.Services.Interfaces.Bundle;
 using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
 
 namespace CKEditor.Blazor.Services.Bundle.SelfHosted;
@@ -11,7 +12,8 @@ namespace CKEditor.Blazor.Services.Bundle.SelfHosted;
 public class SelfHostedBundleBuilder(
     ICKEditorSelfHostedBundleBuilder editorBuilder,
     ICKEditorPremiumSelfHostedBundleBuilder premiumBuilder,
-    ICKBoxSelfHostedBundleBuilder ckboxBuilder) : ISelfHostedBundleBuilder
+    ICKBoxSelfHostedBundleBuilder ckboxBuilder,
+    IBlazorIntegrationBundleBuilder blazorIntegrationAssetFactory) : ISelfHostedBundleBuilder
 {
     public AssetsBundle Build(SelfHostedConfig selfHosted)
     {
@@ -20,9 +22,7 @@ public class SelfHostedBundleBuilder(
             throw new ConfigurationException("Self-hosted config requires 'EditorVersion'.");
         }
 
-        return BuildBundles(selfHosted)
-            .Aggregate((a, b) => a.Merge(b))
-            .WithMergedJs([AssetsBundle.GetBlazorIntegrationAsset(selfHosted.IntegrationBasePath)]);
+        return BuildBundles(selfHosted).Aggregate((a, b) => a.Merge(b));
     }
 
     private IEnumerable<AssetsBundle> BuildBundles(SelfHostedConfig selfHosted)
@@ -42,5 +42,7 @@ public class SelfHostedBundleBuilder(
                 selfHosted.AssetsBasePath,
                 ckbox.Theme ?? "lark");
         }
+
+        yield return blazorIntegrationAssetFactory.Build(selfHosted.IntegrationBasePath);
     }
 }

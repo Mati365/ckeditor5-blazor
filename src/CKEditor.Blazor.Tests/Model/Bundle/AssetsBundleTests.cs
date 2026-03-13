@@ -17,17 +17,6 @@ public class AssetsBundleTests
     }
 
     [Fact]
-    public void GetBlazorIntegrationAsset_ShouldHaveCorrectProperties()
-    {
-        var asset = AssetsBundle.GetBlazorIntegrationAsset("/_content/CKEditor.Blazor");
-
-        Assert.NotNull(asset);
-        Assert.Equal("ckeditor5-blazor", asset.Name);
-        Assert.Equal("/_content/CKEditor.Blazor/ckeditor5-blazor/index.mjs", asset.Url);
-        Assert.Equal(JSAssetType.ESM, asset.Type);
-    }
-
-    [Fact]
     public void Merge_ShouldCombineBundles()
     {
         var bundle1 = new AssetsBundle(

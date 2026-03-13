@@ -1,5 +1,7 @@
+using CKEditor.Blazor.Services.Bundle;
 using CKEditor.Blazor.Services.Bundle.Cloud;
 using CKEditor.Blazor.Services.Bundle.SelfHosted;
+using CKEditor.Blazor.Services.Interfaces.Bundle;
 using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
 using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +27,7 @@ public static class ServiceCollectionExtensions
         services.Configure<CKEditorOptions>(options => configureOptions?.Invoke(options));
 
         services.AddSingleton<ConfigManager>();
+        services.AddSingleton<IBlazorIntegrationBundleBuilder, BlazorIntegrationBundleBuilder>();
 
         services.AddSingleton<ICKEditorCloudBundleBuilder, CKEditorCloudBundleBuilder>();
         services.AddSingleton<ICKEditorPremiumCloudBundleBuilder, CKEditorPremiumCloudBundleBuilder>();

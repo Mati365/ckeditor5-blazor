@@ -2,6 +2,7 @@ using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model.Bundle;
 using CKEditor.Blazor.Model.Cloud;
 using CKEditor.Blazor.Services.Bundle.Cloud;
+using CKEditor.Blazor.Services.Interfaces.Bundle;
 using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
 using Moq;
 
@@ -12,6 +13,7 @@ public class CloudBundleBuilderTests
     private readonly Mock<ICKEditorCloudBundleBuilder> _editorBuilderMock = new();
     private readonly Mock<ICKEditorPremiumCloudBundleBuilder> _premiumBuilderMock = new();
     private readonly Mock<ICKBoxCloudBundleBuilder> _ckboxBuilderMock = new();
+    private readonly Mock<IBlazorIntegrationBundleBuilder> _integrationAssetFactoryMock = new();
     private readonly CloudBundleBuilder _sut;
 
     public CloudBundleBuilderTests()
@@ -19,7 +21,8 @@ public class CloudBundleBuilderTests
         _sut = new CloudBundleBuilder(
             _editorBuilderMock.Object,
             _premiumBuilderMock.Object,
-            _ckboxBuilderMock.Object
+            _ckboxBuilderMock.Object,
+            _integrationAssetFactoryMock.Object
         );
     }
 
@@ -70,6 +73,19 @@ public class CloudBundleBuilderTests
             }
         };
 
+        var expectedIntegrationBundle = new AssetsBundle(
+            [new JSAsset
+            {
+                Name = "ckeditor5-blazor",
+                Url = $"{config.IntegrationBasePath.TrimEnd('/')}/ckeditor5-blazor/index.mjs",
+                Type = JSAssetType.ESM
+            }],
+            []);
+
+        _integrationAssetFactoryMock
+            .Setup(f => f.Build(config.IntegrationBasePath))
+            .Returns(expectedIntegrationBundle);
+
         // Act
         var result = _sut.Build(config);
 
@@ -78,8 +94,8 @@ public class CloudBundleBuilderTests
         Assert.Contains(result.Js, js => js.Name == "premium" && js.Url == "prem.js");
         Assert.Contains(result.Js, js => js.Name == "ckbox" && js.Url == "ckb.js");
         Assert.Contains(result.Js, js =>
-            js.Name == AssetsBundle.GetBlazorIntegrationAsset(config.IntegrationBasePath).Name &&
-            js.Url == AssetsBundle.GetBlazorIntegrationAsset(config.IntegrationBasePath).Url);
+            js.Name == expectedIntegrationBundle.Js[0].Name &&
+            js.Url == expectedIntegrationBundle.Js[0].Url);
 
         Assert.Contains(result.Css, css => css == "edit.css");
         Assert.Contains(result.Css, css => css == "prem.css");
@@ -108,13 +124,26 @@ public class CloudBundleBuilderTests
             CKBox = null
         };
 
+        var expectedIntegrationBundle = new AssetsBundle(
+            [new JSAsset
+            {
+                Name = "ckeditor5-blazor",
+                Url = $"{config.IntegrationBasePath.TrimEnd('/')}/ckeditor5-blazor/index.mjs",
+                Type = JSAssetType.ESM
+            }],
+            []);
+
+        _integrationAssetFactoryMock
+            .Setup(f => f.Build(config.IntegrationBasePath))
+            .Returns(expectedIntegrationBundle);
+
         // Act
         var result = _sut.Build(config);
 
         // Assert
         Assert.Equal(2, result.Js.Count); // ckeditor5 + blazor-integration
         Assert.Contains(result.Js, js => js.Name == "ckeditor5");
-        Assert.Contains(result.Js, js => js.Name == AssetsBundle.GetBlazorIntegrationAsset(config.IntegrationBasePath).Name);
+        Assert.Contains(result.Js, js => js.Name == "ckeditor5-blazor");
 
         Assert.Single(result.Css);
         Assert.Contains(result.Css, css => css == "edit.css");
