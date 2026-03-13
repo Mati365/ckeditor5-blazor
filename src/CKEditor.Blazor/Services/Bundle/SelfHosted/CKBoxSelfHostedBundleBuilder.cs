@@ -18,7 +18,12 @@ public class CKBoxSelfHostedBundleBuilder : ICKBoxSelfHostedBundleBuilder
 
         return new(
             [
-                new() { Name = "ckbox", Url = $"{baseUrl}dist/ckbox.js", Type = JSAssetType.UMD },
+                new()
+                {
+                    Name = "ckbox",
+                    Url = $"{baseUrl}dist/ckbox.js",
+                    Type = JSAssetType.UMD
+                },
                 .. translations.Select(t => new JSAsset
                 {
                     Name = $"ckbox/translations/{t}",

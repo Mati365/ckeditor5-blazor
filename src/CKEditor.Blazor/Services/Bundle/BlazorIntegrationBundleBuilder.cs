@@ -8,16 +8,17 @@ namespace CKEditor.Blazor.Services.Bundle;
 /// </summary>
 public class BlazorIntegrationBundleBuilder : IBlazorIntegrationBundleBuilder
 {
-    /// <inheritdoc />
     public AssetsBundle Build(string integrationBasePath)
     {
-        var asset = new JSAsset
-        {
-            Name = "ckeditor5-blazor",
-            Url = $"{integrationBasePath.TrimEnd('/')}/ckeditor5-blazor/index.mjs",
-            Type = JSAssetType.ESM
-        };
-
-        return new([asset], []);
+        return new(
+            [
+                new()
+                {
+                    Name = "ckeditor5-blazor",
+                    Url = $"{integrationBasePath.TrimEnd('/')}/ckeditor5-blazor/index.mjs",
+                    Type = JSAssetType.ESM
+                }
+            ],
+            []);
     }
 }
