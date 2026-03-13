@@ -12,6 +12,9 @@
     <!-- Default output directory - wwwroot in the consuming project -->
     <CKEditorAssetsOutputPath Condition="'$(CKEditorAssetsOutputPath)' == ''">$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
 
+    <!-- Optional custom NPM registry URL -->
+    <CKEditorNpmRegistryUrl Condition="'$(CKEditorNpmRegistryUrl)' == ''">https://registry.npmjs.org</CKEditorNpmRegistryUrl>
+
     <!-- Internal properties -->
     <_CKEditorTempDir>$(BaseIntermediateOutputPath)ckeditor-npm</_CKEditorTempDir>
   </PropertyGroup>
@@ -49,7 +52,7 @@
     <MakeDir Directories="$(CKEditorAssetsOutputPath)/ckbox/$(CKBoxVersion)/dist" Condition="'$(CKBoxIncludeAssets)' == 'true'" />
 
     <!-- Download and extract core CKEditor -->
-    <DownloadFile SourceUrl="https://registry.npmjs.org/ckeditor5/-/ckeditor5-$(CKEditorVersion).tgz"
+    <DownloadFile SourceUrl="$(CKEditorNpmRegistryUrl)/ckeditor5/-/ckeditor5-$(CKEditorVersion).tgz"
                   DestinationFolder="$(_CKEditorTempDir)"
                   DestinationFileName="core.tgz" />
     <Exec Command="tar -xzf &quot;$(_CKEditorTempDir)/core.tgz&quot; -C &quot;$(_CKEditorTempDir)&quot;" />
@@ -68,7 +71,7 @@
           SkipUnchangedFiles="true" />
 
     <!-- Download and extract premium features if requested -->
-    <DownloadFile SourceUrl="https://registry.npmjs.org/ckeditor5-premium-features/-/ckeditor5-premium-features-$(CKEditorVersion).tgz"
+    <DownloadFile SourceUrl="$(CKEditorNpmRegistryUrl)/ckeditor5-premium-features/-/ckeditor5-premium-features-$(CKEditorVersion).tgz"
                   DestinationFolder="$(_CKEditorTempDir)"
                   DestinationFileName="premium.tgz"
                   Condition="'$(CKEditorIncludePremiumAssets)' == 'true'" />
@@ -109,7 +112,7 @@
     <MakeDir Directories="$(CKEditorAssetsOutputPath)/ckbox/$(CKBoxVersion)/dist" />
 
     <!-- Download and extract CKBox -->
-    <DownloadFile SourceUrl="https://registry.npmjs.org/ckbox/-/ckbox-$(CKBoxVersion).tgz"
+    <DownloadFile SourceUrl="$(CKEditorNpmRegistryUrl)/ckbox/-/ckbox-$(CKBoxVersion).tgz"
                   DestinationFolder="$(_CKEditorTempDir)"
                   DestinationFileName="ckbox.tgz" />
     <Exec Command="tar -xzf &quot;$(_CKEditorTempDir)/ckbox.tgz&quot; -C &quot;$(_CKEditorTempDir)&quot;" />

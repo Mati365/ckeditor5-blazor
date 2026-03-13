@@ -104,6 +104,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
      <CKBoxVersion>2.8.0</CKBoxVersion>
      <CKBoxIncludeAssets>true</CKBoxIncludeAssets>
      <CKEditorAssetsOutputPath>$(MSBuildProjectDirectory)/wwwroot</CKEditorAssetsOutputPath>
+     <CKEditorNpmRegistryUrl>https://registry.npmjs.org</CKEditorNpmRegistryUrl>
    </PropertyGroup>
    ```
 
