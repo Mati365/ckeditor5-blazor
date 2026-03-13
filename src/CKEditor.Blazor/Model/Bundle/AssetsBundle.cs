@@ -13,10 +13,12 @@ public sealed record AssetsBundle(IReadOnlyList<JSAsset> Js, IReadOnlyList<strin
     /// <summary>
     /// A predefined JavaScript asset for CKEditor Blazor integration, included in all bundles.
     /// </summary>
-    public static readonly JSAsset BlazorIntegrationAsset = new()
+    /// <param name="integrationBasePath">The base path for integration scripts.</param>
+    /// <returns>A <see cref="JSAsset"/> representing the Blazor integration script.</returns>
+    public static JSAsset GetBlazorIntegrationAsset(string integrationBasePath) => new()
     {
         Name = "ckeditor5-blazor",
-        Url = "/_content/CKEditor.Blazor/ckeditor5-blazor/index.mjs",
+        Url = $"{integrationBasePath.TrimEnd('/')}/ckeditor5-blazor/index.mjs",
         Type = JSAssetType.ESM
     };
 

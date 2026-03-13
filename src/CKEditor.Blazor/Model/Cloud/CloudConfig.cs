@@ -27,6 +27,12 @@ public sealed record CloudConfig
     public string CdnUrl { get; init; } = _officialCdnUrl;
 
     /// <summary>
+    /// The base path for CKEditor Blazor integration scripts.
+    /// Defaults to "/_content/CKEditor.Blazor".
+    /// </summary>
+    public string IntegrationBasePath { get; init; } = "/_content/CKEditor.Blazor";
+
+    /// <summary>
     /// CKBox information (optional).
     /// </summary>
     public CKBoxCloudConfig? CKBox { get; init; }

@@ -22,7 +22,7 @@ public class SelfHostedBundleBuilder(
 
         return BuildBundles(selfHosted)
             .Aggregate((a, b) => a.Merge(b))
-            .WithMergedJs([AssetsBundle.BlazorIntegrationAsset]);
+            .WithMergedJs([AssetsBundle.GetBlazorIntegrationAsset(selfHosted.IntegrationBasePath)]);
     }
 
     private IEnumerable<AssetsBundle> BuildBundles(SelfHostedConfig selfHosted)

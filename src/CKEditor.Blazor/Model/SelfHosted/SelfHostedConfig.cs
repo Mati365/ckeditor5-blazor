@@ -26,6 +26,12 @@ public sealed record SelfHostedConfig
     public string AssetsBasePath { get; init; } = BuildMetadataReader.ResolveAssetsOutputPath();
 
     /// <summary>
+    /// The base path for CKEditor Blazor integration scripts.
+    /// Defaults to "/_content/CKEditor.Blazor".
+    /// </summary>
+    public string IntegrationBasePath { get; init; } = "/_content/CKEditor.Blazor";
+
+    /// <summary>
     /// CKBox information (optional).
     /// </summary>
     public CKBoxSelfHostedConfig? CKBox { get; init; }

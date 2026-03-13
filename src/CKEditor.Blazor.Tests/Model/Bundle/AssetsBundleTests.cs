@@ -17,9 +17,9 @@ public class AssetsBundleTests
     }
 
     [Fact]
-    public void BlazorIntegrationAsset_ShouldHaveCorrectProperties()
+    public void GetBlazorIntegrationAsset_ShouldHaveCorrectProperties()
     {
-        var asset = AssetsBundle.BlazorIntegrationAsset;
+        var asset = AssetsBundle.GetBlazorIntegrationAsset("/_content/CKEditor.Blazor");
 
         Assert.NotNull(asset);
         Assert.Equal("ckeditor5-blazor", asset.Name);

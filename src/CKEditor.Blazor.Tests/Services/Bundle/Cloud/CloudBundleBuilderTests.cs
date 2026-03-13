@@ -77,7 +77,9 @@ public class CloudBundleBuilderTests
         Assert.Contains(result.Js, js => js.Name == "ckeditor5" && js.Url == "edit.js");
         Assert.Contains(result.Js, js => js.Name == "premium" && js.Url == "prem.js");
         Assert.Contains(result.Js, js => js.Name == "ckbox" && js.Url == "ckb.js");
-        Assert.Contains(result.Js, js => js.Name == AssetsBundle.BlazorIntegrationAsset.Name && js.Url == AssetsBundle.BlazorIntegrationAsset.Url);
+        Assert.Contains(result.Js, js =>
+            js.Name == AssetsBundle.GetBlazorIntegrationAsset(config.IntegrationBasePath).Name &&
+            js.Url == AssetsBundle.GetBlazorIntegrationAsset(config.IntegrationBasePath).Url);
 
         Assert.Contains(result.Css, css => css == "edit.css");
         Assert.Contains(result.Css, css => css == "prem.css");
@@ -112,7 +114,7 @@ public class CloudBundleBuilderTests
         // Assert
         Assert.Equal(2, result.Js.Count); // ckeditor5 + blazor-integration
         Assert.Contains(result.Js, js => js.Name == "ckeditor5");
-        Assert.Contains(result.Js, js => js.Name == AssetsBundle.BlazorIntegrationAsset.Name);
+        Assert.Contains(result.Js, js => js.Name == AssetsBundle.GetBlazorIntegrationAsset(config.IntegrationBasePath).Name);
 
         Assert.Single(result.Css);
         Assert.Contains(result.Css, css => css == "edit.css");

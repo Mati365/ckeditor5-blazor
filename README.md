@@ -118,7 +118,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
 
    By default the package infers the correct asset URL from build metadata, so no extra configuration is needed for the typical setup.
 
-   If your static files are served from a non-standard base path (e.g. behind a reverse proxy with a path prefix, or assets placed in a subdirectory), set `AssetsBasePath` to match the actual URL prefix:
+   If your static files are served from a non-standard base path (e.g. behind a reverse proxy with a path prefix, or assets placed in a subdirectory), you can adjust the base paths:
 
    ```csharp
    using CKEditor.Blazor.Model.SelfHosted;
@@ -128,11 +128,15 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
        .ExtendDefaultPreset(preset => preset
             .WithSelfHosted(new SelfHostedConfig
             {
-                AssetsBasePath = "/static/ckeditor"
+                AssetsBasePath = "/static/ckeditor",
+                IntegrationBasePath = "/custom/_content/CKEditor.Blazor"
             })));
    ```
 
-   The value is the URL prefix (without a trailing slash) prepended to all generated asset URLs. It must match what the browser actually uses to fetch the files.
+   - `AssetsBasePath` applies to the bundled CKEditor 5 assets directory (editor scripts, stylesheets, translations).
+   - `IntegrationBasePath` applies to the internal Blazor integration script (default: `/_content/CKEditor.Blazor`).
+
+   Both values should be specified without a trailing slash and must match what the browser actually uses to fetch the files.
 
 4. **Build your project** to download and prepare assets:
 
@@ -201,6 +205,8 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
                 Premium = false
             })));
    ```
+
+   If your app is served from a non-standard base path (e.g. behind a reverse proxy), you can customize the path to the internal Blazor integration script by setting `IntegrationBasePath` (default: `/_content/CKEditor.Blazor`). Because this setup uses a CDN, there is no `AssetsBasePath` parameter since the CKEditor 5 assets are loaded externally.
 
 5. **Add cloud assets component** in `<head>`:
 

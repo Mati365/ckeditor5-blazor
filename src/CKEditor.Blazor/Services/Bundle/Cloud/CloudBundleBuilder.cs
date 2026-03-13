@@ -22,7 +22,7 @@ public class CloudBundleBuilder(
 
         return BuildBundles(cloud)
             .Aggregate((a, b) => a.Merge(b))
-            .WithMergedJs([AssetsBundle.BlazorIntegrationAsset]);
+            .WithMergedJs([AssetsBundle.GetBlazorIntegrationAsset(cloud.IntegrationBasePath)]);
     }
 
     private IEnumerable<AssetsBundle> BuildBundles(CloudConfig cloud)
