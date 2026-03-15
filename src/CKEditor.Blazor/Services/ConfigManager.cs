@@ -13,6 +13,7 @@ namespace CKEditor.Blazor.Services;
 public class ConfigManager
 {
     private readonly Dictionary<string, PresetConfig> _presets = [];
+
     private readonly Dictionary<string, ContextConfig> _contexts = [];
 
     /// <summary>
@@ -21,14 +22,22 @@ public class ConfigManager
     /// <param name="options">The CKEditor options.</param>
     public ConfigManager(IOptions<CKEditorOptions> options)
     {
-        var licenseKey = options.Value.GetParsedLicenseKey();
+        var defaultLicenseKey = options.Value.GetParsedLicenseKey();
 
-        RegisterPreset("default", CreateDefaultPreset(licenseKey));
+        RegisterPreset("default", CreateDefaultPreset(defaultLicenseKey));
         RegisterContext("default", CreateDefaultContext());
 
         foreach (var (name, preset) in options.Value.Presets)
         {
-            RegisterPreset(name, preset);
+            var effectivePreset = preset;
+
+            // If preset license is GPL (the default), but global license is not GPL, override preset license with global one.
+            if (preset.LicenseKey.IsGPL() && defaultLicenseKey is not null && !defaultLicenseKey.IsGPL())
+            {
+                effectivePreset = preset.WithLicenseKey(defaultLicenseKey);
+            }
+
+            RegisterPreset(name, effectivePreset);
         }
 
         foreach (var (name, context) in options.Value.Contexts)

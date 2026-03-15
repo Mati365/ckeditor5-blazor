@@ -149,57 +149,7 @@ public class LicenseKeyParserTests
     [Fact]
     public void Parse_NullPayload_ShouldThrow()
     {
-        // "bnVsbA" is the base64url encoding of "null"
         var ex = Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse("header.bnVsbA.sig"));
         Assert.Equal("Invalid JSON in JWT payload", ex.Message);
-    }
-
-    [Fact]
-    public void TryParse_ValidGPL_ShouldReturnTrue()
-    {
-        var success = LicenseKeyParser.TryParse("GPL", out var key);
-
-        Assert.True(success);
-        Assert.NotNull(key);
-        Assert.True(key!.IsGPL());
-    }
-
-    [Fact]
-    public void TryParse_ValidJWT_ShouldReturnTrue()
-    {
-        var jwt = JwtTestHelper.Build(distributionChannel: "cloud");
-
-        var success = LicenseKeyParser.TryParse(jwt, out var key);
-
-        Assert.True(success);
-        Assert.NotNull(key);
-        Assert.Equal(DistributionChannel.Cloud, key!.DistributionChannel);
-    }
-
-    [Fact]
-    public void TryParse_NullKey_ShouldReturnFalse()
-    {
-        var success = LicenseKeyParser.TryParse(null, out var key);
-
-        Assert.False(success);
-        Assert.Null(key);
-    }
-
-    [Fact]
-    public void TryParse_EmptyKey_ShouldReturnFalse()
-    {
-        var success = LicenseKeyParser.TryParse(string.Empty, out var key);
-
-        Assert.False(success);
-        Assert.Null(key);
-    }
-
-    [Fact]
-    public void TryParse_InvalidJWT_ShouldReturnFalse()
-    {
-        var success = LicenseKeyParser.TryParse("not.a.valid.jwt.at.all", out var key);
-
-        Assert.False(success);
-        Assert.Null(key);
     }
 }

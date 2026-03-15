@@ -16,33 +16,7 @@ public static class LicenseKeyParser
     /// <param name="key">License key string (JWT or "GPL").</param>
     /// <returns>The parsed <see cref="LicenseKey"/>.</returns>
     /// <exception cref="ArgumentException">Thrown when the provided JWT is invalid.</exception>
-    public static LicenseKey Parse(string key) => key == "GPL" ? LicenseKey.OfGPL() : ParseJWT(key);
-
-    /// <summary>
-    /// Tries to parse the given license key without throwing exceptions.
-    /// </summary>
-    /// <param name="key">License key string to parse.</param>
-    /// <param name="licenseKey">When this method returns, contains the parsed <see cref="LicenseKey"/> if parsing succeeded; otherwise <c>null</c>.</param>
-    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
-    public static bool TryParse(string? key, out LicenseKey? licenseKey)
-    {
-        if (string.IsNullOrEmpty(key))
-        {
-            licenseKey = null;
-            return false;
-        }
-
-        try
-        {
-            licenseKey = Parse(key);
-            return true;
-        }
-        catch
-        {
-            licenseKey = null;
-            return false;
-        }
-    }
+    public static LicenseKey Parse(string? key) => key is null or "GPL" ? LicenseKey.OfGPL() : ParseJWT(key);
 
     /// <summary>
     /// Parses a JWT license token and extracts known claims (distribution channel and expiry).

@@ -156,5 +156,5 @@ public class CKEditorOptions
     /// Gets the parsed default license key, or null if not set or invalid.
     /// </summary>
     /// <returns>The parsed LicenseKey instance or null.</returns>
-    public LicenseKey? GetParsedLicenseKey() => LicenseKeyParser.TryParse(DefaultLicenseKey, out var key) ? key : null;
+    public LicenseKey? GetParsedLicenseKey() => LicenseKeyParser.Parse(DefaultLicenseKey);
 }

@@ -1,6 +1,7 @@
 using CKEditor.Blazor.Model.Cloud;
 using CKEditor.Blazor.Model.License;
 using CKEditor.Blazor.Model.SelfHosted;
+using CKEditor.Blazor.Serialization;
 
 namespace CKEditor.Blazor.Model;
 
@@ -182,6 +183,13 @@ public sealed record PresetConfig
     /// <param name="licenseKey">The license key to use.</param>
     /// <returns>A new preset with the license key applied.</returns>
     public PresetConfig WithLicenseKey(LicenseKey licenseKey) => this with { LicenseKey = licenseKey };
+
+    /// <summary>
+    /// Creates a new preset with the specified license key string parsed into a <see cref="LicenseKey"/>.
+    /// </summary>
+    /// <param name="licenseKey">The license key string to parse.</param>
+    /// <returns>A new preset with the license key applied.</returns>
+    public PresetConfig WithLicenseKey(string licenseKey) => this with { LicenseKey = LicenseKeyParser.Parse(licenseKey) };
 
     /// <summary>
     /// Creates a new preset with the specified cloud configuration.

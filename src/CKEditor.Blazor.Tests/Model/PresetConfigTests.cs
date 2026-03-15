@@ -2,6 +2,7 @@ using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.Cloud;
 using CKEditor.Blazor.Model.License;
 using CKEditor.Blazor.Model.SelfHosted;
+using CKEditor.Blazor.Tests.Helpers;
 
 namespace CKEditor.Blazor.Tests.Model;
 
@@ -28,8 +29,8 @@ public class PresetConfigTests
         {
             Config = new Dictionary<string, object> { { "key1", "val1" } }
         };
-        var toMerge = new Dictionary<string, object> { { "key2", "val2" } };
 
+        var toMerge = new Dictionary<string, object> { { "key2", "val2" } };
         var result = initialConfig.WithMergedConfig(toMerge);
 
         Assert.NotSame(initialConfig, result);
@@ -54,6 +55,17 @@ public class PresetConfigTests
         var preset = new PresetConfig().WithLicenseKey(key);
 
         Assert.Equal(key, preset.LicenseKey);
+    }
+
+    [Fact]
+    public void WithLicenseKey_String_ShouldParseAndSetLicenseKey()
+    {
+        var jwt = JwtTestHelper.BuildValid("sh");
+        var preset = new PresetConfig().WithLicenseKey(jwt);
+
+        Assert.Equal(jwt, preset.LicenseKey.Raw);
+        Assert.Equal(DistributionChannel.SH, preset.LicenseKey.DistributionChannel);
+        Assert.NotNull(preset.LicenseKey.ExpiresAt);
     }
 
     [Fact]

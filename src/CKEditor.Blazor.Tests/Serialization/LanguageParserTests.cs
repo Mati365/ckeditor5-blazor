@@ -27,7 +27,6 @@ public class LanguageParserTests
     public void Parse_LanguageInstance_ShouldReturnSameInstance()
     {
         var lang = new Language { UI = "fr", Content = "de" };
-
         var result = LanguageParser.Parse(lang);
 
         Assert.Same(lang, result);
@@ -51,45 +50,5 @@ public class LanguageParserTests
 
         Assert.Equal(code, result.UI);
         Assert.Equal(code, result.Content);
-    }
-
-    [Fact]
-    public void TryParse_Null_ShouldReturnTrueWithDefaultLanguage()
-    {
-        var success = LanguageParser.TryParse(null, out var result);
-
-        Assert.True(success);
-        Assert.NotNull(result);
-        Assert.Equal("en", result!.UI);
-    }
-
-    [Fact]
-    public void TryParse_ValidString_ShouldReturnTrue()
-    {
-        var success = LanguageParser.TryParse("pl", out var result);
-
-        Assert.True(success);
-        Assert.NotNull(result);
-        Assert.Equal("pl", result!.UI);
-    }
-
-    [Fact]
-    public void TryParse_InvalidType_ShouldReturnFalse()
-    {
-        var success = LanguageParser.TryParse(3.14, out var result);
-
-        Assert.False(success);
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public void TryParse_LanguageInstance_ShouldReturnTrue()
-    {
-        var lang = new Language { UI = "it", Content = "it" };
-
-        var success = LanguageParser.TryParse(lang, out var result);
-
-        Assert.True(success);
-        Assert.Same(lang, result);
     }
 }

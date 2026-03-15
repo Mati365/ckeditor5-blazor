@@ -1,6 +1,8 @@
 using CKEditor.Blazor.Exceptions;
 using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Serialization;
 using CKEditor.Blazor.Services;
+using CKEditor.Blazor.Tests.Helpers;
 using Microsoft.Extensions.Options;
 
 namespace CKEditor.Blazor.Tests.Services;
@@ -22,6 +24,26 @@ public class ConfigManagerTests
 
         Assert.True(manager.GetPresets().ContainsKey("default"));
         Assert.True(manager.GetContexts().ContainsKey("default"));
+    }
+
+    [Fact]
+    public void Constructor_UsesDefaultLicenseKeyForAllPresets()
+    {
+        var jwt = JwtTestHelper.BuildValid("sh");
+        var options = new CKEditorOptions
+        {
+            DefaultLicenseKey = jwt,
+            Presets = new Dictionary<string, PresetConfig>
+            {
+                ["my_preset"] = new PresetConfig(),
+                ["another_preset"] = new PresetConfig()
+            }
+        };
+
+        var manager = new ConfigManager(Options.Create(options));
+
+        Assert.Equal(jwt, manager.GetPresets()["default"].LicenseKey.Raw);
+        Assert.Equal(jwt, manager.GetPresets()["my_preset"].LicenseKey.Raw);
     }
 
     [Fact]
@@ -266,5 +288,44 @@ public class ConfigManagerTests
         var manager = new ConfigManager(CreateOptions());
 
         Assert.Throws<UnknownContextException>(() => manager.ResolveContextOrThrow("unknown"));
+    }
+
+    [Fact]
+    public void Constructor_DoesNotOverridePresetLicense_WhenDefaultLicenseIsGPL()
+    {
+        var preset = new PresetConfig();
+        var options = new CKEditorOptions
+        {
+            DefaultLicenseKey = "GPL",
+            Presets = new Dictionary<string, PresetConfig>
+            {
+                ["my_preset"] = preset
+            }
+        };
+
+        var manager = new ConfigManager(Options.Create(options));
+
+        Assert.Same(preset, manager.GetPresets()["my_preset"]);
+    }
+
+    [Fact]
+    public void Constructor_DoesNotOverridePresetLicense_WhenPresetHasNonGplLicense()
+    {
+        var jwt = LicenseKeyParser.Parse(JwtTestHelper.BuildValid("sh"));
+        var preset = new PresetConfig().WithLicenseKey(jwt);
+
+        var options = new CKEditorOptions
+        {
+            DefaultLicenseKey = JwtTestHelper.BuildValid("cloud"),
+            Presets = new Dictionary<string, PresetConfig>
+            {
+                ["my_preset"] = preset
+            }
+        };
+
+        var manager = new ConfigManager(Options.Create(options));
+
+        Assert.Same(preset, manager.GetPresets()["my_preset"]);
+        Assert.Equal(jwt, manager.GetPresets()["my_preset"].LicenseKey);
     }
 }

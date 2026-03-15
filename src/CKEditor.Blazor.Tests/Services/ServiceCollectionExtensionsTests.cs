@@ -1,6 +1,7 @@
 using CKEditor.Blazor.Services;
 using CKEditor.Blazor.Services.Interfaces.Bundle.Cloud;
 using CKEditor.Blazor.Services.Interfaces.Bundle.SelfHosted;
+using CKEditor.Blazor.Tests.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -52,10 +53,12 @@ public class ServiceCollectionExtensionsTests
     [Fact]
     public void AddCKEditor_WithIConfiguration_RegistersRequiredServices()
     {
+        var jwt = JwtTestHelper.BuildValid("sh");
+
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["DefaultLicenseKey"] = "GPL_CONFIG",
+                ["DefaultLicenseKey"] = jwt,
             })
             .Build();
 
@@ -70,6 +73,6 @@ public class ServiceCollectionExtensionsTests
         var options = provider.GetService<IOptions<CKEditorOptions>>();
 
         Assert.NotNull(options);
-        Assert.Equal("GPL_CONFIG", options.Value.DefaultLicenseKey);
+        Assert.Equal(jwt, options.Value.DefaultLicenseKey);
     }
 }

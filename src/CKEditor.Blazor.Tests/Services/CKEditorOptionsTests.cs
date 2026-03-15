@@ -1,29 +1,49 @@
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Services;
+using CKEditor.Blazor.Tests.Helpers;
 
 namespace CKEditor.Blazor.Tests.Services;
 
 public class CKEditorOptionsTests
 {
-    [Theory]
-    [InlineData(null, false)]
-    [InlineData("", false)]
-    [InlineData("invalid_key", false)]
-    [InlineData("GPL", true)]
-    public void GetParsedLicenseKey_ReturnsExpectedResult_BasedOnDefaultLicenseKey(string? defaultKey, bool isParsedSuccessfully)
+    [Fact]
+    public void GetParsedLicenseKey_WithNullDefault_ReturnsGplLicenseKey()
     {
-        var options = new CKEditorOptions { DefaultLicenseKey = defaultKey };
+        var options = new CKEditorOptions { DefaultLicenseKey = null };
+        var result = options.GetParsedLicenseKey();
+
+        Assert.NotNull(result);
+        Assert.True(result.IsGPL());
+        Assert.Equal("GPL", result.Raw);
+    }
+
+    [Fact]
+    public void GetParsedLicenseKey_WithEmptyDefault_ThrowsArgumentException()
+    {
+        var options = new CKEditorOptions { DefaultLicenseKey = string.Empty };
+
+        Assert.Throws<ArgumentException>(() => options.GetParsedLicenseKey());
+    }
+
+    [Fact]
+    public void GetParsedLicenseKey_WithInvalidDefault_ThrowsArgumentException()
+    {
+        var options = new CKEditorOptions { DefaultLicenseKey = "invalid_key" };
+
+        Assert.Throws<ArgumentException>(() => options.GetParsedLicenseKey());
+    }
+
+    [Fact]
+    public void GetParsedLicenseKey_WithValidJwt_ReturnsParsedLicenseKey()
+    {
+        var jwt = JwtTestHelper.BuildValid("sh");
+        var options = new CKEditorOptions { DefaultLicenseKey = jwt };
 
         var result = options.GetParsedLicenseKey();
 
-        if (isParsedSuccessfully)
-        {
-            Assert.NotNull(result);
-        }
-        else
-        {
-            Assert.Null(result);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(jwt, result.Raw);
+        Assert.True(result.IsSelfHostedOnly());
     }
 
     [Fact]
