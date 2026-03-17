@@ -748,7 +748,7 @@ You can track editor focus state using `OnFocus` and `OnBlur` events. This is us
 
 ### Root Attributes 🏷️
 
-`RootAttributes` lets you attach custom key-value pairs to the editor root model element. This is useful for storing metadata in roots, which can be accessed by custom plugins or used for testing and debugging purposes. For more details on root attributes in CKEditor 5, see the [official engine documentation](https://ckeditor.com/docs/ckeditor5/latest/framework/architecture/editing-engine.html).
+`RootAttributes` lets you attach custom key-value pairs to the editor root model element. This is useful for storing metadata in roots, which can be accessed by custom plugins or used for testing and debugging purposes. For more details on root attributes in CKEditor 5, see the [official engine documentation](https://ckeditor.com/docs/ckeditor5/latest/framework/architecture/editing-engine.html). Long story short - they are not DOM / HTML attributes, but rather a dictionary of arbitrary data attached to the root element in the editor model.
 
 Example of setting root attributes on a single-root editor:
 
@@ -759,9 +759,7 @@ Example of setting root attributes on a single-root editor:
     Value="@("<p>Hello</p>")"
     RootAttributes="@(new EditorRootAttributes
     {
-        ["aria-label"] = "Article body",
-        ["data-section"] = "intro",
-        ["data-required"] = true
+        ["custom-model-attribute"] = "my-value"
     })" />
 ```
 
@@ -778,8 +776,7 @@ In multiroot/decoupled layouts each `CKE5Editable` can carry its own set of root
         Value="<p>Header</p>"
         RootAttributes="@(new EditorRootAttributes
         {
-            ["aria-label"] = "Article header",
-            ["data-section"] = "header"
+            ["custom-model-attribute"] = "header-root"
         })" />
 
     <CKE5Editable
@@ -787,8 +784,8 @@ In multiroot/decoupled layouts each `CKE5Editable` can carry its own set of root
         Value="<p>Main content</p>"
         RootAttributes="@(new EditorRootAttributes
         {
-            ["aria-label"] = "Article body",
-            ["data-section"] = "content"
+            ["custom-model-attribute"] = "content-root",
+            ["other-attribute"] = "another-value"
         })" />
 
     <CKE5Editable
@@ -796,8 +793,8 @@ In multiroot/decoupled layouts each `CKE5Editable` can carry its own set of root
         Value="<p>Footer</p>"
         RootAttributes="@(new EditorRootAttributes
         {
-            ["aria-label"] = "Article footer",
-            ["data-section"] = "footer"
+            ["custom-model-attribute"] = "footer-root",
+            ["other-attribute"] = "another-value"
         })" />
 </CKE5Editor>
 ```
