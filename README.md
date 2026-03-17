@@ -748,9 +748,9 @@ You can track editor focus state using `OnFocus` and `OnBlur` events. This is us
 
 ### Root Attributes 🏷️
 
-`RootAttributes` lets you attach arbitrary HTML attributes to the editor root element - useful for accessibility labels, data attributes, or any custom metadata the editor or your application needs to read from the root. The value is an `EditorRootAttributes` dictionary where keys are attribute names and values can be strings, numbers, booleans, or any JSON-serializable object.
+`RootAttributes` lets you attach custom key-value pairs to the editor root model element. This is useful for storing metadata in roots, which can be accessed by custom plugins or used for testing and debugging purposes. For more details on root attributes in CKEditor 5, see the [official engine documentation](https://ckeditor.com/docs/ckeditor5/latest/framework/architecture/editing-engine.html).
 
-Pass `RootAttributes` directly to `CKE5Editor` to annotate the single editable root:
+Example of setting root attributes on a single-root editor:
 
 ```razor
 @using CKEditor.Blazor.Model
