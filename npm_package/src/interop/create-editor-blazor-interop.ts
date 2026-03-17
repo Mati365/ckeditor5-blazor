@@ -1,4 +1,5 @@
 import type { DotNetInterop } from '../types';
+import type { RootAttributesUpdater } from './utils';
 import type { Editor, FileRepository } from 'ckeditor5';
 
 import { ensureEditorElementsRegistered } from '../elements';
@@ -6,7 +7,7 @@ import { EditorsRegistry } from '../elements/editor/editors-registry';
 import { CKEditor5ChangeDataEvent } from '../elements/editor/plugins/dispatch-editor-roots-change-event';
 import { getEditorRootsValues } from '../elements/editor/utils';
 import { markElementAsInteractive, shallowEqual } from '../shared';
-import { createEditorValueSync, createNoopSync } from './utils/create-editor-value-sync';
+import { createEditorValueSync, createNoopSync, createRootAttributesUpdater } from './utils';
 
 /**
  * Creates an interop layer to synchronize a CKEditor 5 instance with a Blazor component.
@@ -22,6 +23,8 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
   let unmountCKEditorListeners: VoidFunction | null = null;
 
   let sync = createNoopSync<Record<string, string>>();
+  let syncRootAttributes: RootAttributesUpdater | null = null;
+
   let editorRef: unknown | null = null;
 
   // Handles data change events dispatched by the CKEditor plugin.
@@ -48,6 +51,8 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
       applyValue: value => editor.setData(value),
       isEqual: shallowEqual,
     });
+
+    syncRootAttributes = createRootAttributesUpdater(editor, 'main');
 
     // Notify Blazor of focus changes so it can trigger the appropriate callbacks.
     const onFocusChange = (_evt: unknown, _name: unknown, isFocused: boolean) => {
@@ -91,6 +96,19 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
     },
 
     /**
+     * Updates the root attributes on the editor instance.
+     */
+    setRootAttributes: async (rootAttributes?: Record<string, unknown> | null) => {
+      if (unmounted) {
+        return;
+      }
+
+      await EditorsRegistry.the.waitFor(editorId);
+
+      syncRootAttributes?.(rootAttributes);
+    },
+
+    /**
      * Cleans up all event listeners when the Blazor component is disposed.
      */
     unmount() {
@@ -107,6 +125,7 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
         editorRef = null;
       }
 
+      syncRootAttributes = null;
       unmounted = true;
     },
 

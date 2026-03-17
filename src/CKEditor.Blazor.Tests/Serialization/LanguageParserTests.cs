@@ -37,7 +37,7 @@ public class LanguageParserTests
     [Fact]
     public void Parse_UnknownType_ShouldThrowArgumentException()
     {
-        Assert.Throws<ArgumentException>(() => LanguageParser.Parse(42));
+        Assert.Throws<ArgumentException>(static () => LanguageParser.Parse(42));
     }
 
     [Theory]

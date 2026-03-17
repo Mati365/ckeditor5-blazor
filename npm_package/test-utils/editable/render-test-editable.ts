@@ -1,5 +1,6 @@
 import type { EditableSnapshot } from './create-editable-snapshot';
 
+import { isEmptyObject } from '../../src/shared';
 import { html } from '../html';
 import { createEditableSnapshot } from './create-editable-snapshot';
 
@@ -27,6 +28,9 @@ export function renderTestEditable(
       'data-cke-root-name': fullSnapshot.rootName,
       'data-cke-content': fullSnapshot.content,
       'data-cke-save-debounce-ms': fullSnapshot.saveDebounceMs,
+      ...!isEmptyObject(fullSnapshot.rootAttributes) && {
+        'data-cke-root-attributes': JSON.stringify(fullSnapshot.rootAttributes),
+      },
       ...interactive && {
         'data-cke-interactive': 'true',
       },

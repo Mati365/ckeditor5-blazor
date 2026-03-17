@@ -149,6 +149,48 @@ describe('createEditableBlazorInterop', () => {
       expect(editor.getData()).toBe('<p>test</p>');
     });
 
+    it('should set root attributes on the editor when requested', async () => {
+      const { setRootAttributes } = createEditableBlazorInterop(element, dotnetInterop);
+
+      const editor = await waitForTestEditor();
+      const root = editor.model.document.getRoot()!;
+
+      expect(root.getAttribute('data-test')).toBeUndefined();
+
+      await setRootAttributes({ 'data-test': 'value' });
+
+      expect(root.getAttribute('data-test')).toBe('value');
+    });
+
+    it('should only remove attributes that it previously set', async () => {
+      const { setRootAttributes } = createEditableBlazorInterop(element, dotnetInterop);
+      const editor = await waitForTestEditor();
+      const root = editor.model.document.getRoot()!;
+
+      // Simulate another consumer setting an attribute.
+      editor.model.change(writer => writer.setAttribute('data-keep', 'true', root));
+      expect(root.getAttribute('data-keep')).toBe('true');
+
+      await setRootAttributes({ 'data-test': 'value' });
+      expect(root.getAttribute('data-test')).toBe('value');
+      expect(root.getAttribute('data-keep')).toBe('true');
+
+      // Updating with the same key should not remove it.
+      await setRootAttributes({ 'data-test': 'updated' });
+      expect(root.getAttribute('data-test')).toBe('updated');
+
+      // Clearing with an empty object should remove only the attribute managed by us.
+      await setRootAttributes({});
+
+      expect(root.getAttribute('data-test')).toBeUndefined();
+      expect(root.getAttribute('data-keep')).toBe('true');
+
+      // Clearing with null should still not remove attributes managed by others.
+      await setRootAttributes(null);
+
+      expect(root.getAttribute('data-keep')).toBe('true');
+    });
+
     it('should not set data if the interop is unmounted before the editor is ready', async () => {
       const { setValue, unmount } = createEditableBlazorInterop(element, dotnetInterop);
 
@@ -159,6 +201,19 @@ describe('createEditableBlazorInterop', () => {
       const editor = await waitForTestEditor();
 
       expect(editor.getData()).toBe('<p>Initial content</p>');
+    });
+
+    it('should not set root attributes if the interop is unmounted before the editor is ready', async () => {
+      const { setRootAttributes, unmount } = createEditableBlazorInterop(element, dotnetInterop);
+
+      unmount();
+
+      const editor = await waitForTestEditor();
+      const root = editor.model.document.getRoot()!;
+
+      await setRootAttributes({ 'data-test': 'value' });
+
+      expect(root.getAttribute('data-test')).toBeUndefined();
     });
 
     it('should delay setting data if the editor is focused', async () => {

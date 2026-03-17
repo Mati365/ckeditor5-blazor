@@ -57,6 +57,7 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
         - [.NET → Editor: Set Content 📥](#net--editor-set-content-)
     - [Editor Ready Event ✅](#editor-ready-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
+    - [Root Attributes 🏷️](#root-attributes-️)
     - [Image Upload 🖼️](#image-upload-️)
     - [Watchdog 🐶](#watchdog-)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
@@ -744,6 +745,67 @@ You can track editor focus state using `OnFocus` and `OnBlur` events. This is us
     private bool isFocused;
 }
 ```
+
+### Root Attributes 🏷️
+
+`RootAttributes` lets you attach arbitrary HTML attributes to the editor root element - useful for accessibility labels, data attributes, or any custom metadata the editor or your application needs to read from the root. The value is an `EditorRootAttributes` dictionary where keys are attribute names and values can be strings, numbers, booleans, or any JSON-serializable object.
+
+Pass `RootAttributes` directly to `CKE5Editor` to annotate the single editable root:
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Editor
+    Value="@("<p>Hello</p>")"
+    RootAttributes="@(new EditorRootAttributes
+    {
+        ["aria-label"] = "Article body",
+        ["data-section"] = "intro",
+        ["data-required"] = true
+    })" />
+```
+
+In multiroot/decoupled layouts each `CKE5Editable` can carry its own set of root attributes, allowing you to annotate every root independently:
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Editor EditorType="EditorType.Multiroot">
+    <CKE5UIPart Name="toolbar" Class="mb-4" />
+
+    <CKE5Editable
+        RootName="header"
+        Value="<p>Header</p>"
+        RootAttributes="@(new EditorRootAttributes
+        {
+            ["aria-label"] = "Article header",
+            ["data-section"] = "header"
+        })" />
+
+    <CKE5Editable
+        RootName="content"
+        Value="<p>Main content</p>"
+        RootAttributes="@(new EditorRootAttributes
+        {
+            ["aria-label"] = "Article body",
+            ["data-section"] = "content"
+        })" />
+
+    <CKE5Editable
+        RootName="footer"
+        Value="<p>Footer</p>"
+        RootAttributes="@(new EditorRootAttributes
+        {
+            ["aria-label"] = "Article footer",
+            ["data-section"] = "footer"
+        })" />
+</CKE5Editor>
+```
+
+Attributes are reactive - updating `RootAttributes` from .NET after initialization will push the changes to the live editor root without a full re-render.
+
+> [!NOTE]
+> `RootAttributes` serializes to JSON and is passed to the CKEditor 5 root via the `data-cke-root-attributes` HTML attribute. Empty dictionaries are treated as absent — no attribute is emitted.
 
 ### Image Upload 🖼️
 

@@ -20,6 +20,7 @@ export function createEditorSnapshot(): EditorSnapshot {
       content: 'en',
     },
     saveDebounceMs: 500,
+    rootAttributes: {},
     watchdog: false,
   };
 }
@@ -52,6 +53,11 @@ export type EditorSnapshot = {
    * The preset configuration for the CKEditor5 instance.
    */
   preset: EditorPreset;
+
+  /**
+   * The attributes that should be applied to the root element.
+   */
+  rootAttributes: Record<string, string>;
 
   /**
    * The content of the editor, mapped by ID of root elements.

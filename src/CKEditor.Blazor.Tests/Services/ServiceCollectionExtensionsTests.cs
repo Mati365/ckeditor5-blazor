@@ -31,7 +31,7 @@ public class ServiceCollectionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddCKEditor(options => options.DefaultLicenseKey = "GPL");
+        services.AddCKEditor(static options => options.DefaultLicenseKey = "GPL");
 
         var provider = services.BuildServiceProvider();
 

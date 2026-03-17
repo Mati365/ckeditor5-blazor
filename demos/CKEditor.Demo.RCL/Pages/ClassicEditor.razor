@@ -24,12 +24,24 @@
 
     <div class="mt-6">
         <CKE5Editor
-            EditorType="EditorType.Classic"
             @bind-Value="editorValue"
+            EditorType="EditorType.Classic"
+            RootAttributes="@rootAttributes"
             OnChange="OnEditorChange"
             OnFocus="() => isFocused = true"
             OnBlur="() => isFocused = false"
             OnReady="() => isReady = true" />
+
+        <div class="flex flex-wrap items-center gap-2 mt-4">
+            <label class="font-semibold text-sm">Root attribute <code>data-test</code>:</label>
+            <span class="bg-gray-100 px-2 py-1 rounded">@rootAttributes["data-test"]</span>
+            <button
+                type="button"
+                class="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white transition-colors duration-200"
+                @onclick="ToggleRootAttribute">
+                Toggle root attribute
+            </button>
+        </div>
 
         @if (isReady)
         {
@@ -71,6 +83,11 @@
 @code {
     private EditorValue editorValue { get; set; } = "Hello World";
 
+    private EditorRootAttributes rootAttributes { get; } = new()
+    {
+        ["data-test"] = "0",
+    };
+
     private string pendingContent = "New content";
 
     private bool isFocused;
@@ -105,6 +122,18 @@
         {
             editorValue = pendingContent;
         }
+    }
+
+    private void ToggleRootAttribute()
+    {
+        var currentValue = 0;
+
+        if (rootAttributes["data-test"] is string s && int.TryParse(s, out var parsed))
+        {
+            currentValue = parsed;
+        }
+
+        rootAttributes["data-test"] = (currentValue + 1).ToString();
     }
 
     private void OnEditorChange(CKE5EditorChangeEventArgs args)

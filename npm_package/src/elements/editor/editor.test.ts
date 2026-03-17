@@ -103,6 +103,21 @@ describe('editor component', () => {
 
         expect(editor.getData()).toBe('');
       });
+
+      it('should apply provided root attributes to the editor root', async () => {
+        renderTestEditor({
+          rootAttributes: {
+            'data-test-attr': '123',
+            'data-another-attr': 'abc',
+          },
+        });
+
+        const editor = await waitForTestEditor();
+        const root = editor.model.document.getRoot()!;
+
+        expect(root.getAttribute('data-test-attr')).toBe('123');
+        expect(root.getAttribute('data-another-attr')).toBe('abc');
+      });
     });
 
     describe('inline', () => {

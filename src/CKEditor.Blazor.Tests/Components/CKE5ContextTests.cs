@@ -14,7 +14,7 @@ public class CKE5ContextTests : BunitContext
     [Fact]
     public void RendersContext_WithDefaultAttributes()
     {
-        var cut = Render<CKE5Context>(p => p.Add(p => p.Id, "test-context"));
+        var cut = Render<CKE5Context>(static p => p.Add(static p => p.Id, "test-context"));
 
         var context = cut.Find("cke5-context");
 
@@ -26,7 +26,7 @@ public class CKE5ContextTests : BunitContext
     [Fact]
     public void RendersContext_WithCustomId()
     {
-        var cut = Render<CKE5Context>(p => p.Add(p => p.Id, "my-context-id"));
+        var cut = Render<CKE5Context>(static p => p.Add(static p => p.Id, "my-context-id"));
 
         var context = cut.Find("cke5-context");
 
@@ -52,9 +52,9 @@ public class CKE5ContextTests : BunitContext
     [Fact]
     public void RendersContext_WithLanguageJson_WhenLanguageProvided()
     {
-        var cut = Render<CKE5Context>(p => p
-            .Add(p => p.Id, "test-context")
-            .Add(p => p.Language, "pl"));
+        var cut = Render<CKE5Context>(static p => p
+            .Add(static p => p.Id, "test-context")
+            .Add(static p => p.Language, "pl"));
 
         var context = cut.Find("cke5-context");
         var languageJson = context.GetAttribute("data-cke-language");
@@ -66,8 +66,8 @@ public class CKE5ContextTests : BunitContext
     [Fact]
     public void RendersContext_WithChildContent()
     {
-        var cut = Render<CKE5Context>(p => p
-            .Add(p => p.Id, "test-context")
+        var cut = Render<CKE5Context>(static p => p
+            .Add(static p => p.Id, "test-context")
             .AddChildContent("<div class=\"child\">Editor here</div>"));
 
         Assert.NotEmpty(cut.FindAll("div.child"));
@@ -76,7 +76,7 @@ public class CKE5ContextTests : BunitContext
     [Fact]
     public void RendersContext_AsCustomHtmlElement()
     {
-        var cut = Render<CKE5Context>(p => p.Add(p => p.Id, "test-context"));
+        var cut = Render<CKE5Context>(static p => p.Add(static p => p.Id, "test-context"));
 
         Assert.Single(cut.FindAll("cke5-context"));
     }

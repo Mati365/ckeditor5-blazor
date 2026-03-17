@@ -35,7 +35,7 @@ public class ContextConfigTests
     public void ExtendConfig_ShouldReturnNewInstanceWithMutatedConfig()
     {
         var original = new ContextConfig();
-        var result = original.ExtendConfig(c => c["key"] = "value");
+        var result = original.ExtendConfig(static c => c["key"] = "value");
 
         Assert.NotSame(original, result);
         Assert.Empty(original.Config);

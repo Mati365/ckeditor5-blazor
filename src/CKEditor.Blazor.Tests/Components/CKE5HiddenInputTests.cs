@@ -7,9 +7,9 @@ public class CKE5HiddenInputTests : BunitContext
     [Fact]
     public void RendersInput_WithDefaultStyles_WhenNoStyleProvided()
     {
-        var cut = Render<CKE5HiddenInput>(p => p
-            .Add(p => p.Id, "test-id")
-            .Add(p => p.Name, "test-name"));
+        var cut = Render<CKE5HiddenInput>(static p => p
+            .Add(static p => p.Id, "test-id")
+            .Add(static p => p.Name, "test-name"));
 
         var input = cut.Find("input");
 
@@ -21,9 +21,9 @@ public class CKE5HiddenInputTests : BunitContext
     [Fact]
     public void RendersInput_WithCustomStyle_WhenStyleProvided()
     {
-        var cut = Render<CKE5HiddenInput>(p => p
-            .Add(p => p.Id, "test-id")
-            .Add(p => p.Style, "display: none;"));
+        var cut = Render<CKE5HiddenInput>(static p => p
+            .Add(static p => p.Id, "test-id")
+            .Add(static p => p.Style, "display: none;"));
 
         var input = cut.Find("input");
 
@@ -33,9 +33,9 @@ public class CKE5HiddenInputTests : BunitContext
     [Fact]
     public void RendersInput_WithNameAttribute()
     {
-        var cut = Render<CKE5HiddenInput>(p => p
-            .Add(p => p.Id, "test-id")
-            .Add(p => p.Name, "my-field"));
+        var cut = Render<CKE5HiddenInput>(static p => p
+            .Add(static p => p.Id, "test-id")
+            .Add(static p => p.Name, "my-field"));
 
         var input = cut.Find("input");
 
@@ -45,8 +45,8 @@ public class CKE5HiddenInputTests : BunitContext
     [Fact]
     public void RendersInput_WithIdAttribute()
     {
-        var cut = Render<CKE5HiddenInput>(p => p
-            .Add(p => p.Id, "custom-id"));
+        var cut = Render<CKE5HiddenInput>(static p => p
+            .Add(static p => p.Id, "custom-id"));
 
         var input = cut.Find("input");
 
@@ -56,9 +56,9 @@ public class CKE5HiddenInputTests : BunitContext
     [Fact]
     public void RendersInput_WithRequiredAttribute_WhenRequiredIsTrue()
     {
-        var cut = Render<CKE5HiddenInput>(p => p
-            .Add(p => p.Id, "test-id")
-            .Add(p => p.Required, true));
+        var cut = Render<CKE5HiddenInput>(static p => p
+            .Add(static p => p.Id, "test-id")
+            .Add(static p => p.Required, true));
 
         var input = cut.Find("input");
 
@@ -68,9 +68,9 @@ public class CKE5HiddenInputTests : BunitContext
     [Fact]
     public void RendersInput_WithoutRequiredAttribute_WhenRequiredIsFalse()
     {
-        var cut = Render<CKE5HiddenInput>(p => p
-            .Add(p => p.Id, "test-id")
-            .Add(p => p.Required, false));
+        var cut = Render<CKE5HiddenInput>(static p => p
+            .Add(static p => p.Id, "test-id")
+            .Add(static p => p.Required, false));
 
         var input = cut.Find("input");
 
@@ -80,9 +80,9 @@ public class CKE5HiddenInputTests : BunitContext
     [Fact]
     public void RendersInput_WithClassAttribute()
     {
-        var cut = Render<CKE5HiddenInput>(p => p
-            .Add(p => p.Id, "test-id")
-            .Add(p => p.Class, "my-class"));
+        var cut = Render<CKE5HiddenInput>(static p => p
+            .Add(static p => p.Id, "test-id")
+            .Add(static p => p.Class, "my-class"));
 
         var input = cut.Find("input");
 

@@ -30,8 +30,8 @@ public class AssetsBundleTests
 
         Assert.Equal(2, result.Js.Count);
         Assert.Equal(2, result.Css.Count);
-        Assert.Contains(result.Js, x => x.Name == "a");
-        Assert.Contains(result.Js, x => x.Name == "b");
+        Assert.Contains(result.Js, static x => x.Name == "a");
+        Assert.Contains(result.Js, static x => x.Name == "b");
         Assert.Contains("a.css", result.Css);
         Assert.Contains("b.css", result.Css);
     }

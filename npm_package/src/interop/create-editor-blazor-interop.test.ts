@@ -113,6 +113,54 @@ describe('createEditorBlazorInterop', () => {
     });
   });
 
+  describe('setRootAttributes', () => {
+    it('should update root attributes on the editor', async () => {
+      const { setRootAttributes } = createEditorBlazorInterop(element, dotnetInterop);
+
+      const editor = await waitForTestEditor();
+      const root = editor.model.document.getRoot()!;
+
+      expect(root.getAttribute('data-test')).toBeUndefined();
+
+      await setRootAttributes({ 'data-test': 'value' });
+      expect(root.getAttribute('data-test')).toBe('value');
+    });
+
+    it('should only remove attributes that it previously set', async () => {
+      const { setRootAttributes } = createEditorBlazorInterop(element, dotnetInterop);
+
+      const editor = await waitForTestEditor();
+      const root = editor.model.document.getRoot()!;
+
+      // Simulate another consumer setting an attribute.
+      editor.model.change(writer => writer.setAttribute('data-keep', 'true', root));
+      expect(root.getAttribute('data-keep')).toBe('true');
+
+      await setRootAttributes({ 'data-test': 'value' });
+      expect(root.getAttribute('data-test')).toBe('value');
+      expect(root.getAttribute('data-keep')).toBe('true');
+
+      // Clearing should remove only the attribute managed by us.
+      await setRootAttributes(null);
+
+      expect(root.getAttribute('data-test')).toBeUndefined();
+      expect(root.getAttribute('data-keep')).toBe('true');
+    });
+
+    it('should not set root attributes if the interop is unmounted', async () => {
+      const { setRootAttributes, unmount } = createEditorBlazorInterop(element, dotnetInterop);
+
+      unmount();
+
+      const editor = await waitForTestEditor();
+      const root = editor.model.document.getRoot()!;
+
+      await setRootAttributes({ 'data-test': 'value' });
+
+      expect(root.getAttribute('data-test')).toBeUndefined();
+    });
+  });
+
   describe('focus tracking', () => {
     it('should call OnEditorFocus if editor gets focused', async () => {
       createEditorBlazorInterop(element, dotnetInterop);

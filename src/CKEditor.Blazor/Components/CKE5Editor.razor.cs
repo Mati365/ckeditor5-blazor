@@ -168,6 +168,14 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
     public bool Interactive { get; set; } = false;
 
     /// <summary>
+    /// Optional set of root attributes to associate with this editable root.
+    /// Values can be strings, numbers, booleans, or any JSON-serializable object.
+    /// Serialized to JSON and passed via the <c>data-cke-root-attributes</c> attribute.
+    /// </summary>
+    [Parameter]
+    public EditorRootAttributes? RootAttributes { get; set; }
+
+    /// <summary>
     /// Event callback invoked when the editor gains focus.
     /// The JS object reference for the editor is provided as the callback argument.
     /// </summary>
@@ -210,9 +218,16 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
 
     private string? PresetJson { get; set; }
 
-    private string? ValueJson { get; set; }
+    private string? ValueJson =>
+        JsonSerializer.Serialize(Value, _jsonOptions);
 
-    private string? LanguageJson { get; set; }
+    private string? LanguageJson =>
+        JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
+
+    private string? RootAttributesJson =>
+        RootAttributes is { Count: > 0 }
+            ? JsonSerializer.Serialize(RootAttributes, _jsonOptions)
+            : null;
 
     private string? ResolvedContextId => ContextId ?? Context?.Id;
 
@@ -329,8 +344,6 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
         ShowInput = !preset.EditorType.IsDecoupledOrMultiroot();
 
         PresetJson = JsonSerializer.Serialize(preset, _jsonOptions);
-        ValueJson = JsonSerializer.Serialize(Value, _jsonOptions);
-        LanguageJson = JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
     }
 
     /// <summary>
@@ -343,6 +356,11 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
         if (_jsInterop.IsInitializing)
         {
             return;
+        }
+
+        if (RootAttributes is not null)
+        {
+            await _jsInterop.InvokeVoidAsync("setRootAttributes", RootAttributes);
         }
 
         if (Value is not null)

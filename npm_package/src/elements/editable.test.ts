@@ -139,6 +139,63 @@ describe('editable component', () => {
       });
     });
 
+    it('should apply provided root attributes to the editable root', async () => {
+      renderTestEditor({
+        preset: createEditorPreset('multiroot'),
+        content: {},
+      });
+
+      const editor = await waitForTestEditor<MultiRootEditor>();
+
+      renderTestEditable({
+        rootName: 'foo',
+        content: '<p>Initial foo component</p>',
+        rootAttributes: {
+          'data-test-attr': 'foo-root',
+        },
+      });
+
+      await vi.waitFor(() => {
+        expect(editor.model.document.getRoot('foo')!.getAttribute('data-test-attr')).toBe('foo-root');
+      });
+    });
+
+    it('should apply provided root attributes when editable is mounted after root already exists', async () => {
+      renderTestEditor({
+        preset: createEditorPreset('multiroot'),
+        content: {},
+      });
+
+      const editor = await waitForTestEditor<MultiRootEditor>();
+
+      renderTestEditable({
+        rootName: 'foo',
+        content: '<p>Initial foo component</p>',
+        rootAttributes: {
+          'data-test-attr': 'foo-root',
+        },
+      });
+
+      editor.model.change((writer) => {
+        writer.addRoot('foo-2');
+      });
+
+      renderTestEditable({
+        rootName: 'foo-2',
+        content: '<p>Initial foo-2 component</p>',
+        rootAttributes: {
+          'data-test-attr': 'foo-2-root',
+        },
+      });
+
+      await vi.waitFor(() => {
+        const { document } = editor.model;
+
+        expect(document.getRoot('foo')!.getAttribute('data-test-attr')).toBe('foo-root');
+        expect(document.getRoot('foo-2')!.getAttribute('data-test-attr')).toBe('foo-2-root');
+      });
+    });
+
     it('should auto-assign editor ID if not provided', async () => {
       renderTestEditor({
         preset: createEditorPreset('multiroot'),

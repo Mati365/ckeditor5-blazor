@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Model.Events;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -11,6 +14,12 @@ namespace CKEditor.Blazor.Components;
 /// </summary>
 public partial class CKE5Editable : ComponentBase, IAsyncDisposable, ICKE5InteractiveComponent
 {
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
+
     private readonly CKE5ComponentJsInterop _jsInterop = new();
 
     private DotNetObjectReference<CKE5Editable>? _dotNetHelper;
@@ -116,12 +125,25 @@ public partial class CKE5Editable : ComponentBase, IAsyncDisposable, ICKE5Intera
     [Parameter]
     public bool Interactive { get; set; } = false;
 
+    /// <summary>
+    /// Optional set of root attributes to associate with this editable root.
+    /// Values can be strings, numbers, booleans, or any JSON-serializable object.
+    /// Serialized to JSON and passed via the <c>data-cke-root-attributes</c> attribute.
+    /// </summary>
+    [Parameter]
+    public EditorRootAttributes? RootAttributes { get; set; }
+
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
 
     private string? ResolvedEditorId => EditorId ?? Editor?.Id;
 
     private string StyleValue => $"position: relative;{(string.IsNullOrEmpty(Style) ? string.Empty : $" {Style}")}";
+
+    private string? RootAttributesJson =>
+        RootAttributes is { Count: > 0 }
+            ? JsonSerializer.Serialize(RootAttributes, _jsonOptions)
+            : null;
 
     /// <summary>
     /// Disposes the <see cref="DotNetObjectReference{T}"/> and the JS interop instance.
@@ -166,7 +188,17 @@ public partial class CKE5Editable : ComponentBase, IAsyncDisposable, ICKE5Intera
     /// <returns>A task representing the asynchronous operation.</returns>
     protected override async Task OnParametersSetAsync()
     {
-        if (!_jsInterop.IsInitializing && Value is not null)
+        if (_jsInterop.IsInitializing)
+        {
+            return;
+        }
+
+        if (RootAttributes is not null)
+        {
+            await _jsInterop.InvokeVoidAsync("setRootAttributes", RootAttributes);
+        }
+
+        if (Value is not null)
         {
             await _jsInterop.InvokeVoidAsync("setValue", Value);
         }

@@ -21,7 +21,7 @@ public class CKE5BootstrapComponentsTests : BunitContext
     [Fact]
     public void RendersModuleScript_WithNonce()
     {
-        var cut = Render<CKE5BootstrapComponents>(p => p.Add(p => p.Nonce, "test-nonce"));
+        var cut = Render<CKE5BootstrapComponents>(static p => p.Add(static p => p.Nonce, "test-nonce"));
 
         cut.MarkupMatches("""
             <script type="module" nonce="test-nonce">

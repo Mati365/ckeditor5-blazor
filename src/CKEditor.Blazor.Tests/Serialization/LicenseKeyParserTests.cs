@@ -131,25 +131,25 @@ public class LicenseKeyParserTests
     [Fact]
     public void Parse_EmptyString_ShouldThrow()
     {
-        Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse(string.Empty));
+        Assert.Throws<ArgumentException>(static () => LicenseKeyParser.Parse(string.Empty));
     }
 
     [Fact]
     public void Parse_MissingPayloadPart_ShouldThrow()
     {
-        Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse("onlyonepart"));
+        Assert.Throws<ArgumentException>(static () => LicenseKeyParser.Parse("onlyonepart"));
     }
 
     [Fact]
     public void Parse_InvalidBase64Payload_ShouldThrow()
     {
-        Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse("header.!!!invalid_base64!!!.sig"));
+        Assert.Throws<ArgumentException>(static () => LicenseKeyParser.Parse("header.!!!invalid_base64!!!.sig"));
     }
 
     [Fact]
     public void Parse_NullPayload_ShouldThrow()
     {
-        var ex = Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse("header.bnVsbA.sig"));
+        var ex = Assert.Throws<ArgumentException>(static () => LicenseKeyParser.Parse("header.bnVsbA.sig"));
         Assert.Equal("Invalid JSON in JWT payload", ex.Message);
     }
 }

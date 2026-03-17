@@ -11,9 +11,9 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public void RendersUIPart_WithNameAttribute()
     {
-        var cut = Render<CKE5UIPart>(p => p
-            .Add(p => p.Id, "test-ui-part")
-            .Add(p => p.Name, "toolbar"));
+        var cut = Render<CKE5UIPart>(static p => p
+            .Add(static p => p.Id, "test-ui-part")
+            .Add(static p => p.Name, "toolbar"));
 
         var uiPart = cut.Find("cke5-ui-part");
 
@@ -23,7 +23,7 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public void RendersUIPart_WithIdAttribute()
     {
-        var cut = Render<CKE5UIPart>(p => p.Add(p => p.Id, "my-ui-part"));
+        var cut = Render<CKE5UIPart>(static p => p.Add(static p => p.Id, "my-ui-part"));
 
         var uiPart = cut.Find("cke5-ui-part");
 
@@ -33,9 +33,9 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public void RendersUIPart_WithEditorId_WhenEditorIdProvided()
     {
-        var cut = Render<CKE5UIPart>(p => p
-            .Add(p => p.Id, "test-ui-part")
-            .Add(p => p.EditorId, "parent-editor"));
+        var cut = Render<CKE5UIPart>(static p => p
+            .Add(static p => p.Id, "test-ui-part")
+            .Add(static p => p.EditorId, "parent-editor"));
 
         var uiPart = cut.Find("cke5-ui-part");
 
@@ -47,10 +47,10 @@ public class CKE5UIPartTests : BunitContext
     {
         Services.AddCKEditor();
 
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "parent-editor")
-            .AddChildContent<CKE5UIPart>(u => u
-                .Add(u => u.Id, "test-ui-part")));
+        var cut = Render<CKE5Editor>(static p => p
+            .Add(static p => p.Id, "parent-editor")
+            .AddChildContent<CKE5UIPart>(static u => u
+                .Add(static u => u.Id, "test-ui-part")));
 
         var uiPart = cut.Find("cke5-ui-part");
 
@@ -60,10 +60,10 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public void RendersUIPart_WithClassAttribute()
     {
-        var cut = Render<CKE5UIPart>(p => p
-            .Add(p => p.Id, "test-ui-part")
-            .Add(p => p.Name, "toolbar")
-            .Add(p => p.Class, "toolbar-container"));
+        var cut = Render<CKE5UIPart>(static p => p
+            .Add(static p => p.Id, "test-ui-part")
+            .Add(static p => p.Name, "toolbar")
+            .Add(static p => p.Class, "toolbar-container"));
 
         var uiPart = cut.Find("cke5-ui-part");
 
@@ -73,10 +73,10 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public void RendersUIPart_WithStyleAttribute()
     {
-        var cut = Render<CKE5UIPart>(p => p
-            .Add(p => p.Id, "test-ui-part")
-            .Add(p => p.Name, "toolbar")
-            .Add(p => p.Style, "border: 1px solid blue;"));
+        var cut = Render<CKE5UIPart>(static p => p
+            .Add(static p => p.Id, "test-ui-part")
+            .Add(static p => p.Name, "toolbar")
+            .Add(static p => p.Style, "border: 1px solid blue;"));
 
         var uiPart = cut.Find("cke5-ui-part");
 
@@ -86,10 +86,10 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public void RendersUIPart_WithInteractiveAttribute_WhenInteractiveIsTrue()
     {
-        var cut = Render<CKE5UIPart>(p => p
-            .Add(p => p.Id, "test-ui-part")
-            .Add(p => p.Name, "toolbar")
-            .Add(p => p.Interactive, true));
+        var cut = Render<CKE5UIPart>(static p => p
+            .Add(static p => p.Id, "test-ui-part")
+            .Add(static p => p.Name, "toolbar")
+            .Add(static p => p.Interactive, true));
 
         var uiPart = cut.Find("cke5-ui-part");
 
@@ -99,8 +99,8 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public void GeneratesUniqueId_WhenIdNotProvided()
     {
-        var cut1 = Render<CKE5UIPart>(p => p.Add(p => p.Name, "toolbar"));
-        var cut2 = Render<CKE5UIPart>(p => p.Add(p => p.Name, "toolbar"));
+        var cut1 = Render<CKE5UIPart>(static p => p.Add(static p => p.Name, "toolbar"));
+        var cut2 = Render<CKE5UIPart>(static p => p.Add(static p => p.Name, "toolbar"));
 
         var id1 = cut1.Find("cke5-ui-part").GetAttribute("id");
         var id2 = cut2.Find("cke5-ui-part").GetAttribute("id");
@@ -115,9 +115,9 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public void RendersUIPart_AsCustomHtmlElement()
     {
-        var cut = Render<CKE5UIPart>(p => p
-            .Add(p => p.Id, "test-ui-part")
-            .Add(p => p.Name, "menubar"));
+        var cut = Render<CKE5UIPart>(static p => p
+            .Add(static p => p.Id, "test-ui-part")
+            .Add(static p => p.Name, "menubar"));
 
         Assert.Single(cut.FindAll("cke5-ui-part"));
     }
@@ -125,7 +125,7 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public async Task DisposeAsync_DisposesResources_WhenDisposedAfterRender()
     {
-        var cut = Render<CKE5UIPart>(p => p.Add(p => p.Id, "test-ui-part"));
+        var cut = Render<CKE5UIPart>(static p => p.Add(static p => p.Id, "test-ui-part"));
 
         await cut.Instance.DisposeAsync();
     }
@@ -133,7 +133,7 @@ public class CKE5UIPartTests : BunitContext
     [Fact]
     public async Task DisposeAsync_DoesNotThrow_WhenDotNetHelperIsNull()
     {
-        var cut = Render<CKE5UIPart>(p => p.Add(p => p.Id, "test-ui-part"));
+        var cut = Render<CKE5UIPart>(static p => p.Add(static p => p.Id, "test-ui-part"));
 
         // Use reflection to null out _dotNetHelper to test the null-conditional branch
         var field = typeof(CKE5UIPart).GetField("_dotNetHelper", BindingFlags.NonPublic | BindingFlags.Instance);

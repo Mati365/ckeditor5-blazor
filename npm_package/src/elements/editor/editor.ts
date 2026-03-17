@@ -151,6 +151,7 @@ export class EditorComponentElement extends HTMLElement {
     const editorId = this.getAttribute('data-cke-editor-id')!;
     const preset = JSON.parse(this.getAttribute('data-cke-preset')!) as EditorPreset;
     const contextId = this.getAttribute('data-cke-context-id');
+    const rootAttributes = JSON.parse(this.getAttribute('data-cke-root-attributes') || '{}');
     const editableHeight = this.getAttribute('data-cke-editable-height') ? Number.parseInt(this.getAttribute('data-cke-editable-height')!, 10) : null;
     const saveDebounceMs = Number.parseInt(this.getAttribute('data-cke-save-debounce-ms')!, 10);
     const language = JSON.parse(this.getAttribute('data-cke-language')!) as EditorLanguage;
@@ -278,6 +279,13 @@ export class EditorComponentElement extends HTMLElement {
 
       return result.editor;
     })();
+
+    // Assign root attributes if they are not empty. This is needed to support custom attributes on the root element of the editor.
+    if (!isEmptyObject(rootAttributes)) {
+      editor.model.change((writer) => {
+        writer.setAttributes(rootAttributes, editor.model.document.getRoot()!);
+      });
+    }
 
     if (isSingleRootEditor(editorType) && editableHeight) {
       setEditorEditableHeight(editor, editableHeight);

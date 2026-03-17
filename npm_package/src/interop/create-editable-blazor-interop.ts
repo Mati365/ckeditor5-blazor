@@ -1,10 +1,11 @@
 import type { DotNetInterop } from '../types';
+import type { RootAttributesUpdater } from './utils';
 
 import { EditorsRegistry } from '../elements/editor/editors-registry';
 import { CKEditor5ChangeDataEvent } from '../elements/editor/plugins/dispatch-editor-roots-change-event';
 import { queryAllEditorIds } from '../elements/editor/utils';
 import { markElementAsInteractive } from '../shared';
-import { createEditorValueSync, createNoopSync } from './utils/create-editor-value-sync';
+import { createEditorValueSync, createNoopSync, createRootAttributesUpdater } from './utils';
 
 /**
  * Creates an interop layer to synchronize a single CKEditor 5 editable root with a Blazor component.
@@ -19,8 +20,10 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
   const rootName = element.getAttribute('data-cke-root-name') ?? 'main';
 
   let unmounted = false;
-  let sync = createNoopSync<string>();
   let editorRef: unknown | null = null;
+
+  let sync = createNoopSync<string>();
+  let syncRootAttributes: RootAttributesUpdater | null = null;
 
   /**
    * Handles data change events dispatched by the CKEditor plugin.
@@ -55,6 +58,8 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
       applyValue: value => editor.setData({ [rootName]: value }),
       isEqual: (a, b) => a === b,
     });
+
+    syncRootAttributes = createRootAttributesUpdater(editor, rootName);
   };
 
   void initializeSynchronization();
@@ -78,6 +83,7 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
         editorRef = null;
       }
 
+      syncRootAttributes = null;
       unmounted = true;
     },
 
@@ -94,6 +100,20 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
 
       // Ensure sync is initialized before forwarding (waitFor guarantees the editor exists)
       sync.setValue(value);
+    },
+
+    /**
+     * Updates the root attributes on the editor. This is useful when the Blazor component
+     * re-renders with new root attributes.
+     */
+    setRootAttributes: async (rootAttributes?: Record<string, unknown> | null) => {
+      if (unmounted) {
+        return;
+      }
+
+      await EditorsRegistry.the.waitFor(editorId);
+
+      syncRootAttributes?.(rootAttributes);
     },
   };
 }

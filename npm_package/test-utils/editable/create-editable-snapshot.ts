@@ -10,11 +10,13 @@ import { DEFAULT_TEST_EDITOR_ID } from '../editor';
 export function createEditableSnapshot(
   rootName: string = 'main',
   content: string | null = null,
+  rootAttributes: Record<string, string> = {},
 ): EditableSnapshot {
   return {
     rootName,
     editorId: DEFAULT_TEST_EDITOR_ID,
     content,
+    rootAttributes,
     saveDebounceMs: 0,
   };
 }
@@ -32,6 +34,11 @@ export type EditableSnapshot = {
    * The name of the root element in the editor.
    */
   rootName: string;
+
+  /**
+   * The attributes that should be applied to the root element.
+   */
+  rootAttributes: Record<string, string>;
 
   /**
    * The initial content value for the editable.

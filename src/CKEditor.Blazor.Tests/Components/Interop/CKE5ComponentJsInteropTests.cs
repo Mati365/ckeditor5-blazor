@@ -51,9 +51,9 @@ public class CKE5ComponentJsInteropTests
 
         await interop.InitializeAsync(_jsRuntimeMock.Object, "createEditorBlazorInterop", default, null);
 
-        _jsRuntimeMock.Verify(r => r.InvokeAsync<IJSObjectReference>(
+        _jsRuntimeMock.Verify(static r => r.InvokeAsync<IJSObjectReference>(
             "import",
-            It.Is<object?[]>(args => args.Length == 1 && (string)args[0]! == "ckeditor5-blazor")),
+            It.Is<object?[]>(static args => args.Length == 1 && (string)args[0]! == "ckeditor5-blazor")),
             Times.Once);
     }
 
@@ -81,9 +81,9 @@ public class CKE5ComponentJsInteropTests
 
         await interop.InitializeAsync(_jsRuntimeMock.Object, "createEditorBlazorInterop", default, null);
 
-        _jsModuleMock.Verify(m => m.InvokeAsync<IJSObjectReference>(
+        _jsModuleMock.Verify(static m => m.InvokeAsync<IJSObjectReference>(
             "createEditorBlazorInterop",
-            It.Is<object?[]>(args => args.Length == 2 && args[1] == null)),
+            It.Is<object?[]>(static args => args.Length == 2 && args[1] == null)),
             Times.Once);
     }
 
@@ -106,14 +106,14 @@ public class CKE5ComponentJsInteropTests
         await interop.InitializeAsync(_jsRuntimeMock.Object, "createEditorBlazorInterop", default, null);
 
         _jsInteropMock
-            .Setup(i => i.InvokeAsync<IJSVoidResult>("setValue", It.IsAny<object?[]>()))
+            .Setup(static i => i.InvokeAsync<IJSVoidResult>("setValue", It.IsAny<object?[]>()))
             .ReturnsAsync(Mock.Of<IJSVoidResult>());
 
         await interop.InvokeVoidAsync("setValue", "arg1", 42);
 
-        _jsInteropMock.Verify(i => i.InvokeAsync<IJSVoidResult>(
+        _jsInteropMock.Verify(static i => i.InvokeAsync<IJSVoidResult>(
             "setValue",
-            It.Is<object?[]>(args => args.Length == 2 && (string)args[0]! == "arg1" && (int)args[1]! == 42)),
+            It.Is<object?[]>(static args => args.Length == 2 && (string)args[0]! == "arg1" && (int)args[1]! == 42)),
             Times.Once);
     }
 
@@ -136,7 +136,7 @@ public class CKE5ComponentJsInteropTests
         await interop.InitializeAsync(_jsRuntimeMock.Object, "createEditorBlazorInterop", default, null);
 
         _jsInteropMock
-            .Setup(i => i.InvokeAsync<string>("getData", It.IsAny<object?[]>()))
+            .Setup(static i => i.InvokeAsync<string>("getData", It.IsAny<object?[]>()))
             .ReturnsAsync("<p>Hello</p>");
 
         var result = await interop.InvokeAsync<string>("getData");
@@ -160,14 +160,14 @@ public class CKE5ComponentJsInteropTests
         await interop.InitializeAsync(_jsRuntimeMock.Object, "createEditorBlazorInterop", default, null);
 
         _jsInteropMock
-            .Setup(i => i.InvokeAsync<IJSVoidResult>("unmount", It.IsAny<object?[]>()))
+            .Setup(static i => i.InvokeAsync<IJSVoidResult>("unmount", It.IsAny<object?[]>()))
             .ReturnsAsync(Mock.Of<IJSVoidResult>());
-        _jsInteropMock.Setup(i => i.DisposeAsync()).Returns(ValueTask.CompletedTask);
-        _jsModuleMock.Setup(m => m.DisposeAsync()).Returns(ValueTask.CompletedTask);
+        _jsInteropMock.Setup(static i => i.DisposeAsync()).Returns(ValueTask.CompletedTask);
+        _jsModuleMock.Setup(static m => m.DisposeAsync()).Returns(ValueTask.CompletedTask);
 
         await interop.DisposeAsync();
 
-        _jsInteropMock.Verify(i => i.InvokeAsync<IJSVoidResult>(
+        _jsInteropMock.Verify(static i => i.InvokeAsync<IJSVoidResult>(
             "unmount", It.IsAny<object?[]>()), Times.Once);
     }
 
@@ -179,15 +179,15 @@ public class CKE5ComponentJsInteropTests
         await interop.InitializeAsync(_jsRuntimeMock.Object, "createEditorBlazorInterop", default, null);
 
         _jsInteropMock
-            .Setup(i => i.InvokeAsync<IJSVoidResult>("unmount", It.IsAny<object?[]>()))
+            .Setup(static i => i.InvokeAsync<IJSVoidResult>("unmount", It.IsAny<object?[]>()))
             .ReturnsAsync(Mock.Of<IJSVoidResult>());
-        _jsInteropMock.Setup(i => i.DisposeAsync()).Returns(ValueTask.CompletedTask);
-        _jsModuleMock.Setup(m => m.DisposeAsync()).Returns(ValueTask.CompletedTask);
+        _jsInteropMock.Setup(static i => i.DisposeAsync()).Returns(ValueTask.CompletedTask);
+        _jsModuleMock.Setup(static m => m.DisposeAsync()).Returns(ValueTask.CompletedTask);
 
         await interop.DisposeAsync();
 
-        _jsInteropMock.Verify(i => i.DisposeAsync(), Times.Once);
-        _jsModuleMock.Verify(m => m.DisposeAsync(), Times.Once);
+        _jsInteropMock.Verify(static i => i.DisposeAsync(), Times.Once);
+        _jsModuleMock.Verify(static m => m.DisposeAsync(), Times.Once);
     }
 
     [Fact]
@@ -198,7 +198,7 @@ public class CKE5ComponentJsInteropTests
         await interop.InitializeAsync(_jsRuntimeMock.Object, "createEditorBlazorInterop", default, null);
 
         _jsInteropMock
-            .Setup(i => i.InvokeAsync<IJSVoidResult>("unmount", It.IsAny<object?[]>()))
+            .Setup(static i => i.InvokeAsync<IJSVoidResult>("unmount", It.IsAny<object?[]>()))
             .ThrowsAsync(new JSDisconnectedException("disconnected"));
 
         await interop.DisposeAsync();
@@ -212,7 +212,7 @@ public class CKE5ComponentJsInteropTests
         await interop.InitializeAsync(_jsRuntimeMock.Object, "createEditorBlazorInterop", default, null);
 
         _jsInteropMock
-            .Setup(i => i.InvokeAsync<IJSVoidResult>("unmount", It.IsAny<object?[]>()))
+            .Setup(static i => i.InvokeAsync<IJSVoidResult>("unmount", It.IsAny<object?[]>()))
             .ThrowsAsync(new TaskCanceledException());
 
         await interop.DisposeAsync();

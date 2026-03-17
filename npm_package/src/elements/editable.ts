@@ -2,7 +2,7 @@ import type { WaitForInteractiveResult } from '../shared';
 import type { MultiRootEditor } from 'ckeditor5';
 
 import { CKEditor5BlazorError } from '../ckeditor5-blazor-error';
-import { debounce, waitForDOMReady, waitForInteractiveAttribute } from '../shared';
+import { debounce, isEmptyObject, waitForDOMReady, waitForInteractiveAttribute } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
 import { queryAllEditorIds } from './editor/utils';
 
@@ -53,6 +53,7 @@ export class EditableComponentElement extends HTMLElement {
 
     const editorId = this.getAttribute('data-cke-editor-id');
     const rootName = this.getAttribute('data-cke-root-name');
+    const rootAttributes = JSON.parse(this.getAttribute('data-cke-root-attributes') || '{}');
     const content = this.getAttribute('data-cke-content');
     const saveDebounceMs = Number.parseInt(this.getAttribute('data-cke-save-debounce-ms')!, 10);
 
@@ -86,11 +87,20 @@ export class EditableComponentElement extends HTMLElement {
           }
         }
 
+        // Assign attributes to the root if they are not empty.
+        // This allows users to add custom attributes to the root element of the editable.
+        if (!isEmptyObject(rootAttributes)) {
+          editor.model.change((writer) => {
+            writer.setAttributes(rootAttributes, root);
+          });
+        }
+
         return editor;
       }
 
       editor.addRoot(rootName, {
         isUndoable: false,
+        attributes: { ...rootAttributes },
         ...content !== null && {
           data: content,
         },

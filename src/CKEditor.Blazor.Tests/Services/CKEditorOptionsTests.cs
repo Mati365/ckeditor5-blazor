@@ -83,7 +83,7 @@ public class CKEditorOptionsTests
     {
         var options = new CKEditorOptions();
 
-        options.AddPreset("minimal", p => p.WithLanguage("pl").WithPlugins("Essentials", "Bold"));
+        options.AddPreset("minimal", static p => p.WithLanguage("pl").WithPlugins("Essentials", "Bold"));
 
         var preset = options.Presets["minimal"];
         Assert.Equal("pl", preset.Config["language"]);
@@ -106,7 +106,7 @@ public class CKEditorOptionsTests
     {
         var options = new CKEditorOptions();
 
-        options.AddDefaultPreset(p => p.WithEditorType(EditorType.Balloon));
+        options.AddDefaultPreset(static p => p.WithEditorType(EditorType.Balloon));
 
         Assert.Equal(EditorType.Balloon, options.Presets["default"].EditorType);
     }
@@ -116,7 +116,7 @@ public class CKEditorOptionsTests
     {
         var options = new CKEditorOptions();
 
-        options.ExtendDefaultPreset(p => p.WithEditorType(EditorType.Balloon));
+        options.ExtendDefaultPreset(static p => p.WithEditorType(EditorType.Balloon));
 
         Assert.Equal(EditorType.Balloon, options.Presets["default"].EditorType);
         Assert.NotEmpty((object[])((Dictionary<string, object>)options.Presets["default"].Config["toolbar"])["items"]);
@@ -139,7 +139,7 @@ public class CKEditorOptionsTests
     {
         var options = new CKEditorOptions();
 
-        options.AddContext("minimal", c => c with { Plugins = ["Essentials"] });
+        options.AddContext("minimal", static c => c with { Plugins = ["Essentials"] });
 
         var context = options.Contexts["minimal"];
         Assert.Equal(["Essentials"], context.Plugins);
@@ -161,7 +161,7 @@ public class CKEditorOptionsTests
     {
         var options = new CKEditorOptions();
 
-        options.AddDefaultContext(c => c with { Plugins = ["Essentials"] });
+        options.AddDefaultContext(static c => c with { Plugins = ["Essentials"] });
 
         Assert.Equal(["Essentials"], options.Contexts["default"].Plugins);
     }
@@ -171,7 +171,7 @@ public class CKEditorOptionsTests
     {
         var options = new CKEditorOptions();
 
-        options.ExtendDefaultContext(c => c with { Plugins = ["Essentials"] });
+        options.ExtendDefaultContext(static c => c with { Plugins = ["Essentials"] });
 
         Assert.Equal(["Essentials"], options.Contexts["default"].Plugins);
     }
@@ -181,7 +181,7 @@ public class CKEditorOptionsTests
     {
         var options = new CKEditorOptions()
             .SetLicenseKey("GPL")
-            .AddPreset("minimal", p => p.WithPlugins("Essentials"))
+            .AddPreset("minimal", static p => p.WithPlugins("Essentials"))
             .AddDefaultPreset(new PresetConfig().WithEditorType(EditorType.Inline));
 
         Assert.Equal("GPL", options.DefaultLicenseKey);

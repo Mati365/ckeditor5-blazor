@@ -2,6 +2,7 @@ import type { EditorSnapshot } from './create-editor-snapshot';
 
 import { vi } from 'vitest';
 
+import { isEmptyObject } from '../../src/shared';
 import { html } from '../html';
 import { createEditorSnapshot } from './create-editor-snapshot';
 
@@ -29,6 +30,9 @@ export function renderTestEditor(
     'data-cke-save-debounce-ms': fullSnapshot.saveDebounceMs,
     'data-cke-language': JSON.stringify(fullSnapshot.language),
     'data-cke-content': JSON.stringify(fullSnapshot.content),
+    ...!isEmptyObject(fullSnapshot.rootAttributes) && {
+      'data-cke-root-attributes': JSON.stringify(fullSnapshot.rootAttributes),
+    },
     ...fullSnapshot.watchdog && {
       'data-cke-watchdog': '',
     },

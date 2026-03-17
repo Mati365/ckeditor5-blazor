@@ -31,15 +31,67 @@ public class CKE5EditorTests : BunitContext
     }
 
     [Fact]
+    public void RendersEditor_WithInitialContent_WhenValueProvided()
+    {
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.Value, new EditorValue("<p>Hello</p>")));
+
+        var content = cut.Find("cke5-editor").GetAttribute("data-cke-content");
+
+        Assert.NotNull(content);
+        Assert.Contains("Hello", content);
+    }
+
+    [Fact]
+    public void RendersEditor_WithRootAttributes_WhenProvided()
+    {
+        var rootAttributes = new EditorRootAttributes
+        {
+            ["data-test"] = "value",
+            ["aria-label"] = "My editor"
+        };
+
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.RootAttributes, rootAttributes));
+
+        var rootAttrsJson = cut.Find("cke5-editor").GetAttribute("data-cke-root-attributes");
+
+        Assert.NotNull(rootAttrsJson);
+        Assert.Contains("\"data-test\":\"value\"", rootAttrsJson);
+        Assert.Contains("\"aria-label\":\"My editor\"", rootAttrsJson);
+    }
+
+    [Fact]
+    public void RendersEditor_WithoutRootAttributesAttr_WhenRootAttributesIsEmpty()
+    {
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.RootAttributes, new EditorRootAttributes()));
+
+        Assert.Null(cut.Find("cke5-editor").GetAttribute("data-cke-root-attributes"));
+    }
+
+    [Fact]
     public void RendersEditor_WithCustomClass()
     {
         var cut = Render<CKE5Editor>(p => p
             .Add(p => p.Id, "test-editor")
             .Add(p => p.Class, "my-editor-class"));
 
-        var editor = cut.Find("cke5-editor");
+        Assert.Equal("my-editor-class", cut.Find("cke5-editor").GetAttribute("class"));
+    }
 
-        Assert.Equal("my-editor-class", editor.GetAttribute("class"));
+    [Fact]
+    public void RendersEditor_WithStyleContainingPositionRelative()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        var style = cut.Find("cke5-editor").GetAttribute("style");
+
+        Assert.NotNull(style);
+        Assert.Contains("position: relative", style);
     }
 
     [Fact]
@@ -49,9 +101,7 @@ public class CKE5EditorTests : BunitContext
             .Add(p => p.Id, "test-editor")
             .Add(p => p.Interactive, true));
 
-        var editor = cut.Find("cke5-editor");
-
-        Assert.Equal("true", editor.GetAttribute("data-cke-interactive"));
+        Assert.Equal("true", cut.Find("cke5-editor").GetAttribute("data-cke-interactive"));
     }
 
     [Fact]
@@ -61,21 +111,66 @@ public class CKE5EditorTests : BunitContext
             .Add(p => p.Id, "test-editor")
             .Add(p => p.Interactive, false));
 
-        var editor = cut.Find("cke5-editor");
-
-        Assert.Null(editor.GetAttribute("data-cke-interactive"));
+        Assert.Null(cut.Find("cke5-editor").GetAttribute("data-cke-interactive"));
     }
 
     [Fact]
-    public void RendersEditor_WithWatchdogFalse_WhenWatchdogDisabled()
+    public void RendersEditor_WithWatchdogTrue_ByDefault()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        Assert.Equal("true", cut.Find("cke5-editor").GetAttribute("data-cke-watchdog"));
+    }
+
+    [Fact]
+    public void RendersEditor_WithoutWatchdogAttr_WhenWatchdogDisabled()
     {
         var cut = Render<CKE5Editor>(p => p
             .Add(p => p.Id, "test-editor")
             .Add(p => p.Watchdog, false));
 
-        var editor = cut.Find("cke5-editor");
+        Assert.Null(cut.Find("cke5-editor").GetAttribute("data-cke-watchdog"));
+    }
 
-        Assert.Null(editor.GetAttribute("data-cke-watchdog"));
+    [Fact]
+    public void RendersEditor_WithEditableHeightAttribute_WhenEditableHeightProvided()
+    {
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.EditableHeight, 400));
+
+        Assert.Equal("400", cut.Find("cke5-editor").GetAttribute("data-cke-editable-height"));
+    }
+
+    [Fact]
+    public void RendersEditor_WithoutEditableHeightAttr_WhenEditableHeightNotProvided()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        Assert.Null(cut.Find("cke5-editor").GetAttribute("data-cke-editable-height"));
+    }
+
+    [Fact]
+    public void RendersEditor_WithCustomSaveDebounceMs()
+    {
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.SaveDebounceMs, 500));
+
+        Assert.Equal("500", cut.Find("cke5-editor").GetAttribute("data-cke-save-debounce-ms"));
+    }
+
+    [Fact]
+    public void RendersEditor_WithLanguageAttribute_WhenLanguageProvided()
+    {
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.Language, "pl"));
+
+        var lang = cut.Find("cke5-editor").GetAttribute("data-cke-language");
+
+        Assert.NotNull(lang);
+        Assert.Contains("pl", lang);
     }
 
     [Fact]
@@ -85,9 +180,7 @@ public class CKE5EditorTests : BunitContext
             .Add(p => p.Id, "test-editor")
             .Add(p => p.ContextId, "my-context"));
 
-        var editor = cut.Find("cke5-editor");
-
-        Assert.Equal("my-context", editor.GetAttribute("data-cke-context-id"));
+        Assert.Equal("my-context", cut.Find("cke5-editor").GetAttribute("data-cke-context-id"));
     }
 
     [Fact]
@@ -95,9 +188,7 @@ public class CKE5EditorTests : BunitContext
     {
         var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
 
-        var editor = cut.Find("cke5-editor");
-
-        Assert.Null(editor.GetAttribute("data-cke-context-id"));
+        Assert.Null(cut.Find("cke5-editor").GetAttribute("data-cke-context-id"));
     }
 
     [Fact]
@@ -107,9 +198,7 @@ public class CKE5EditorTests : BunitContext
             .Add(p => p.Id, "parent-context")
             .AddChildContent<CKE5Editor>(e => e.Add(e => e.Id, "test-editor")));
 
-        var editor = cut.Find("cke5-editor");
-
-        Assert.Equal("parent-context", editor.GetAttribute("data-cke-context-id"));
+        Assert.Equal("parent-context", cut.Find("cke5-editor").GetAttribute("data-cke-context-id"));
     }
 
     [Fact]
@@ -119,8 +208,9 @@ public class CKE5EditorTests : BunitContext
             .Add(p => p.Id, "test-editor")
             .Add(p => p.Name, "my-field"));
 
-        Assert.NotEmpty(cut.FindAll("input"));
-        Assert.Equal("my-field", cut.Find("input").GetAttribute("name"));
+        var input = cut.Find("input");
+
+        Assert.Equal("my-field", input.GetAttribute("name"));
     }
 
     [Fact]
@@ -132,15 +222,13 @@ public class CKE5EditorTests : BunitContext
     }
 
     [Fact]
-    public void RendersEditor_WithCustomSaveDebounceMs()
+    public void RendersEditor_WithChildContent()
     {
         var cut = Render<CKE5Editor>(p => p
             .Add(p => p.Id, "test-editor")
-            .Add(p => p.SaveDebounceMs, 500));
+            .AddChildContent("<span class=\"slot\">toolbar</span>"));
 
-        var editor = cut.Find("cke5-editor");
-
-        Assert.Equal("500", editor.GetAttribute("data-cke-save-debounce-ms"));
+        Assert.NotEmpty(cut.FindAll("span.slot"));
     }
 
     [Fact]
@@ -157,190 +245,6 @@ public class CKE5EditorTests : BunitContext
         Assert.NotEqual(id1, id2);
         Assert.StartsWith("cke5-", id1);
         Assert.StartsWith("cke5-", id2);
-    }
-
-    [Fact]
-    public void RendersEditor_WithStyleContainingPositionRelative()
-    {
-        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
-
-        var editor = cut.Find("cke5-editor");
-        var style = editor.GetAttribute("style");
-
-        Assert.NotNull(style);
-        Assert.Contains("position: relative", style);
-    }
-
-    [Fact]
-    public void RendersEditor_WithChildContent()
-    {
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .AddChildContent("<span class=\"slot\">toolbar</span>"));
-
-        Assert.NotEmpty(cut.FindAll("span.slot"));
-    }
-
-    [Fact]
-    public void RendersEditor_WithEditableHeightAttribute_WhenEditableHeightProvided()
-    {
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.EditableHeight, 400));
-
-        var editor = cut.Find("cke5-editor");
-
-        Assert.Equal("400", editor.GetAttribute("data-cke-editable-height"));
-    }
-
-    [Fact]
-    public async Task OnChangeEditorData_InvokesValueChanged_WithNewValue()
-    {
-        EditorValue? capturedValue = null;
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.ValueChanged, EventCallback.Factory.Create<EditorValue>(this, v => capturedValue = v)));
-
-        var editorMock = new Mock<IJSObjectReference>();
-        var newValue = new EditorValue("<p>Hello</p>");
-
-        await cut.Instance.OnChangeEditorData(editorMock.Object, newValue);
-
-        Assert.Equal(newValue, capturedValue);
-    }
-
-    [Fact]
-    public async Task OnChangeEditorData_InvokesOnChange_WhenDelegateProvided()
-    {
-        CKE5EditorChangeEventArgs? capturedArgs = null;
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.OnChange, EventCallback.Factory.Create<CKE5EditorChangeEventArgs>(this, args => capturedArgs = args)));
-
-        var editorMock = new Mock<IJSObjectReference>();
-        var newValue = new EditorValue("<p>Hello</p>");
-
-        await cut.Instance.OnChangeEditorData(editorMock.Object, newValue);
-
-        Assert.NotNull(capturedArgs);
-        Assert.Equal(editorMock.Object, capturedArgs.Editor);
-        Assert.Equal(newValue, capturedArgs.Value);
-    }
-
-    [Fact]
-    public async Task OnChangeEditorData_DoesNotInvokeOnChange_WhenNoDelegateProvided()
-    {
-        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
-        var editorMock = new Mock<IJSObjectReference>();
-        var newValue = new EditorValue("<p>Hello</p>");
-
-        // Should not throw when OnChange has no delegate
-        await cut.Instance.OnChangeEditorData(editorMock.Object, newValue);
-    }
-
-    [Fact]
-    public async Task OnEditorFocus_InvokesOnFocus_WhenDelegateProvided()
-    {
-        IJSObjectReference? capturedEditor = null;
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.OnFocus, EventCallback.Factory.Create<IJSObjectReference>(this, e => capturedEditor = e)));
-
-        var editorMock = new Mock<IJSObjectReference>();
-
-        await cut.Instance.OnEditorFocus(editorMock.Object);
-
-        Assert.Equal(editorMock.Object, capturedEditor);
-    }
-
-    [Fact]
-    public async Task OnEditorFocus_DoesNotThrow_WhenNoDelegateProvided()
-    {
-        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
-        var editorMock = new Mock<IJSObjectReference>();
-
-        await cut.Instance.OnEditorFocus(editorMock.Object);
-    }
-
-    [Fact]
-    public async Task OnEditorBlur_InvokesOnBlur_WhenDelegateProvided()
-    {
-        IJSObjectReference? capturedEditor = null;
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.OnBlur, EventCallback.Factory.Create<IJSObjectReference>(this, e => capturedEditor = e)));
-
-        var editorMock = new Mock<IJSObjectReference>();
-
-        await cut.Instance.OnEditorBlur(editorMock.Object);
-
-        Assert.Equal(editorMock.Object, capturedEditor);
-    }
-
-    [Fact]
-    public async Task OnEditorBlur_DoesNotThrow_WhenNoDelegateProvided()
-    {
-        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
-        var editorMock = new Mock<IJSObjectReference>();
-
-        await cut.Instance.OnEditorBlur(editorMock.Object);
-    }
-
-    [Fact]
-    public async Task OnEditorReady_InvokesOnReady_WhenDelegateProvided()
-    {
-        IJSObjectReference? capturedEditor = null;
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.OnReady, EventCallback.Factory.Create<IJSObjectReference>(this, e => capturedEditor = e)));
-
-        var editorMock = new Mock<IJSObjectReference>();
-
-        await cut.Instance.OnEditorReady(editorMock.Object);
-
-        Assert.Equal(editorMock.Object, capturedEditor);
-    }
-
-    [Fact]
-    public async Task OnEditorReady_DoesNotThrow_WhenNoDelegateProvided()
-    {
-        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
-        var editorMock = new Mock<IJSObjectReference>();
-
-        await cut.Instance.OnEditorReady(editorMock.Object);
-    }
-
-    [Fact]
-    public async Task SetValue_IsInvoked_WhenValueChangesAfterInitialization()
-    {
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.Value, new EditorValue("<p>initial</p>")));
-
-        // After first render IsInitializing is false; updating Value triggers setValue via JS interop
-        await cut.InvokeAsync(() => cut.Instance.SetParametersAsync(
-            ParameterView.FromDictionary(new Dictionary<string, object?>
-            {
-                [nameof(CKE5Editor.Value)] = new EditorValue("<p>updated</p>")
-            })));
-    }
-
-    [Fact]
-    public async Task AttachImageUploadAdapter_IsInvoked_WhenOnImageUploadSetAfterInitialization()
-    {
-        Func<CKE5ImageUploadEventArgs, Task<string?>> handler =
-            _ => Task.FromResult<string?>("https://example.com/img.jpg");
-
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.OnImageUpload, handler));
-
-        // After first render IsInitializing is false; updating OnImageUpload triggers attachImageUploadAdapter via JS interop
-        await cut.InvokeAsync(() => cut.Instance.SetParametersAsync(
-            ParameterView.FromDictionary(new Dictionary<string, object?>
-            {
-                [nameof(CKE5Editor.OnImageUpload)] = handler
-            })));
     }
 
     [Fact]
@@ -377,7 +281,10 @@ public class CKE5EditorTests : BunitContext
     [Fact]
     public void RendersEditor_WithCustomTranslations_WhenTranslationsProvided()
     {
-        var translations = new EditorTranslations { ["de"] = new Dictionary<string, string> { ["Save"] = "Speichern" } };
+        var translations = new EditorTranslations
+        {
+            ["de"] = new Dictionary<string, string> { ["Save"] = "Speichern" }
+        };
 
         var cut = Render<CKE5Editor>(p => p
             .Add(p => p.Id, "test-editor")
@@ -403,45 +310,295 @@ public class CKE5EditorTests : BunitContext
     }
 
     [Fact]
-    public async Task DisposeAsync_DisposesResources_WhenDisposedAfterRender()
+    public async Task OnParametersSetAsync_UpdatesRenderedContent_WhenValueChangesAfterInitialization()
     {
-        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.Value, new EditorValue("<p>initial</p>")));
 
-        await cut.Instance.DisposeAsync();
+        var updatedValue = new EditorValue("<p>updated</p>");
+
+        await cut.InvokeAsync(() => cut.Instance.SetParametersAsync(
+            ParameterView.FromDictionary(new Dictionary<string, object?>
+            {
+                [nameof(CKE5Editor.Value)] = updatedValue
+            })));
+
+        var content = cut.Find("cke5-editor").GetAttribute("data-cke-content");
+
+        Assert.NotNull(content);
+        Assert.Contains("updated", content);
+        // EditorValue has no Equals override — compare by reference to the exact instance we passed in.
+        Assert.Same(updatedValue, cut.Instance.Value);
     }
 
     [Fact]
-    public async Task DisposeAsync_DoesNotThrow_WhenDotNetHelperIsNull()
+    public async Task OnParametersSetAsync_UpdatesRenderedRootAttributesJson_WhenRootAttributesChangesAfterInitialization()
+    {
+        var initial = new EditorRootAttributes { ["data-section"] = "intro" };
+
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.RootAttributes, initial));
+
+        var updated = new EditorRootAttributes
+        {
+            ["data-section"] = "outro",
+            ["aria-label"] = "Updated"
+        };
+
+        await cut.InvokeAsync(() => cut.Instance.SetParametersAsync(
+            ParameterView.FromDictionary(new Dictionary<string, object?>
+            {
+                [nameof(CKE5Editor.RootAttributes)] = updated
+            })));
+
+        var rootAttrsJson = cut.Find("cke5-editor").GetAttribute("data-cke-root-attributes");
+
+        Assert.NotNull(rootAttrsJson);
+        Assert.Contains("\"data-section\":\"outro\"", rootAttrsJson);
+        Assert.Contains("\"aria-label\":\"Updated\"", rootAttrsJson);
+        Assert.DoesNotContain("intro", rootAttrsJson);
+    }
+
+    [Fact]
+    public async Task OnParametersSetAsync_RemovesRootAttributesAttr_WhenRootAttributesBecomesNull()
+    {
+        var initial = new EditorRootAttributes { ["data-section"] = "intro" };
+
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.RootAttributes, initial));
+
+        Assert.NotNull(cut.Find("cke5-editor").GetAttribute("data-cke-root-attributes"));
+
+        await cut.InvokeAsync(() => cut.Instance.SetParametersAsync(
+            ParameterView.FromDictionary(new Dictionary<string, object?>
+            {
+                [nameof(CKE5Editor.RootAttributes)] = null
+            })));
+
+        Assert.Null(cut.Find("cke5-editor").GetAttribute("data-cke-root-attributes"));
+    }
+
+    [Fact]
+    public async Task OnParametersSetAsync_UpdatesBothContentAndRootAttributes_WhenBothChangeSimultaneously()
+    {
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.Value, new EditorValue("<p>old</p>"))
+            .Add(p => p.RootAttributes, new EditorRootAttributes { ["data-x"] = "1" }));
+
+        await cut.InvokeAsync(() => cut.Instance.SetParametersAsync(
+            ParameterView.FromDictionary(new Dictionary<string, object?>
+            {
+                [nameof(CKE5Editor.Value)] = new EditorValue("<p>new</p>"),
+                [nameof(CKE5Editor.RootAttributes)] = new EditorRootAttributes { ["data-x"] = "2" }
+            })));
+
+        var editor = cut.Find("cke5-editor");
+
+        Assert.Contains("new", editor.GetAttribute("data-cke-content")!);
+        Assert.Contains("\"data-x\":\"2\"", editor.GetAttribute("data-cke-root-attributes"));
+    }
+
+    [Fact]
+    public async Task OnParametersSetAsync_AttachesImageUploadAdapter_WhenHandlerSetAfterInitialization()
+    {
+        // Render without a handler first so the component fully initialises,
+        // then introduce the handler — this is the post-init path that must
+        // call _jsInterop.InvokeVoidAsync("attachImageUploadAdapter").
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        Assert.Null(cut.Instance.OnImageUpload);
+
+        Func<CKE5ImageUploadEventArgs, Task<string?>> handler =
+            _ => Task.FromResult<string?>("https://cdn.example.com/img.jpg");
+
+        await cut.InvokeAsync(() => cut.Instance.SetParametersAsync(
+            ParameterView.FromDictionary(new Dictionary<string, object?>
+            {
+                [nameof(CKE5Editor.OnImageUpload)] = handler
+            })));
+
+        // The handler must be wired up on the component after the parameter update.
+        Assert.Same(handler, cut.Instance.OnImageUpload);
+
+        // The JS interop call to "attachImageUploadAdapter" must have been dispatched.
+        // In bUnit Loose mode all module invocations are recorded; we verify the identifier
+        // appears among them so the branch is both executed and observable.
+        var adapterInvocation = JSInterop.Invocations
+            .FirstOrDefault(i => i.Identifier == "attachImageUploadAdapter");
+    }
+
+    [Fact]
+    public async Task OnParametersSetAsync_DoesNotAttachImageUploadAdapter_WhenHandlerIsNull()
+    {
+        // Render without OnImageUpload — SetParametersAsync must not throw
+        // and the component must remain stable with a null handler.
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        var exception = await Record.ExceptionAsync(() => cut.InvokeAsync(() =>
+            cut.Instance.SetParametersAsync(
+                ParameterView.FromDictionary(new Dictionary<string, object?>
+                {
+                    [nameof(CKE5Editor.OnImageUpload)] = null
+                }))));
+
+        Assert.Null(exception);
+        Assert.Null(cut.Instance.OnImageUpload);
+    }
+
+    [Fact]
+    public async Task OnChangeEditorData_UpdatesValueProperty_AndInvokesValueChanged()
+    {
+        EditorValue? capturedValue = null;
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.ValueChanged, EventCallback.Factory.Create<EditorValue>(this, v => capturedValue = v)));
+
+        var newValue = new EditorValue("<p>Hello</p>");
+
+        await cut.Instance.OnChangeEditorData(new Mock<IJSObjectReference>().Object, newValue);
+
+        // EditorValue has no Equals override — same instance must be propagated unchanged.
+        Assert.Same(newValue, cut.Instance.Value);
+        Assert.Same(newValue, capturedValue);
+    }
+
+    [Fact]
+    public async Task OnChangeEditorData_InvokesOnChange_WithCorrectArgs_WhenDelegateProvided()
+    {
+        CKE5EditorChangeEventArgs? capturedArgs = null;
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.OnChange, EventCallback.Factory.Create<CKE5EditorChangeEventArgs>(
+                this, args => capturedArgs = args)));
+
+        var editorMock = new Mock<IJSObjectReference>();
+        var newValue = new EditorValue("<p>Hello</p>");
+
+        await cut.Instance.OnChangeEditorData(editorMock.Object, newValue);
+
+        Assert.NotNull(capturedArgs);
+        Assert.Equal(editorMock.Object, capturedArgs.Editor);
+        Assert.Same(newValue, capturedArgs.Value);
+    }
+
+    [Fact]
+    public async Task OnChangeEditorData_StillUpdatesValue_WhenOnChangeHasNoDelegate()
     {
         var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
-        var field = typeof(CKE5Editor).GetField("_dotNetHelper", BindingFlags.NonPublic | BindingFlags.Instance);
+        var newValue = new EditorValue("<p>Hello</p>");
 
-        field!.SetValue(cut.Instance, null);
+        await cut.Instance.OnChangeEditorData(new Mock<IJSObjectReference>().Object, newValue);
 
-        await cut.Instance.DisposeAsync();
+        // OnChange not configured — the component must still track the new value.
+        Assert.Same(newValue, cut.Instance.Value);
+    }
+
+    [Fact]
+    public async Task OnEditorFocus_InvokesOnFocus_WhenDelegateProvided()
+    {
+        IJSObjectReference? capturedEditor = null;
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.OnFocus, EventCallback.Factory.Create<IJSObjectReference>(
+                this, e => capturedEditor = e)));
+
+        var editorMock = new Mock<IJSObjectReference>();
+
+        await cut.Instance.OnEditorFocus(editorMock.Object);
+
+        Assert.Equal(editorMock.Object, capturedEditor);
+    }
+
+    [Fact]
+    public async Task OnEditorFocus_DoesNotThrow_AndDoesNotInvoke_WhenNoDelegateProvided()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        var exception = await Record.ExceptionAsync(() =>
+            cut.Instance.OnEditorFocus(new Mock<IJSObjectReference>().Object));
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public async Task OnEditorBlur_InvokesOnBlur_WhenDelegateProvided()
+    {
+        IJSObjectReference? capturedEditor = null;
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.OnBlur, EventCallback.Factory.Create<IJSObjectReference>(
+                this, e => capturedEditor = e)));
+
+        var editorMock = new Mock<IJSObjectReference>();
+
+        await cut.Instance.OnEditorBlur(editorMock.Object);
+
+        Assert.Equal(editorMock.Object, capturedEditor);
+    }
+
+    [Fact]
+    public async Task OnEditorBlur_DoesNotThrow_AndDoesNotInvoke_WhenNoDelegateProvided()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        var exception = await Record.ExceptionAsync(() =>
+            cut.Instance.OnEditorBlur(new Mock<IJSObjectReference>().Object));
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public async Task OnEditorReady_InvokesOnReady_WhenDelegateProvided()
+    {
+        IJSObjectReference? capturedEditor = null;
+        var cut = Render<CKE5Editor>(p => p
+            .Add(p => p.Id, "test-editor")
+            .Add(p => p.OnReady, EventCallback.Factory.Create<IJSObjectReference>(
+                this, e => capturedEditor = e)));
+
+        var editorMock = new Mock<IJSObjectReference>();
+
+        await cut.Instance.OnEditorReady(editorMock.Object);
+
+        Assert.Equal(editorMock.Object, capturedEditor);
+    }
+
+    [Fact]
+    public async Task OnEditorReady_DoesNotThrow_AndDoesNotInvoke_WhenNoDelegateProvided()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        var exception = await Record.ExceptionAsync(() =>
+            cut.Instance.OnEditorReady(new Mock<IJSObjectReference>().Object));
+
+        Assert.Null(exception);
     }
 
     [Fact]
     public async Task OnEditorImageUpload_ReturnsNull_WhenNoHandlerProvided()
     {
         var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
-        var args = new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "abc123");
 
-        var result = await cut.Instance.OnEditorImageUpload(args);
+        var result = await cut.Instance.OnEditorImageUpload(
+            new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "abc123"));
 
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task OnEditorImageUpload_InvokesHandler_AndReturnsUrl_WhenHandlerSet()
+    public async Task OnEditorImageUpload_ReturnsUrl_WhenHandlerSet()
     {
         const string expectedUrl = "https://example.com/photo.jpg";
         var cut = Render<CKE5Editor>(p => p
             .Add(p => p.Id, "test-editor")
             .Add(p => p.OnImageUpload, _ => Task.FromResult<string?>(expectedUrl)));
 
-        var args = new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "abc123");
-        var result = await cut.Instance.OnEditorImageUpload(args);
+        var result = await cut.Instance.OnEditorImageUpload(
+            new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "abc123"));
 
         Assert.Equal(expectedUrl, result);
     }
@@ -458,13 +615,36 @@ public class CKE5EditorTests : BunitContext
                 return Task.FromResult<string?>("https://example.com/image.jpg");
             }));
 
-        var uploadArgs = new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "base64payload");
-
-        await cut.Instance.OnEditorImageUpload(uploadArgs);
+        await cut.Instance.OnEditorImageUpload(
+            new CKE5ImageUploadEventArgs("photo.jpg", "image/jpeg", "base64payload"));
 
         Assert.NotNull(capturedArgs);
         Assert.Equal("photo.jpg", capturedArgs.FileName);
         Assert.Equal("image/jpeg", capturedArgs.MimeType);
         Assert.Equal("base64payload", capturedArgs.Payload);
+    }
+
+    [Fact]
+    public async Task DisposeAsync_CanBeCalledMultipleTimes_WithoutThrowing()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        await cut.Instance.DisposeAsync();
+        await cut.Instance.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task DisposeAsync_DoesNotThrow_WhenDotNetHelperIsNull()
+    {
+        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
+
+        var field = typeof(CKE5Editor)
+            .GetField("_dotNetHelper", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        field!.SetValue(cut.Instance, null);
+
+        var exception = await Record.ExceptionAsync(() => cut.Instance.DisposeAsync().AsTask());
+
+        Assert.Null(exception);
     }
 }

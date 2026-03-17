@@ -31,12 +31,12 @@ public static class JwtTestHelper
             ["iss"] = "test",
             ["distributionChannel"] = distributionChannel,
             ["exp"] = exp
-        }.Where(kvp => kvp.Value is not null);
+        }.Where(static kvp => kvp.Value is not null);
 
         var payload = baseClaims
             .Concat(extraClaims ?? [])
-            .GroupBy(kvp => kvp.Key)
-            .ToDictionary(g => g.Key, g => g.Last().Value);
+            .GroupBy(static kvp => kvp.Key)
+            .ToDictionary(static g => g.Key, static g => g.Last().Value);
 
         var payloadJson = JsonSerializer.Serialize(payload);
         var payloadEncoded = Base64UrlEncode(payloadJson);
