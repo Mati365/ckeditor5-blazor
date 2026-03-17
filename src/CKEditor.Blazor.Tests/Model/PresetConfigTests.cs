@@ -144,24 +144,6 @@ public class PresetConfigTests
     }
 
     [Fact]
-    public void WithToolbarItems_String_ShouldSetRawToolbarValueInConfig()
-    {
-        var preset = new PresetConfig().WithToolbarItems("bold italic | undo redo");
-
-        Assert.Equal("bold italic | undo redo", preset.Config["toolbar"]);
-    }
-
-    [Fact]
-    public void WithToolbarItems_ShouldNotMutateOriginalPreset()
-    {
-        var original = new PresetConfig();
-        var updated = original.WithToolbarItems("bold italic");
-
-        Assert.Empty(original.Config);
-        Assert.Equal("bold italic", updated.Config["toolbar"]);
-    }
-
-    [Fact]
     public void WithConfigEntry_ShouldSetConfigValue()
     {
         var preset = new PresetConfig().WithConfigEntry("placeholder", "Type here");

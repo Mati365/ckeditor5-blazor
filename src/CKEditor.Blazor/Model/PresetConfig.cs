@@ -66,13 +66,6 @@ public sealed record PresetConfig
     }
 
     /// <summary>
-    /// Creates a new preset with the toolbar set to a raw string value.
-    /// </summary>
-    /// <param name="toolbarItems">The raw toolbar string accepted by CKEditor.</param>
-    /// <returns>A new preset with the toolbar configuration applied.</returns>
-    public PresetConfig WithToolbarItems(string toolbarItems) => ExtendConfig(config => config["toolbar"] = toolbarItems);
-
-    /// <summary>
     /// Creates a new preset with the specified toolbar items. Supports string item names,
     /// <c>"|"</c> separators (or <see cref="Toolbar.Separator"/>), and <see cref="ToolbarGroupItem"/>
     /// instances created via <see cref="Toolbar.Group"/>.
