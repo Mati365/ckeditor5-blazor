@@ -172,7 +172,7 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
 1. **Add NuGet dependency:**
 
    ```bash
-   dotnet add package CKEditor5.Blazor
+   dotnet add package CKEditor.Blazor
    ```
 
 2. (Optional) **Override MSBuild asset options** in your `.csproj`:
@@ -647,7 +647,7 @@ Use native Blazor binding and callbacks for full client ⇄ server synchronizati
 
 #### Two way binding using `@bind-Value` ⛓️
 
-Bind editor content to your component state.
+Bind editor content to your component state. After each typed character, the editor updates the bound value with the current content. The `SaveDebounceMs` parameter allows you to control the debounce delay for content updates, preventing excessive updates on every keystroke. Keep in mind that `SaveDebounceMs` only affects the frequency of updates when editor is focused and typing is happening. If you programmatically update the bound value from .NET (e.g. loading a template), the changes will be pushed to the editor immediately without any debounce.
 
 ```razor
 <CKE5Editor
@@ -661,7 +661,7 @@ Bind editor content to your component state.
 
 ##### Multiroot Editables 🌳⛓️
 
-For multiroot/decoupled layouts, bind each root independently:
+For multiroot/decoupled layouts, you can bind each editable separately by placing `@bind-Value` on the individual `CKE5Editable` components.
 
 ```razor
 <CKE5Editable RootName="header" @bind-Value="header" />
