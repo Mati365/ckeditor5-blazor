@@ -31,7 +31,7 @@
     <CKE5UIPart Name="toolbar" Class="mb-6" />
 
     <div class="flex flex-col gap-6">
-        @foreach (var root in Roots)
+        @foreach (var root in roots)
         {
             <div @key="root.Name" class="bg-white border border-gray-300" id="@($"container-{root.Name}")">
                 <div class="flex justify-between items-center bg-gray-50 p-2 border-gray-300 border-b">
@@ -49,17 +49,17 @@
                     <CKE5Editable
                         @bind-Value="@root.Value"
                         RootName="@root.Name"
-                        RootAttributes="@(new EditorRootAttributes { ["data-root-id"] = root.Name, ["data-test"] = rootAttributes[root.Name] })"
+                        RootAttributes="@root.Attributes"
                         OnChange="@(OnRootChange)"
                         Class="focus:outline-none" />
 
                     <div class="flex flex-wrap items-center gap-2 mt-2 text-xs">
                         <span class="font-semibold">data-test:</span>
-                        <span class="bg-gray-100 px-2 py-1 rounded">@rootAttributes[root.Name]</span>
+                        <span class="bg-gray-100 px-2 py-1 rounded">@root.Attributes["data-test"]</span>
                         <button
                             type="button"
                             class="bg-blue-600 px-2 py-1 rounded text-white"
-                            @onclick="() => ToggleRootAttribute(root.Name)">
+                            @onclick="root.Increment">
                             Toggle data-test
                         </button>
                     </div>
@@ -90,25 +90,39 @@
     private record EditorRoot(string Name)
     {
         public string Value { get; set; } = string.Empty;
+
+        public EditorRootAttributes Attributes { get; set; } = new EditorRootAttributes {
+            ["data-root-id"] = Name,
+            ["data-test"] = "0"
+        };
+
+        public void Reset() {
+            Value = "";
+            Attributes["data-test"] = "0";
+        }
+
+        public void Increment() {
+            var currentValue = 0;
+
+            if (int.TryParse(Attributes["data-test"] as string, out var parsed))
+            {
+                currentValue = parsed;
+            }
+
+            Attributes["data-test"] = (currentValue + 1).ToString();
+        }
     }
 
     private string? lastEditorChange;
 
     private string? lastRootChange;
 
-    private List<EditorRoot> Roots { get; } =
+    private List<EditorRoot> roots { get; } =
     [
         new("header") { Value = "Header content" },
         new("content") { Value = "Main content" },
         new("footer") { Value = "Footer content" },
     ];
-
-    private Dictionary<string, string> rootAttributes { get; } = new()
-    {
-        ["header"] = "0",
-        ["content"] = "0",
-        ["footer"] = "0",
-    };
 
     private string? newRootName;
 
@@ -118,10 +132,9 @@
             ? $"r_{Guid.NewGuid():N}"
             : newRootName!.Trim();
 
-        if (Roots.All(r => r.Name != name))
+        if (roots.All(r => r.Name != name))
         {
-            Roots.Add(new EditorRoot(name) { Value = $"Content for {name}" });
-            rootAttributes[name] = "initial";
+            roots.Add(new EditorRoot(name) { Value = $"Content for {name}" });
         }
 
         newRootName = string.Empty;
@@ -129,38 +142,15 @@
 
     private void RemoveRoot(string name)
     {
-        Roots.RemoveAll(r => r.Name == name);
-        rootAttributes.Remove(name);
+        roots.RemoveAll(r => r.Name == name);
     }
 
     private void ClearValues()
     {
-        foreach (var root in Roots)
+        foreach (var root in roots)
         {
-            root.Value = string.Empty;
+            root.Reset();
         }
-
-        foreach (var key in rootAttributes.Keys.ToList())
-        {
-            rootAttributes[key] = "initial";
-        }
-    }
-
-    private void ToggleRootAttribute(string name)
-    {
-        if (!rootAttributes.ContainsKey(name))
-        {
-            return;
-        }
-
-        var currentValue = 0;
-
-        if (int.TryParse(rootAttributes[name], out var parsed))
-        {
-            currentValue = parsed;
-        }
-
-        rootAttributes[name] = (currentValue + 1).ToString();
     }
 
     private void OnEditorChange(CKE5EditorChangeEventArgs args)
