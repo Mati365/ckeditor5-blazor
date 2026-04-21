@@ -20,7 +20,7 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
   const editorId = element.getAttribute('data-cke-editor-id');
 
   let unmounted = false;
-  let unmountCKEditorListeners: VoidFunction | null = null;
+  let stopEffect: VoidFunction | null = null;
 
   let sync = createNoopSync<Record<string, string>>();
   let syncRootAttributes: RootAttributesUpdater | null = null;
@@ -39,12 +39,7 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
     }
   };
 
-  /**
-   * Initializes the focus tracker and model listeners for the editor.
-   */
-  const initializeSynchronization = async () => {
-    const editor = await EditorsRegistry.the.waitFor(editorId);
-
+  stopEffect = EditorsRegistry.the.mountEffect(editorId, (editor) => {
     editorRef = globalThis.DotNet.createJSObjectReference(editor);
     sync = createEditorValueSync(editor, {
       getCurrentValue: () => getEditorRootsValues(editor),
@@ -70,13 +65,20 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
     // that already exist on the .NET side.
     void interop.invokeMethodAsync('OnEditorReady', editorRef);
 
-    // When the Blazor component is disposed, clean up event listeners.
-    unmountCKEditorListeners = () => {
+    return () => {
       editor.ui.focusTracker.off('change:isFocused', onFocusChange);
-    };
-  };
+      sync.unmount();
 
-  void initializeSynchronization();
+      /* v8 ignore else -- @preserve */
+      if (editorRef) {
+        globalThis.DotNet?.disposeJSObjectReference(editorRef);
+        editorRef = null;
+      }
+
+      syncRootAttributes = null;
+    };
+  });
+
   document.body.addEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
 
   ensureEditorElementsRegistered();
@@ -117,15 +119,10 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
       }
 
       document.body.removeEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
-      sync.unmount();
-      unmountCKEditorListeners?.();
 
-      if (editorRef) {
-        globalThis.DotNet.disposeJSObjectReference(editorRef);
-        editorRef = null;
-      }
+      stopEffect?.();
+      stopEffect = null;
 
-      syncRootAttributes = null;
       unmounted = true;
     },
 

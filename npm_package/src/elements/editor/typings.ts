@@ -1,3 +1,5 @@
+import type { WatchdogConfig } from 'ckeditor5';
+
 /**
  * Represents a unique identifier for a CKEditor5 editor instance.
  * This is typically the ID of the HTML element that the editor is attached to.
@@ -100,7 +102,7 @@ export type EditorPreset = {
   /**
    * Optional watchdog configuration for error recovery.
    */
-  watchdogConfig?: Record<string, any> | null;
+  watchdogConfig?: WatchdogConfig | null;
 
   /**
    * Optional custom translations for the editor.

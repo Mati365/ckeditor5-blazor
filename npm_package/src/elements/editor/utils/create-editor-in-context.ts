@@ -1,4 +1,3 @@
-import type { EditorCreator } from './wrap-with-watchdog';
 import type { Context, ContextWatchdog, Editor, EditorConfig } from 'ckeditor5';
 
 import { uid } from '../../../shared';
@@ -41,7 +40,7 @@ export async function createEditorInContext({ element, context, creator, config 
 
   // Destroying of context is async. There can be situation when the destroy of the context
   // and the destroy of the editor is called in parallel. It often happens during unmounting of
-  // phoenix hooks. Let's make sure that descriptor informs other components, that context is being
+  // blazor hooks. Let's make sure that descriptor informs other components, that context is being
   // destroyed.
   const originalDestroy = context.destroy.bind(context);
   context.destroy = async () => {
@@ -86,4 +85,11 @@ type EditorContextDescriptor = {
   state: 'available' | 'unavailable';
   editorContextId: string;
   context: ContextWatchdog<Context>;
+};
+
+/**
+ * Type representing an Editor creator with a create method.
+ */
+type EditorCreator = {
+  create: (...args: any) => Promise<Editor>;
 };

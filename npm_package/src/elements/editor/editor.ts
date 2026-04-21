@@ -1,6 +1,5 @@
 import type { WaitForInteractiveResult } from '../../shared';
 import type { EditorId, EditorLanguage, EditorPreset } from './typings';
-import type { EditorCreator } from './utils';
 import type { Editor } from 'ckeditor5';
 
 import {
@@ -16,6 +15,7 @@ import {
   createSyncEditorWithInputPlugin,
 } from './plugins';
 import {
+  cleanupOrphanEditorElements,
   createEditorInContext,
   isSingleRootEditor,
   loadAllEditorTranslations,
@@ -155,144 +155,165 @@ export class EditorComponentElement extends HTMLElement {
     const editableHeight = this.getAttribute('data-cke-editable-height') ? Number.parseInt(this.getAttribute('data-cke-editable-height')!, 10) : null;
     const saveDebounceMs = Number.parseInt(this.getAttribute('data-cke-save-debounce-ms')!, 10);
     const language = JSON.parse(this.getAttribute('data-cke-language')!) as EditorLanguage;
-    const watchdog = this.hasAttribute('data-cke-watchdog');
+    const useWatchdog = this.hasAttribute('data-cke-watchdog');
     const content = JSON.parse(this.getAttribute('data-cke-content')!) as Record<string, string>;
 
     const {
       customTranslations,
       editorType,
       licenseKey,
+      watchdogConfig,
       config: { plugins, ...config },
     } = preset;
 
-    // Wrap editor creator with watchdog if needed.
-    let Constructor: EditorCreator = await loadEditorConstructor(editorType);
+    const Constructor = await loadEditorConstructor(editorType);
     const context = await (
       contextId
         ? ContextsRegistry.the.waitFor(contextId)
         : null
     );
 
+    /**
+     * Builds the full editor configuration and creates the editor instance.
+     */
+    const buildAndCreateEditor = async () => {
+      const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins);
+
+      loadedPlugins.push(
+        await createDispatchEditorRootsChangeEventPlugin({
+          saveDebounceMs,
+          editorId,
+          targetElement: this,
+        }),
+      );
+
+      if (isSingleRootEditor(editorType)) {
+        loadedPlugins.push(
+          await createSyncEditorWithInputPlugin(saveDebounceMs),
+        );
+      }
+
+      // Mix custom translations with loaded translations.
+      const loadedTranslations = await loadAllEditorTranslations(language, hasPremium);
+      const mixedTranslations = [
+        ...loadedTranslations,
+        normalizeCustomTranslations(customTranslations || {}),
+      ]
+        .filter(translations => !isEmptyObject(translations));
+
+      // Let's query all elements, and create basic configuration.
+      let initialData: string | Record<string, string> = {
+        ...content,
+        ...queryEditablesSnapshotContent(editorId),
+      };
+
+      if (isSingleRootEditor(editorType)) {
+        initialData = initialData['main'] || '';
+      }
+
+      // Depending of the editor type, and parent lookup for nearest context or initialize it without it.
+      const editor = await (async () => {
+        let sourceElementOrData: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId);
+
+        // Handle special case when user specified `initialData` of several root elements, but editable components
+        // are not yet present in the DOM. In other words - editor is initialized before attaching root elements.
+        if (!sourceElementOrData['main']) {
+          const requiredRoots = (
+            isSingleRootEditor(editorType)
+              ? ['main']
+              : Object.keys(initialData as Record<string, string>)
+          );
+
+          if (!checkIfAllRootsArePresent(sourceElementOrData, requiredRoots)) {
+            sourceElementOrData = await waitForAllRootsToBePresent(editorId, requiredRoots);
+            initialData = {
+              ...content,
+              ...queryEditablesSnapshotContent(editorId),
+            };
+          }
+        }
+
+        // If single root editor, unwrap the element from the object.
+        if (isSingleRootEditor(editorType) && 'main' in sourceElementOrData) {
+          sourceElementOrData = sourceElementOrData['main'];
+        }
+
+        // Construct parsed config. First resolve DOM element references in the provided configuration.
+        let resolvedConfig = resolveEditorConfigElementReferences(config);
+
+        // Then resolve translation references in the provided configuration, using the mixed translations.
+        resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
+
+        // Construct parsed config.
+        const parsedConfig = {
+          ...resolvedConfig,
+          initialData,
+          licenseKey,
+          plugins: loadedPlugins,
+          language,
+          ...mixedTranslations.length && {
+            translations: mixedTranslations,
+          },
+        };
+
+        if (!context || !(sourceElementOrData instanceof HTMLElement)) {
+          return Constructor.create(sourceElementOrData as any, parsedConfig);
+        }
+
+        const result = await createEditorInContext({
+          context,
+          element: sourceElementOrData,
+          creator: Constructor,
+          config: parsedConfig,
+        });
+
+        return result.editor;
+      })();
+
+      // Assign root attributes if they are not empty. This is needed to support custom attributes on the root element of the editor.
+      if (!isEmptyObject(rootAttributes)) {
+        editor.model.change((writer) => {
+          writer.setAttributes(rootAttributes, editor.model.document.getRoot()!);
+        });
+      }
+
+      if (isSingleRootEditor(editorType) && editableHeight) {
+        setEditorEditableHeight(editor, editableHeight);
+      }
+
+      return editor;
+    };
+
     // Do not use editor specific watchdog if context is attached, as the context is by default protected.
-    if (watchdog && !context) {
-      const wrapped = await wrapWithWatchdog(Constructor);
+    if (useWatchdog && !context) {
+      const watchdog = await wrapWithWatchdog(buildAndCreateEditor, watchdogConfig);
 
-      ({ Constructor } = wrapped);
-      wrapped.watchdog.on('restart', () => {
-        const newInstance = wrapped.watchdog.editor!;
+      watchdog.on('error', (_, { causesRestart }) => {
+        if (causesRestart) {
+          const prevEditor = EditorsRegistry.the.getItem(editorId);
 
-        this.editorPromise = Promise.resolve(newInstance);
+          /* v8 ignore next 3 */
+          if (prevEditor) {
+            cleanupOrphanEditorElements(prevEditor);
+
+            EditorsRegistry.the.unregister(editorId);
+          }
+        }
+      });
+
+      watchdog.on('restart', () => {
+        const newInstance = watchdog.editor!;
 
         EditorsRegistry.the.register(editorId, newInstance);
       });
+
+      await watchdog.create({});
+
+      return watchdog.editor!;
     }
 
-    const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins);
-
-    loadedPlugins.push(
-      await createDispatchEditorRootsChangeEventPlugin({
-        saveDebounceMs,
-        editorId,
-        targetElement: this,
-      }),
-    );
-
-    if (isSingleRootEditor(editorType)) {
-      loadedPlugins.push(
-        await createSyncEditorWithInputPlugin(saveDebounceMs),
-      );
-    }
-
-    // Mix custom translations with loaded translations.
-    const loadedTranslations = await loadAllEditorTranslations(language, hasPremium);
-    const mixedTranslations = [
-      ...loadedTranslations,
-      normalizeCustomTranslations(customTranslations || {}),
-    ]
-      .filter(translations => !isEmptyObject(translations));
-
-    // Let's query all elements, and create basic configuration.
-    let initialData: string | Record<string, string> = {
-      ...content,
-      ...queryEditablesSnapshotContent(editorId),
-    };
-
-    if (isSingleRootEditor(editorType)) {
-      initialData = initialData['main'] || '';
-    }
-
-    // Depending of the editor type, and parent lookup for nearest context or initialize it without it.
-    const editor = await (async () => {
-      let sourceElementOrData: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId);
-
-      // Handle special case when user specified `initialData` of several root elements, but editable components
-      // are not yet present in the DOM. In other words - editor is initialized before attaching root elements.
-      if (!sourceElementOrData['main']) {
-        const requiredRoots = (
-          isSingleRootEditor(editorType)
-            ? ['main']
-            : Object.keys(initialData as Record<string, string>)
-        );
-
-        if (!checkIfAllRootsArePresent(sourceElementOrData, requiredRoots)) {
-          sourceElementOrData = await waitForAllRootsToBePresent(editorId, requiredRoots);
-          initialData = {
-            ...content,
-            ...queryEditablesSnapshotContent(editorId),
-          };
-        }
-      }
-
-      // If single root editor, unwrap the element from the object.
-      if (isSingleRootEditor(editorType) && 'main' in sourceElementOrData) {
-        sourceElementOrData = sourceElementOrData['main'];
-      }
-
-      // Construct parsed config. First resolve DOM element references in the provided configuration.
-      let resolvedConfig = resolveEditorConfigElementReferences(config);
-
-      // Then resolve translation references in the provided configuration, using the mixed translations.
-      resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
-
-      // Construct parsed config.
-      const parsedConfig = {
-        ...resolvedConfig,
-        initialData,
-        licenseKey,
-        plugins: loadedPlugins,
-        language,
-        ...mixedTranslations.length && {
-          translations: mixedTranslations,
-        },
-      };
-
-      if (!context || !(sourceElementOrData instanceof HTMLElement)) {
-        return Constructor.create(sourceElementOrData as any, parsedConfig);
-      }
-
-      const result = await createEditorInContext({
-        context,
-        element: sourceElementOrData,
-        creator: Constructor,
-        config: parsedConfig,
-      });
-
-      return result.editor;
-    })();
-
-    // Assign root attributes if they are not empty. This is needed to support custom attributes on the root element of the editor.
-    if (!isEmptyObject(rootAttributes)) {
-      editor.model.change((writer) => {
-        writer.setAttributes(rootAttributes, editor.model.document.getRoot()!);
-      });
-    }
-
-    if (isSingleRootEditor(editorType) && editableHeight) {
-      setEditorEditableHeight(editor, editableHeight);
-    }
-
-    return editor;
-  };
+    return buildAndCreateEditor();
+  }
 }
 
 /**

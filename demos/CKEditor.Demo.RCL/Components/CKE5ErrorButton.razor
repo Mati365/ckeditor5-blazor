@@ -1,0 +1,41 @@
+@page "/custom-button"
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<button
+    type="button"
+    class="hover:bg-red-50 px-6 py-2 border border-red-600 rounded-none text-red-600 transition-colors"
+    @onclick="HandleClick">
+    Error
+</button>
+
+@code {
+    private IJSObjectReference? _jsModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "/_content/CKEditor.Demo.RCL/js/trigger-cke5-error.js");
+        }
+    }
+
+    private async Task HandleClick()
+    {
+        if (_jsModule is null)
+        {
+            return;
+        }
+
+        await _jsModule.InvokeVoidAsync("triggerCKE5Error");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_jsModule is not null)
+        {
+            await _jsModule.DisposeAsync();
+        }
+    }
+}

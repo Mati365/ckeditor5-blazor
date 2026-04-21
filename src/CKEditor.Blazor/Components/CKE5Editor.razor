@@ -16,7 +16,7 @@
     data-cke-context-id="@(string.IsNullOrEmpty(ResolvedContextId) ? null : ResolvedContextId)">
     @if (ShowInput)
     {
-        <div id="@($"{Id}_editor")"></div>
+        <div id="@($"{Id}_editor")" data-cke-controlled></div>
     }
 
     @if (!string.IsNullOrEmpty(Name))

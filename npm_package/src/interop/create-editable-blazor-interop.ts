@@ -20,6 +20,8 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
   const rootName = element.getAttribute('data-cke-root-name') ?? 'main';
 
   let unmounted = false;
+  let stopEffect: VoidFunction | null = null;
+
   let editorRef: unknown | null = null;
 
   let sync = createNoopSync<string>();
@@ -46,12 +48,8 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
     }
   };
 
-  /**
-   * Initializes the focus tracker and model listeners for the editor owning this editable.
-   */
-  const initializeSynchronization = async () => {
-    const editor = await EditorsRegistry.the.waitFor(editorId);
-    editorRef = DotNet.createJSObjectReference(editor);
+  stopEffect = EditorsRegistry.the.mountEffect(editorId, (editor) => {
+    editorRef = globalThis.DotNet.createJSObjectReference(editor);
 
     sync = createEditorValueSync(editor, {
       getCurrentValue: () => editor.getData({ rootName }) ?? '',
@@ -60,9 +58,20 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
     });
 
     syncRootAttributes = createRootAttributesUpdater(editor, rootName);
-  };
 
-  void initializeSynchronization();
+    return () => {
+      sync.unmount();
+
+      /* v8 ignore else -- @preserve */
+      if (editorRef) {
+        globalThis.DotNet?.disposeJSObjectReference(editorRef);
+        editorRef = null;
+      }
+
+      syncRootAttributes = null;
+    };
+  });
+
   document.body.addEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
   markElementAsInteractive(element);
 
@@ -76,14 +85,10 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
       }
 
       document.body.removeEventListener(CKEditor5ChangeDataEvent.EVENT_NAME, onDataChange);
-      sync.unmount();
 
-      if (editorRef) {
-        DotNet.disposeJSObjectReference(editorRef);
-        editorRef = null;
-      }
+      stopEffect?.();
+      stopEffect = null;
 
-      syncRootAttributes = null;
       unmounted = true;
     },
 
@@ -97,8 +102,6 @@ export function createEditableBlazorInterop(element: HTMLElement, interop: DotNe
       }
 
       await EditorsRegistry.the.waitFor(editorId);
-
-      // Ensure sync is initialized before forwarding (waitFor guarantees the editor exists)
       sync.setValue(value);
     },
 

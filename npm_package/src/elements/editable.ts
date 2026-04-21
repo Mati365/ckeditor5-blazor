@@ -11,26 +11,14 @@ import { queryAllEditorIds } from './editor/utils';
  */
 export class EditableComponentElement extends HTMLElement {
   /**
-   * The promise that resolves when the editable is mounted.
+   * Stops observing the editor registry and immediately runs any pending cleanup.
    */
-  private editorPromise: Promise<MultiRootEditor | null> | null = null;
+  private unmountEffect: VoidFunction | null = null;
 
   /**
    * Wait result for the interactive attribute.
    */
   private interactiveWait?: WaitForInteractiveResult;
-
-  /**
-   * Callbacks to be invoked before the editable is destroyed.
-   */
-  private beforeDestroyCallbacks: Array<() => void> = [];
-
-  /**
-   * Registers a callback to be called before the editable is destroyed.
-   */
-  public onBeforeDestroy(callback: () => void): void {
-    this.beforeDestroyCallbacks.push(callback);
-  }
 
   /**
    * Mounts the editable component.
@@ -62,11 +50,11 @@ export class EditableComponentElement extends HTMLElement {
       throw new CKEditor5BlazorError('Editor ID or Root Name is missing.');
     }
 
-    // If the editor is not registered yet, we will wait for it to be registered.
     this.style.display = 'block';
-    this.editorPromise = EditorsRegistry.the.execute(editorId, async (editor: MultiRootEditor) => {
+
+    this.unmountEffect = EditorsRegistry.the.mountEffect(editorId, (editor: MultiRootEditor) => {
       if (!this.isConnected) {
-        return null;
+        return;
       }
 
       const { ui, editing, model } = editor;
@@ -95,7 +83,7 @@ export class EditableComponentElement extends HTMLElement {
           });
         }
 
-        return editor;
+        return;
       }
 
       editor.addRoot(rootName, {
@@ -135,59 +123,51 @@ export class EditableComponentElement extends HTMLElement {
       const debouncedSync = debounce(saveDebounceMs, sync);
 
       editor.model.document.on('change:data', debouncedSync);
-      this.onBeforeDestroy(() => editor.model.document.off('change:data', debouncedSync));
       sync();
 
-      return editor;
+      return () => {
+        editor.model.document.off('change:data', debouncedSync);
+
+        if (editor.state !== 'destroyed' && rootName) {
+          const root = editor.model.document.getRoot(rootName);
+
+          /* v8 ignore else -- @preserve */
+          if (root && 'detachEditable' in editor) {
+            // Detaching editables seem to be buggy when something removed DOM element of the editable (e.g. Blazor re-render) before
+            // the editable is unmounted. To prevent errors in such cases, we will try to detach the editable if it exists, but ignore errors.
+            try {
+              /* v8 ignore else -- @preserve */
+              if (editor.ui.view.editables[rootName]) {
+                editor.detachEditable(root);
+              }
+            }
+            catch (err) {
+              // Ignore errors when detaching editable.
+              /* v8 ignore next -- @preserve */
+              console.error('Unable unmount editable from root:', err);
+            }
+
+            if (root.isAttached()) {
+              editor.detachRoot(rootName, false);
+            }
+          }
+        }
+      };
     });
   }
 
   /**
    * Destroys the editable component. Unmounts root from the editor.
    */
-  async disconnectedCallback() {
+  disconnectedCallback() {
     // Disconnect the observer if present.
     this.interactiveWait?.disconnect();
-
-    const rootName = this.getAttribute('data-cke-root-name');
 
     // Let's hide the element during destruction to prevent flickering.
     this.style.display = 'none';
 
-    // Let's wait for the mounted promise to resolve before proceeding with destruction.
-    const editor = await this.editorPromise;
-    this.editorPromise = null;
-
-    // Run all registered pre-destroy callbacks and clear the queue.
-    for (const callback of this.beforeDestroyCallbacks) {
-      callback();
-    }
-
-    this.beforeDestroyCallbacks = [];
-
-    // Unmount root from the editor if editor is still registered.
-    if (editor && editor.state !== 'destroyed' && rootName) {
-      const root = editor.model.document.getRoot(rootName);
-
-      /* v8 ignore else -- @preserve */
-      if (root && 'detachEditable' in editor) {
-        // Detaching editables seem to be buggy when something removed DOM element of the editable (e.g. Blazor re-render) before
-        // the editable is unmounted. To prevent errors in such cases, we will try to detach the editable if it exists, but ignore errors.
-        try {
-          if (editor.ui.view.editables[rootName]) {
-            editor.detachEditable(root);
-          }
-        }
-        catch (err) {
-          // Ignore errors when detaching editable.
-          /* v8 ignore next -- @preserve */
-          console.error('Unable unmount editable from root:', err);
-        }
-
-        if (root.isAttached()) {
-          editor.detachRoot(rootName, false);
-        }
-      }
-    }
+    // Stop observing the registry and run cleanup immediately.
+    this.unmountEffect?.();
+    this.unmountEffect = null;
   }
 }

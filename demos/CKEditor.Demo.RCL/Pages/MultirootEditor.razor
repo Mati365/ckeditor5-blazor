@@ -1,5 +1,6 @@
 @page "/multiroot"
 @using System.Text.Json
+@using CKEditor.Demo.RCL.Components
 @rendermode InteractiveServer
 
 <div class="mx-auto p-8 max-w-4xl text-gray-900">
@@ -15,16 +16,17 @@
             @bind:event="oninput" />
         <button
             type="button"
-            class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-none font-bold text-white transition-colors"
+            class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-none text-white transition-colors"
             @onclick="AddRoot">
             Add Root
         </button>
         <button
             type="button"
-            class="hover:bg-red-50 px-6 py-2 border border-red-600 rounded-none font-bold text-red-600 transition-colors"
+            class="hover:bg-red-50 px-6 py-2 border border-red-600 rounded-none text-red-600 transition-colors"
             @onclick="ClearValues">
             Clear Values
         </button>
+        <CKE5ErrorButton />
     </div>
 
     <CKE5Editor EditorType="EditorType.Multiroot" OnChange="OnEditorChange" />

@@ -21,6 +21,11 @@ public sealed record PresetConfig
     public Dictionary<string, object> Config { get; init; } = [];
 
     /// <summary>
+    /// The watchdog configuration object.
+    /// </summary>
+    public Dictionary<string, object> WatchdogConfig { get; init; } = [];
+
+    /// <summary>
     /// Cloud configuration for this preset.
     /// </summary>
     public CloudConfig? Cloud { get; init; }
@@ -64,6 +69,16 @@ public sealed record PresetConfig
 
         return this with { Config = newConfig };
     }
+
+    /// <summary>
+    /// Creates a new preset with provided watchdog configuration.
+    /// </summary>
+    /// <param name="watchdogConfig">Watchdog config to be assigned to preset.</param>
+    /// <returns>A new preset with the extended watchdog configuration.</returns>
+    public PresetConfig WithWatchdogConfig(Dictionary<string, object> watchdogConfig) =>
+        this with {
+            WatchdogConfig = watchdogConfig
+        };
 
     /// <summary>
     /// Creates a new preset with the specified toolbar items. Supports string item names,

@@ -60,6 +60,7 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
     - [Root Attributes 🏷️](#root-attributes-️)
     - [Image Upload 🖼️](#image-upload-️)
     - [Watchdog 🐶](#watchdog-)
+      - [Configuring the watchdog ⚙️](#configuring-the-watchdog-️)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
     - [Splitting Assets: Global Import Map with Per-page Styles 🗺️](#splitting-assets-global-import-map-with-per-page-styles-️)
       - [Self-hosted variant 🏠](#self-hosted-variant-)
@@ -847,6 +848,21 @@ Behavior depends on whether the `OnImageUpload` callback is set:
 ### Watchdog 🐶
 
 By default, the editor is wrapped in a watchdog that automatically tries to recover from crashes by reinitializing the editor instance. This ensures a more resilient user experience, especially in cases where custom plugins or configurations might cause instability.
+
+#### Configuring the watchdog ⚙️
+
+You can customize the watchdog's behavior—such as the maximum number of restarts before it stops trying to recover—by passing a dictionary to the `WithWatchdogConfig` method in your preset configuration.
+
+Here is an example of how to configure the watchdog to limit the number of restarts to `2`, alongside loading custom plugins and adjusting self-hosted assets:
+
+```csharp
+builder.Services.AddCKEditor(options => options
+    .ExtendDefaultPreset(p => p
+        .WithWatchdogConfig(new Dictionary<string, object>
+        {
+            ["crashNumberLimit"] = 2
+        })));
+```
 
 #### Disabling the watchdog 🚫
 
