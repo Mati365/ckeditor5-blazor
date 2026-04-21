@@ -76,7 +76,8 @@ public sealed record PresetConfig
     /// <param name="watchdogConfig">Watchdog config to be assigned to preset.</param>
     /// <returns>A new preset with the extended watchdog configuration.</returns>
     public PresetConfig WithWatchdogConfig(Dictionary<string, object> watchdogConfig) =>
-        this with {
+        this with
+        {
             WatchdogConfig = watchdogConfig
         };
 

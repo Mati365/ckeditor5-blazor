@@ -13,7 +13,7 @@ export async function waitForDestroyAllEditors(): Promise<void> {
   await vi.waitUntil(() => !EditorsRegistry.the.getItems().length);
   await vi.waitUntil(() => !ContextsRegistry.the.getItems().length);
 
-  EditorsRegistry.the.reset();
+  await EditorsRegistry.the.reset();
   ContextsRegistry.the.reset();
 
   CustomEditorPluginsRegistry.the.unregisterAll();
