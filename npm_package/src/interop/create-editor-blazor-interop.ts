@@ -136,9 +136,9 @@ export function createEditorBlazorInterop(element: HTMLElement, interop: DotNetI
         return;
       }
 
-      const editor = await EditorsRegistry.the.waitFor(editorId);
-
-      installImageUploadAdapter(editor, interop);
+      EditorsRegistry.the.mountEffect(editorId, (editor) => {
+        installImageUploadAdapter(editor, interop);
+      });
     },
   };
 }
