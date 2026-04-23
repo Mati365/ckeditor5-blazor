@@ -1,6 +1,5 @@
 import type { WaitForInteractiveResult } from '../../shared';
 import type { EditorId, EditorLanguage, EditorPreset } from './typings';
-import type { Editor } from 'ckeditor5';
 
 import {
   isEmptyObject,
@@ -37,9 +36,9 @@ import {
  */
 export class EditorComponentElement extends HTMLElement {
   /**
-   * The promise that resolves to the editor instance.
+   * Stops observing the editor registry and immediately runs any pending cleanup.
    */
-  private editorPromise: Promise<Editor> | null = null;
+  private unmountEffect: VoidFunction | null = null;
 
   /**
    * Wait result for the interactive attribute.
@@ -76,27 +75,52 @@ export class EditorComponentElement extends HTMLElement {
 
     try {
       this.style.display = 'block';
-      this.editorPromise = this.createEditor();
 
-      const editor = await this.editorPromise;
+      const editor = await this.createEditor();
+      const editorContext = unwrapEditorContext(editor);
+      const watchdog = unwrapEditorWatchdog(editor);
 
       // Do not even try to broadcast about the registration of the editor
       // if hook was immediately destroyed.
       /* v8 ignore else -- @preserve */
       if (this.isConnected) {
-        EditorsRegistry.the.register(editorId, editor);
-
-        editor.once('destroy', () => {
-          if (EditorsRegistry.the.hasItem(editorId)) {
-            EditorsRegistry.the.unregister(editorId);
-          }
+        // Run some stuff that have to be reinitialized every-time editor is being restarted.
+        const unmountDestroyWatchers = EditorsRegistry.the.mountEffect(editorId, (editor) => {
+          // Enforce deregistration of the editor when it's being destroyed by watchdog.
+          editor.once('destroy', () => {
+            // Let's handle case when watchdog (or context watchdog) destroyed editor "externally"
+            // user might also manually kill the editor using `.destroy()` method.
+            // Keep pending callbacks though. Someone might register new callbacks just before calling `.destroy()`.
+            EditorsRegistry.the.unregister(editorId, false);
+          }, { priority: 'highest' });
         });
+
+        this.unmountEffect = async () => {
+          // If for some reason editor not fired `destroy`, enforce deregistration.
+          EditorsRegistry.the.unregister(editorId);
+          unmountDestroyWatchers();
+
+          if (editorContext) {
+            // If context is present, make sure it's not in unmounting phase, as it'll kill the editors.
+            // If it's being destroyed, don't do anything, as the context will take care of it.
+            if (editorContext.state !== 'unavailable') {
+              await editorContext.context.remove(editorContext.editorContextId);
+            }
+          }
+          else if (watchdog) {
+            await watchdog.destroy();
+          }
+          else {
+            await editor.destroy();
+          }
+        };
+
+        EditorsRegistry.the.register(editorId, editor);
       }
     }
     catch (error: any) {
       /* v8 ignore start -- @preserve */
       console.error(`Error initializing CKEditor5 instance with ID "${editorId}":`, error);
-      this.editorPromise = null;
       EditorsRegistry.the.error(editorId, error);
       /* v8 ignore end */
     }
@@ -107,41 +131,9 @@ export class EditorComponentElement extends HTMLElement {
    * This is important to prevent memory leaks and ensure that the editor is properly cleaned up.
    */
   async disconnectedCallback() {
-    // Disconnect the observer if present.
     this.interactiveWait?.disconnect();
-
-    // Let's hide the element during destruction to prevent flickering.
     this.style.display = 'none';
-
-    // Let's wait for the mounted promise to resolve before proceeding with destruction.
-    try {
-      const editor = await this.editorPromise;
-
-      /* v8 ignore next -- @preserve */
-      if (!editor) {
-        return;
-      }
-
-      const editorContext = unwrapEditorContext(editor);
-      const watchdog = unwrapEditorWatchdog(editor);
-
-      if (editorContext) {
-        // If context is present, make sure it's not in unmounting phase, as it'll kill the editors.
-        // If it's being destroyed, don't do anything, as the context will take care of it.
-        if (editorContext.state !== 'unavailable') {
-          await editorContext.context.remove(editorContext.editorContextId);
-        }
-      }
-      else if (watchdog) {
-        await watchdog.destroy();
-      }
-      else {
-        await editor.destroy();
-      }
-    }
-    finally {
-      this.editorPromise = null;
-    }
+    this.unmountEffect?.();
   }
 
   /**

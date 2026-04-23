@@ -128,6 +128,7 @@ export class EditableComponentElement extends HTMLElement {
       return () => {
         editor.model.document.off('change:data', debouncedSync);
 
+        /* v8 ignore else -- @preserve */
         if (editor.state !== 'destroyed' && rootName) {
           const root = editor.model.document.getRoot(rootName);
 
