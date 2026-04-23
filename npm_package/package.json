@@ -1,6 +1,6 @@
 {
   "name": "ckeditor5-blazor",
-  "version": "1.10.1",
+  "version": "1.10.2",
   "description": "CKEditor 5 integration for Blazor",
   "license": "MIT",
   "repository": {
