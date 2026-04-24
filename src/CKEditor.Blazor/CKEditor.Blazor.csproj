@@ -17,10 +17,12 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
+    <None Include="Images\icon.png" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
