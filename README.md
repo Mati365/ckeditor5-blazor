@@ -1096,14 +1096,14 @@ The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. T
 
     EditorsRegistry.the.mountEffect('editor1', (editor) => {
         const watcher = () => {
-        console.info('Changed data:', editor.getData());
+            console.info('Changed data:', editor.getData());
         };
 
         editor.model.document.on('change:data', watcher);
 
         // Cleanup: This will be executed when the editor is unmounted.
         return () => {
-        editor.model.document.off('change:data', watcher);
+            editor.model.document.off('change:data', watcher);
         };
     });
     ```
