@@ -5,3 +5,7 @@ trustPolicy: no-downgrade
 packages:
   - demos/CKEditor.Demo.RCL
   - npm_package
+
+allowBuilds:
+  esbuild: false
+  protobufjs: false

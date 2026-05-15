@@ -65,3 +65,5 @@ dist/
 # Blazor static web assets output
 src/CKEditor.Blazor/wwwroot
 .tmp
+
+*.lscache
