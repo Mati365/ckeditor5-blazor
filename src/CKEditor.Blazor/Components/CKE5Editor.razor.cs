@@ -221,8 +221,13 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
     private string? ValueJson =>
         JsonSerializer.Serialize(Value, _jsonOptions);
 
+    /// <summary>
+    /// If language is not defined then the config language will be used by the frontend component.
+    /// </summary>
     private string? LanguageJson =>
-        JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
+        Language is null
+            ? null
+            : JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
 
     private string? RootAttributesJson =>
         RootAttributes is { Count: > 0 }

@@ -8,6 +8,7 @@ export * from './load-editor-constructor';
 export * from './load-editor-plugins';
 export * from './load-editor-translations';
 export * from './normalize-custom-translations';
+export * from './normalize-editor-language';
 export * from './query-all-editor-ids';
 export * from './query-editor-editables';
 export * from './resolve-editor-config-elements-references';

@@ -28,10 +28,10 @@ public partial class CKE5Context : ComponentBase, IAsyncDisposable, ICKE5Interac
     private ElementReference _elementRef;
 
     /// <summary>
-    /// The language code for the context (default: <c>'en'</c>).
+    /// Optional language configuration. Accepts a language code string or a language config object.
     /// </summary>
     [Parameter]
-    public string? Language { get; set; } = "en";
+    public object? Language { get; set; } = "en";
 
     /// <summary>
     /// The context preset name or configuration object to use (default: <c>'default'</c>).
@@ -62,7 +62,8 @@ public partial class CKE5Context : ComponentBase, IAsyncDisposable, ICKE5Interac
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
 
-    private string LanguageJson => JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
+    private string LanguageJson =>
+        JsonSerializer.Serialize(LanguageParser.Parse(Language), _jsonOptions);
 
     private string ContextJson => JsonSerializer.Serialize(
         ConfigManager.ResolveContext(ContextPreset ?? "default"), _jsonOptions);

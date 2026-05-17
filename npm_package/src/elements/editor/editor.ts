@@ -23,6 +23,7 @@ import {
   loadEditorConstructor,
   loadEditorPlugins,
   normalizeCustomTranslations,
+  normalizeEditorLanguage,
   queryEditablesElements,
   queryEditablesSnapshotContent,
   resolveEditorConfigElementReferences,
@@ -142,16 +143,7 @@ export class EditorComponentElement extends HTMLElement {
    * Creates the CKEditor instance.
    */
   private async createEditor() {
-    const editorId = this.getAttribute('data-cke-editor-id')!;
     const preset = JSON.parse(this.getAttribute('data-cke-preset')!) as EditorPreset;
-    const contextId = this.getAttribute('data-cke-context-id');
-    const rootAttributes = JSON.parse(this.getAttribute('data-cke-root-attributes') || '{}');
-    const editableHeight = this.getAttribute('data-cke-editable-height') ? Number.parseInt(this.getAttribute('data-cke-editable-height')!, 10) : null;
-    const saveDebounceMs = Number.parseInt(this.getAttribute('data-cke-save-debounce-ms')!, 10);
-    const language = JSON.parse(this.getAttribute('data-cke-language')!) as EditorLanguage;
-    const useWatchdog = this.hasAttribute('data-cke-watchdog');
-    const content = JSON.parse(this.getAttribute('data-cke-content')!) as Record<string, string>;
-
     const {
       customTranslations,
       editorType,
@@ -159,6 +151,19 @@ export class EditorComponentElement extends HTMLElement {
       watchdogConfig,
       config: { plugins, ...config },
     } = preset;
+
+    const editorId = this.getAttribute('data-cke-editor-id')!;
+    const contextId = this.getAttribute('data-cke-context-id');
+    const rootAttributes = JSON.parse(this.getAttribute('data-cke-root-attributes') || '{}');
+    const editableHeight = this.getAttribute('data-cke-editable-height') ? Number.parseInt(this.getAttribute('data-cke-editable-height')!, 10) : null;
+    const saveDebounceMs = Number.parseInt(this.getAttribute('data-cke-save-debounce-ms')!, 10);
+    const useWatchdog = this.hasAttribute('data-cke-watchdog');
+    const content = JSON.parse(this.getAttribute('data-cke-content')!) as Record<string, string>;
+    const language = (
+      this.getAttribute('data-cke-language')
+        ? JSON.parse(this.getAttribute('data-cke-language')!)
+        : normalizeEditorLanguage(preset.config['language'])
+    ) as EditorLanguage;
 
     const Constructor = await loadEditorConstructor(editorType);
     const context = await (
