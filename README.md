@@ -28,6 +28,7 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
     - [📡 CDN Distribution](#-cdn-distribution)
   - [Basic Usage 🏁](#basic-usage-)
     - [Simple Editor ✏️](#simple-editor-️)
+      - [All available parameters 📋](#all-available-parameters-)
     - [Static rendering with `Interactive=true` 🧱](#static-rendering-with-interactivetrue-)
   - [Configuration ⚙️](#configuration-️)
     - [Override default preset configuration 🧑‍💻](#override-default-preset-configuration-)
@@ -292,74 +293,80 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
 @using Microsoft.JSInterop
 
 <CKE5Editor
-    @* ── Content ── *@
-    @bind-Value="content"              @* two-way binding; string or Dictionary for multiroot *@
-    OnChange="HandleChange"            @* fired on every change; receives (editor ref, new value) *@
+    @* --- Content --- *@
+    @bind-Value="content"
+    OnChange="HandleChange"
 
-    @* ── Identity & appearance ── *@
-    Id="my-editor"                     @* HTML id; auto-generated when omitted *@
-    Class="my-editor-class"            @* CSS class on the outermost container *@
-    Style="display:block;width:100%"   @* inline style; this is the default value *@
-    EditableHeight="300"               @* fixed height (px) of the editable area *@
+    @* --- Identity & Appearance --- *@
+    Id="my-editor"
+    Class="my-editor-class"
+    Style="display:block;width:100%"
+    EditableHeight="300"
 
-    @* ── Editor type & preset ── *@
-    EditorType="EditorType.Classic"    @* Classic | Inline | Balloon | Decoupled | Multiroot *@
-    Preset="@("default")"              @* preset name from AddCKEditor(...); accepts object too *@
+    @* --- Editor Type & Configuration --- *@
+    EditorType="EditorType.Classic"
+    Preset="default"
+    Config="editorConfig"
+    MergeConfig="editorMergeConfig"
 
-    @* ── Configuration overrides ── *@
-    Config="@(new Dictionary<string, object>         @* shallow-replaces the preset config *@
+    @* --- Localization --- *@
+    Language="en"
+    CustomTranslations="editorTranslations"
+
+    @* --- Forms & Context --- *@
+    Name="body"
+    Required="true"
+    ContextId="shared-context"
+
+    @* --- Behavior & Performance --- *@
+    SaveDebounceMs="300"
+    Watchdog="true"
+    Interactive="false"
+    RootAttributes="editorRootAttributes"
+
+    @* --- Lifecycle Events --- *@
+    OnReady="HandleReady"
+    OnFocus="HandleFocus"
+    OnBlur="HandleBlur"
+    OnImageUpload="HandleImageUpload"
+/>
+
+@code {
+    // ── CONTENT ──
+    private EditorValue content = "<p>Hello world!</p>";
+
+    // ── CONFIGURATION ──
+    // Shallow-replaces the default configuration
+    private Dictionary<string, object> editorConfig = new()
     {
         ["plugins"] = new[] { "Essentials", "Paragraph", "Bold", "Italic", "Undo" },
         ["toolbar"] = new Dictionary<string, object>
         {
             ["items"] = new[] { "bold", "italic", "|", "undo", "redo" }
         }
-    })"
-    MergeConfig="@(new Dictionary<string, object>    @* deep-merges into the preset config *@
+    };
+
+    // Deep-merges with the default configuration
+    private Dictionary<string, object> editorMergeConfig = new()
     {
         ["menuBar"] = new Dictionary<string, object> { ["isVisible"] = true }
-    })"
+    };
 
-    @* ── Localisation ── *@
-    Language="@("pl")"                 @* language code or Language { UI, Content } object *@
-    CustomTranslations="@(new EditorTranslations     @* per-language UI string overrides *@
+    // ── LOCALIZATION & ATTRIBUTES ──
+    // UI text overrides for specific languages
+    private EditorTranslations editorTranslations = new()
     {
-        ["pl"] = new Dictionary<string, string> { ["Bold"] = "Pogrubienie" }
-    })"
+        ["en"] = new Dictionary<string, string> { ["Bold"] = "Strong" }
+    };
 
-    @* ── Forms ── *@
-    Name="body"                        @* name of the hidden <input> for form submission *@
-    Required="true"                    @* marks the hidden input as required *@
-
-    @* ── Context ── *@
-    ContextId="shared-context"         @* join a <CKE5Context>; can also be inherited via cascading *@
-
-    @* ── Performance ── *@
-    SaveDebounceMs="300"               @* ms to wait after last keystroke before notifying .NET (default 250) *@
-    Watchdog="true"                    @* auto-restart the editor after a crash (default true) *@
-
-    @* ── SSR / static rendering ── *@
-    Interactive="false"                @* true = bootstrap via web component without .NET interop *@
-
-    @* ── Root attributes ── *@
-    RootAttributes="@(new EditorRootAttributes       @* ARIA / data-* attrs on the editable root *@
+    // ARIA / data-* attributes for the main editable element
+    private EditorRootAttributes editorRootAttributes = new()
     {
         ["aria-label"] = "Article body",
         ["data-testid"] = "editor-root"
-    })"
+    };
 
-    @* ── Lifecycle events ── *@
-    OnReady="HandleReady"              @* editor fully initialized; receives IJSObjectReference *@
-    OnFocus="HandleFocus"              @* editor gained focus; receives IJSObjectReference *@
-    OnBlur="HandleBlur"               @* editor lost focus; receives IJSObjectReference *@
-
-    @* ── Image upload ── *@
-    OnImageUpload="HandleImageUpload"  @* async handler: (fileName, mimeType, base64) → public URL *@
-/>
-
-@code {
-    private EditorValue content = "<p>Hello world!</p>";
-
+    // ── EVENT HANDLERS ──
     private async Task HandleChange(CKE5EditorChangeEventArgs args)
     {
         Console.WriteLine($"Content changed: {args.Value}");
@@ -386,8 +393,8 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
 
     private async Task<string?> HandleImageUpload(CKE5ImageUploadEventArgs args)
     {
-        // Upload args.Data (Base64) to your storage and return the public URL.
-        // Return null to reject the upload.
+        // Upload args.Data (Base64) to your server/storage here
+        // Return the public image URL, or 'null' to reject the upload.
         return $"https://cdn.example.com/images/{args.FileName}";
     }
 }
