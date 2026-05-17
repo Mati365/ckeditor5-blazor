@@ -85,6 +85,13 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
 
 Choose between two installation methods based on your needs. Both approaches provide the same editor API in Razor, but differ in how CKEditor 5 assets are loaded and managed.
 
+### 🔗 Compatibility
+
+| CKEditor 5 Version | Integration Version |
+|--------------------|---------------------|
+| 43.x – 47.x        | `<= 1.10.x`         |
+| >= 48.0            | `>= 1.11.x`         |
+
 ### 🏠 Self-hosted via MSBuild
 
 Bundle CKEditor 5 with your application for full control over assets, versioning, and offline support. During build, the package downloads required assets automatically.
@@ -101,7 +108,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
 
    ```xml
    <PropertyGroup>
-     <CKEditorVersion>47.6.0</CKEditorVersion>
+     <CKEditorVersion>48.1.0</CKEditorVersion>
      <CKEditorIncludePremiumAssets>false</CKEditorIncludePremiumAssets>
      <CKBoxVersion>2.8.0</CKBoxVersion>
      <CKBoxIncludeAssets>true</CKBoxIncludeAssets>
@@ -203,7 +210,7 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
         .ExtendDefaultPreset(preset => preset
             .WithCloud(new CloudConfig
             {
-                EditorVersion = "47.6.0",
+                EditorVersion = "48.1.0",
                 Premium = false
             })));
    ```
@@ -273,6 +280,121 @@ Create a basic editor with default toolbar and plugins.
     };
 }
 ```
+
+#### All available parameters 📋
+
+All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and remove what you don't need.
+
+```razor
+@using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Model
+@using CKEditor.Blazor.Model.Events
+@using Microsoft.JSInterop
+
+<CKE5Editor
+    @* ── Content ── *@
+    @bind-Value="content"              @* two-way binding; string or Dictionary for multiroot *@
+    OnChange="HandleChange"            @* fired on every change; receives (editor ref, new value) *@
+
+    @* ── Identity & appearance ── *@
+    Id="my-editor"                     @* HTML id; auto-generated when omitted *@
+    Class="my-editor-class"            @* CSS class on the outermost container *@
+    Style="display:block;width:100%"   @* inline style; this is the default value *@
+    EditableHeight="300"               @* fixed height (px) of the editable area *@
+
+    @* ── Editor type & preset ── *@
+    EditorType="EditorType.Classic"    @* Classic | Inline | Balloon | Decoupled | Multiroot *@
+    Preset="@("default")"              @* preset name from AddCKEditor(...); accepts object too *@
+
+    @* ── Configuration overrides ── *@
+    Config="@(new Dictionary<string, object>         @* shallow-replaces the preset config *@
+    {
+        ["plugins"] = new[] { "Essentials", "Paragraph", "Bold", "Italic", "Undo" },
+        ["toolbar"] = new Dictionary<string, object>
+        {
+            ["items"] = new[] { "bold", "italic", "|", "undo", "redo" }
+        }
+    })"
+    MergeConfig="@(new Dictionary<string, object>    @* deep-merges into the preset config *@
+    {
+        ["menuBar"] = new Dictionary<string, object> { ["isVisible"] = true }
+    })"
+
+    @* ── Localisation ── *@
+    Language="@("pl")"                 @* language code or Language { UI, Content } object *@
+    CustomTranslations="@(new EditorTranslations     @* per-language UI string overrides *@
+    {
+        ["pl"] = new Dictionary<string, string> { ["Bold"] = "Pogrubienie" }
+    })"
+
+    @* ── Forms ── *@
+    Name="body"                        @* name of the hidden <input> for form submission *@
+    Required="true"                    @* marks the hidden input as required *@
+
+    @* ── Context ── *@
+    ContextId="shared-context"         @* join a <CKE5Context>; can also be inherited via cascading *@
+
+    @* ── Performance ── *@
+    SaveDebounceMs="300"               @* ms to wait after last keystroke before notifying .NET (default 250) *@
+    Watchdog="true"                    @* auto-restart the editor after a crash (default true) *@
+
+    @* ── SSR / static rendering ── *@
+    Interactive="false"                @* true = bootstrap via web component without .NET interop *@
+
+    @* ── Root attributes ── *@
+    RootAttributes="@(new EditorRootAttributes       @* ARIA / data-* attrs on the editable root *@
+    {
+        ["aria-label"] = "Article body",
+        ["data-testid"] = "editor-root"
+    })"
+
+    @* ── Lifecycle events ── *@
+    OnReady="HandleReady"              @* editor fully initialized; receives IJSObjectReference *@
+    OnFocus="HandleFocus"              @* editor gained focus; receives IJSObjectReference *@
+    OnBlur="HandleBlur"               @* editor lost focus; receives IJSObjectReference *@
+
+    @* ── Image upload ── *@
+    OnImageUpload="HandleImageUpload"  @* async handler: (fileName, mimeType, base64) → public URL *@
+/>
+
+@code {
+    private EditorValue content = "<p>Hello world!</p>";
+
+    private async Task HandleChange(CKE5EditorChangeEventArgs args)
+    {
+        Console.WriteLine($"Content changed: {args.Value}");
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleReady(IJSObjectReference editor)
+    {
+        Console.WriteLine("Editor ready");
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleFocus(IJSObjectReference editor)
+    {
+        Console.WriteLine("Editor focused");
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleBlur(IJSObjectReference editor)
+    {
+        Console.WriteLine("Editor blurred");
+        await Task.CompletedTask;
+    }
+
+    private async Task<string?> HandleImageUpload(CKE5ImageUploadEventArgs args)
+    {
+        // Upload args.Data (Base64) to your storage and return the public URL.
+        // Return null to reject the upload.
+        return $"https://cdn.example.com/images/{args.FileName}";
+    }
+}
+```
+
+> [!TIP]
+> You rarely need every parameter at once. Most editors only need `@bind-Value` and optionally `EditorType`, `EditableHeight`, and `Preset`. All other parameters have sensible defaults.
 
 ### Static rendering with `Interactive=true` 🧱
 
@@ -1162,10 +1284,12 @@ The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. T
 To start the development environment, run:
 
 ```bash
+pnpm install
+pnpm run dotnet:install-local-package # It'll fetch CKEditor 5 package
 pnpm run dev
 ```
 
-The playground app will be available at [http://localhost:5173](http://localhost:5173).
+The playground app will be available at [http://localhost:5175](http://localhost:5175).
 
 ### Running Tests 🧪
 

@@ -37,8 +37,8 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.18",
-    "ckeditor5": "^47.6.0",
-    "ckeditor5-premium-features": "^47.6.0",
+    "ckeditor5": "^48.1.0",
+    "ckeditor5-premium-features": "^48.1.0",
     "happy-dom": "^20.8.9",
     "typescript": "^5.9.3",
     "vite": "^7.3.2",

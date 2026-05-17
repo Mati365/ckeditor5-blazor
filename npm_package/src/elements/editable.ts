@@ -88,9 +88,9 @@ export class EditableComponentElement extends HTMLElement {
 
       editor.addRoot(rootName, {
         isUndoable: false,
-        attributes: { ...rootAttributes },
+        modelAttributes: { ...rootAttributes },
         ...content !== null && {
-          data: content,
+          initialData: content,
         },
       });
 

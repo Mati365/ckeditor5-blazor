@@ -9,7 +9,7 @@ public class CloudConfigTests
     {
         var config = new CloudConfig();
 
-        Assert.Equal("47.6.0", config.EditorVersion);
+        Assert.Equal("48.1.0", config.EditorVersion);
         Assert.False(config.Premium);
         Assert.Equal("https://cdn.ckeditor.com", config.CdnUrl);
         Assert.Null(config.CKBox);
