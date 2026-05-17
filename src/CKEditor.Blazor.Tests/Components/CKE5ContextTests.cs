@@ -19,7 +19,7 @@ public class CKE5ContextTests : BunitContext
         var context = cut.Find("cke5-context");
 
         Assert.Equal("test-context", context.GetAttribute("data-cke-context-id"));
-        Assert.NotNull(context.GetAttribute("data-cke-language"));
+        Assert.Null(context.GetAttribute("data-cke-language"));
         Assert.NotNull(context.GetAttribute("data-cke-context"));
     }
 

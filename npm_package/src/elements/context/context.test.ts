@@ -84,102 +84,143 @@ describe('context component', () => {
       expect(context?.plugins.get('CustomPlugin')).toBeInstanceOf(CustomPlugin);
     });
 
-    it('registered plugins should support custom translations', async () => {
-      class CustomPlugin extends ContextPlugin {
-        static get pluginName() {
-          return 'CustomPlugin';
+    describe('language param', () => {
+      it('should support passing null language for context translations', async () => {
+        class CustomPlugin extends ContextPlugin {
+          static get pluginName() {
+            return 'CustomPlugin';
+          }
+
+          getHelloTitle() {
+            return this.context.t('HELLO');
+          }
         }
 
-        getHelloTitle() {
-          return this.context.t('HELLO');
-        }
-      }
+        CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
 
-      CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
-
-      renderTestContext(createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
-        customTranslations: {
-          en: {
-            HELLO: 'Hello from CustomPlugin',
+        renderTestContext(createContextSnapshot(
+          DEFAULT_TEST_CONTEXT_ID,
+          {
+            customTranslations: {
+              en: {
+                HELLO: 'Hello from CustomPlugin',
+              },
+              pl: {
+                HELLO: 'Witaj z CustomPlugin',
+              },
+            },
+            config: {
+              plugins: ['CustomPlugin'],
+            },
           },
-        },
-        config: {
-          plugins: ['CustomPlugin'],
-        },
-      }));
+          null,
+        ));
 
-      const { context } = await waitForTestContext();
-      const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
+        const { context } = await waitForTestContext();
+        const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
 
-      expect(plugin.getHelloTitle()).toBe('Hello from CustomPlugin');
+        expect(plugin.getHelloTitle()).toBe('Hello from CustomPlugin');
+      });
+
+      it('should support custom language for context translations', async () => {
+        class CustomPlugin extends ContextPlugin {
+          static get pluginName() {
+            return 'CustomPlugin';
+          }
+
+          getHelloTitle() {
+            return this.context.t('HELLO');
+          }
+        }
+
+        CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
+
+        renderTestContext(createContextSnapshot(
+          DEFAULT_TEST_CONTEXT_ID,
+          {
+            customTranslations: {
+              en: {
+                HELLO: 'Hello from CustomPlugin',
+              },
+              pl: {
+                HELLO: 'Witaj z CustomPlugin',
+              },
+            },
+            config: {
+              plugins: ['CustomPlugin'],
+            },
+          },
+          {
+            ui: 'pl',
+            content: 'pl',
+          },
+        ));
+
+        const { context } = await waitForTestContext();
+        const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
+
+        expect(plugin.getHelloTitle()).toBe('Witaj z CustomPlugin');
+      });
     });
 
-    it('should support custom language for context translations', async () => {
-      class CustomPlugin extends ContextPlugin {
-        static get pluginName() {
-          return 'CustomPlugin';
+    describe('translations', () => {
+      it('registered plugins should support custom translations', async () => {
+        class CustomPlugin extends ContextPlugin {
+          static get pluginName() {
+            return 'CustomPlugin';
+          }
+
+          getHelloTitle() {
+            return this.context.t('HELLO');
+          }
         }
 
-        getHelloTitle() {
-          return this.context.t('HELLO');
-        }
-      }
+        CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
 
-      CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
-
-      renderTestContext(createContextSnapshot(
-        DEFAULT_TEST_CONTEXT_ID,
-        {
+        renderTestContext(createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
           customTranslations: {
             en: {
               HELLO: 'Hello from CustomPlugin',
-            },
-            pl: {
-              HELLO: 'Witaj z CustomPlugin',
             },
           },
           config: {
             plugins: ['CustomPlugin'],
           },
-        },
-        {
-          ui: 'pl',
-          content: 'pl',
-        },
-      ));
+        }));
 
-      const { context } = await waitForTestContext();
-      const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
+        const { context } = await waitForTestContext();
+        const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
 
-      expect(plugin.getHelloTitle()).toBe('Witaj z CustomPlugin');
-    });
+        expect(plugin.getHelloTitle()).toBe('Hello from CustomPlugin');
+      });
 
-    it('should support translations references in config', async () => {
-      renderTestContext(createContextSnapshot(
-        DEFAULT_TEST_CONTEXT_ID,
-        {
-          customTranslations: {
-            en: {
-              HELLO: 'Hello from CustomPlugin',
+      it('should support translations references in config', async () => {
+        renderTestContext(createContextSnapshot(
+          DEFAULT_TEST_CONTEXT_ID,
+          {
+            customTranslations: {
+              en: {
+                HELLO: 'Hello from CustomPlugin',
+              },
+              pl: {
+                HELLO: 'Witaj z CustomPlugin',
+              },
             },
-            pl: {
-              HELLO: 'Witaj z CustomPlugin',
+            config: {
+              customConfig: { $translation: 'HELLO' },
             },
           },
-          config: {
-            customConfig: { $translation: 'HELLO' },
+          {
+            ui: 'pl',
+            content: 'pl',
           },
-        },
-        {
-          ui: 'pl',
-          content: 'pl',
-        },
-      ));
+        ));
 
-      const { context } = await waitForTestContext();
-      const translation = context?.config.get('customConfig') as string;
+        const { context } = await waitForTestContext();
+        const translation = context?.config.get('customConfig') as string;
 
-      expect(translation).toBe('Witaj z CustomPlugin');
+        expect(translation).toBe('Witaj z CustomPlugin');
+      });
     });
   });
 

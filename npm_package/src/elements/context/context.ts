@@ -8,6 +8,7 @@ import {
   loadAllEditorTranslations,
   loadEditorPlugins,
   normalizeCustomTranslations,
+  normalizeEditorLanguage,
   resolveEditorConfigElementReferences,
   resolveEditorConfigTranslations,
 } from '../editor/utils';
@@ -46,11 +47,16 @@ export class ContextComponentElement extends HTMLElement {
    * Initializes the context component.
    */
   private async initializeContext(): Promise<void> {
-    const contextId = this.getAttribute('data-cke-context-id')!;
-    const language = JSON.parse(this.getAttribute('data-cke-language')!) as EditorLanguage;
     const contextConfig = JSON.parse(this.getAttribute('data-cke-context')!) as ContextConfig;
-
     const { customTranslations, watchdogConfig, config: { plugins, ...config } } = contextConfig;
+
+    const contextId = this.getAttribute('data-cke-context-id')!;
+    const language = (
+      this.getAttribute('data-cke-language')
+        ? JSON.parse(this.getAttribute('data-cke-language')!)
+        : normalizeEditorLanguage(config['language'])
+    ) as EditorLanguage;
+
     const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins ?? []);
 
     // Mix custom translations with loaded translations.

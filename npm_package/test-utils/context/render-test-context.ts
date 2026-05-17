@@ -21,7 +21,11 @@ export function renderTestContext(
   const component = html.tag('cke5-context', {
     'data-cke-context-id': fullSnapshot.contextId,
     'data-cke-context': JSON.stringify(fullSnapshot.context),
-    'data-cke-language': JSON.stringify(fullSnapshot.language),
+    'data-cke-language': (
+      fullSnapshot.language
+        ? JSON.stringify(fullSnapshot.language)
+        : null
+    ),
     ...interactive && {
       'data-cke-interactive': 'true',
     },

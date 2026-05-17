@@ -16,7 +16,7 @@ import { DEFAULT_TEST_CONTEXT_ID } from './wait-for-test-context';
 export function createContextSnapshot(
   contextId: string = DEFAULT_TEST_CONTEXT_ID,
   config: Partial<ContextConfig> = {},
-  language: EditorLanguage = { ui: 'en', content: 'en' },
+  language: EditorLanguage | string | null = { ui: 'en', content: 'en' },
 ): Snapshot {
   return {
     contextId,
@@ -49,5 +49,5 @@ export type Snapshot = {
   /**
    * The language of the context UI and content.
    */
-  language: EditorLanguage;
+  language: EditorLanguage | string | null;
 };
