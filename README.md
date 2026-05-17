@@ -332,10 +332,8 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
 />
 
 @code {
-    // ── CONTENT ──
     private EditorValue content = "<p>Hello world!</p>";
 
-    // ── CONFIGURATION ──
     // Shallow-replaces the default configuration
     private Dictionary<string, object> editorConfig = new()
     {
@@ -352,7 +350,6 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
         ["menuBar"] = new Dictionary<string, object> { ["isVisible"] = true }
     };
 
-    // ── LOCALIZATION & ATTRIBUTES ──
     // UI text overrides for specific languages
     private EditorTranslations editorTranslations = new()
     {
@@ -366,7 +363,6 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
         ["data-testid"] = "editor-root"
     };
 
-    // ── EVENT HANDLERS ──
     private async Task HandleChange(CKE5EditorChangeEventArgs args)
     {
         Console.WriteLine($"Content changed: {args.Value}");
