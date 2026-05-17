@@ -585,9 +585,7 @@ For self-hosted setups, translation assets are handled by your bundler automatic
 <CKE5Editor
     Language="@("pl")"
     Value="<p>Treść z polskim UI</p>" />
-
 @* or *@
-
 <CKE5Editor
     Language="@(new Language { UI = "pl", Content = "en" })"
     Value="<p>Polish UI, English content</p>" />
