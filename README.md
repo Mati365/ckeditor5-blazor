@@ -286,6 +286,10 @@ Create a basic editor with default toolbar and plugins.
 
 All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and remove what you don't need.
 
+<details>
+
+<summary>Expand code snippet</summary>
+
 ```razor
 @using CKEditor.Blazor.Components
 @using CKEditor.Blazor.Model
@@ -396,9 +400,11 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
 }
 ```
 
+</details>
+
 > [!TIP]
 > You rarely need every parameter at once. Most editors only need `@bind-Value` and optionally `EditorType`, `EditableHeight`, and `Preset`. All other parameters have sensible defaults.
-
+  
 ### Static rendering with `Interactive=true` 🧱
 
 By default, components initialize through Blazor .NET interop callbacks.
