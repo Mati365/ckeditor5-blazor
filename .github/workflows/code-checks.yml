@@ -42,7 +42,7 @@ jobs:
 
       - name: Upload JS coverage to Codecov
         if: env.CODECOV_TOKEN != ''
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ./npm_package/coverage/lcov.info
           flags: javascript
@@ -87,7 +87,7 @@ jobs:
 
       - name: Upload .NET coverage to Codecov
         if: env.CODECOV_TOKEN != ''
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ./TestResults/**/coverage.cobertura.xml
           flags: dotnet
