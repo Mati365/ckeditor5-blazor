@@ -17,10 +17,12 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
     .from(document.querySelectorAll<HTMLElement>(`cke5-editable[data-cke-editor-id="${editorId}"]`))
     .reduce<Record<string, EditableItem>>((acc, element) => {
       const rootName = element.getAttribute('data-cke-root-name')!;
+      const modelElement = element.getAttribute('data-cke-root-model-element-name') || null;
 
       acc[rootName] = {
         element: element.querySelector<HTMLElement>('[data-cke-editable-content]'),
         content: element.getAttribute('data-cke-content'),
+        modelElement,
       };
 
       return acc;
@@ -36,11 +38,13 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
   // v8 ignore next -- @preserve
   const editorContent: Record<string, string> = JSON.parse(rootEditorElement.getAttribute('data-cke-content')!) ?? {};
   const classicMainElement = document.querySelector<HTMLElement>(`#${editorId}_editor`);
+  const rootEditorModelElement = rootEditorElement.getAttribute('data-cke-root-model-element-name');
 
   if (classicMainElement && !acc['main']) {
     acc['main'] = {
       element: classicMainElement,
       content: editorContent['main'] || '',
+      modelElement: rootEditorModelElement,
     };
   }
 
@@ -50,6 +54,7 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
       acc[rootName] = {
         ...acc[rootName],
         content: acc[rootName].content ?? rootContent,
+        modelElement: acc[rootName].modelElement ?? rootEditorModelElement,
       };
     }
     else {
@@ -57,6 +62,7 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
       acc[rootName] = {
         element: null,
         content: rootContent,
+        modelElement: rootEditorModelElement,
       };
     }
   }
@@ -71,4 +77,5 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
 export type EditableItem = {
   element: HTMLElement | null;
   content: string | null;
+  modelElement: string | null;
 };

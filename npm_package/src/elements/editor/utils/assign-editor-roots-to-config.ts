@@ -32,12 +32,13 @@ export function assignEditorRootsToConfig<C extends EditorConfig>(
       ...config.roots?.[rootKey],
       ...rootKey === 'main' ? config.root : {},
 
-      /* v8 ignore next 11 */
+      /* v8 ignore next 12 */
       ...rootKey in editables
         ? {
             ...editables[rootKey]!.content !== null && {
               initialData: editables[rootKey]!.content,
             },
+            modelElement: editables[rootKey]!.modelElement || '$root',
             ...!isClassicEditor && editables[rootKey]!.element !== null && {
               element: editables[rootKey]!.element,
             },

@@ -233,6 +233,42 @@ describe('editable component', () => {
 
       expect(editor.model.document.getRoot('foo')).toBe(null);
     });
+
+    it('should set proper root element name on initial added root', async () => {
+      renderTestEditable({
+        content: '<p>Foo</p>',
+        rootName: 'foo',
+        rootModelElementName: '$inlineRoot',
+      });
+
+      renderTestEditor({
+        preset: createEditorPreset('multiroot'),
+        content: {},
+      });
+
+      const editor = await waitForTestEditor<MultiRootEditor>();
+
+      expect(editor.model.document.getRoot('foo')?.name).to.be.equal('$inlineRoot');
+    });
+
+    it('should set proper root element name on lazy added root', async () => {
+      renderTestEditor({
+        preset: createEditorPreset('multiroot'),
+        content: {},
+      });
+
+      const editor = await waitForTestEditor<MultiRootEditor>();
+
+      renderTestEditable({
+        content: '<p>Foo</p>',
+        rootName: 'foo',
+        rootModelElementName: '$inlineRoot',
+      });
+
+      await vi.waitFor(() => {
+        expect(editor.model.document.getRoot('foo')?.name).to.be.equal('$inlineRoot');
+      });
+    });
   });
 
   describe('input value synchronization', () => {
@@ -252,7 +288,8 @@ describe('editable component', () => {
       renderTestEditable({
         rootName: 'foo',
         content: '<p>Initial foo component</p>',
-      }, { withInput: false });
+        withInput: false,
+      });
 
       await vi.waitFor(() => {
         expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo component</p>');
@@ -263,7 +300,8 @@ describe('editable component', () => {
       const element = renderTestEditable({
         rootName: 'foo',
         content: '<p>Initial foo component</p>',
-      }, { withInput: true });
+        withInput: true,
+      });
 
       const input = element.querySelector('input')!;
 
@@ -277,7 +315,8 @@ describe('editable component', () => {
         rootName: 'foo',
         content: '<p>Initial foo component</p>',
         saveDebounceMs: 500,
-      }, { withInput: true });
+        withInput: true,
+      });
 
       const input = element.querySelector('input')!;
 

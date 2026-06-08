@@ -1,35 +1,36 @@
-import type { EditableSnapshot } from './create-editable-snapshot';
-
 import { isEmptyObject } from '../../src/shared';
+import { DEFAULT_TEST_EDITOR_ID } from '../editor';
 import { html } from '../html';
-import { createEditableSnapshot } from './create-editable-snapshot';
 
 /**
  * Renders the editable component in the DOM.
  */
 export function renderTestEditable(
-  snapshot: Partial<EditableSnapshot> = {},
   {
     withInput,
     interactive = true,
+    rootName = 'main',
+    content = null,
+    editorId = DEFAULT_TEST_EDITOR_ID,
+    rootAttributes = {},
+    rootModelElementName: rootModelElement,
+    saveDebounceMs,
   }: Options = {},
 ): HTMLElement {
-  const fullSnapshot: EditableSnapshot = {
-    ...createEditableSnapshot(),
-    ...snapshot,
-  };
-
   const element = html.tag(
     'cke5-editable',
     {
-      ...fullSnapshot.editorId && {
-        'data-cke-editor-id': fullSnapshot.editorId,
+      ...editorId && {
+        'data-cke-editor-id': editorId,
       },
-      'data-cke-root-name': fullSnapshot.rootName,
-      'data-cke-content': fullSnapshot.content,
-      'data-cke-save-debounce-ms': fullSnapshot.saveDebounceMs,
-      ...!isEmptyObject(fullSnapshot.rootAttributes) && {
-        'data-cke-root-attributes': JSON.stringify(fullSnapshot.rootAttributes),
+      'data-cke-root-name': rootName,
+      'data-cke-content': content,
+      'data-cke-save-debounce-ms': saveDebounceMs,
+      ...rootModelElement && {
+        'data-cke-root-model-element-name': rootModelElement,
+      },
+      ...!isEmptyObject(rootAttributes) && {
+        'data-cke-root-attributes': JSON.stringify(rootAttributes),
       },
       ...interactive && {
         'data-cke-interactive': 'true',
@@ -53,6 +54,43 @@ export function renderTestEditable(
 }
 
 type Options = {
+  /**
+   * Render HTML input.
+   */
   withInput?: boolean;
+
+  /**
+   * Rendering in interactive mode.
+   */
   interactive?: boolean;
+
+  /**
+   * The ID of the editor instance this editable belongs to.
+   */
+  editorId?: string;
+
+  /**
+   * The name of the root element in the editor.
+   */
+  rootName?: string;
+
+  /**
+   * The attributes that should be applied to the root element.
+   */
+  rootAttributes?: Record<string, string>;
+
+  /**
+   * The name of the root model element.
+   */
+  rootModelElementName?: string | null;
+
+  /**
+   * The initial content value for the editable.
+   */
+  content?: string | null;
+
+  /**
+   * The debounce time in milliseconds for saving changes.
+   */
+  saveDebounceMs?: number;
 };

@@ -28,7 +28,7 @@ describe('createEditableBlazorInterop', () => {
     dotnetInterop = createDotNetInteropMock();
     globalThis.DotNet = createDotnet();
 
-    element = renderTestEditable({}, {
+    element = renderTestEditable({
       interactive: false,
     });
 
@@ -120,7 +120,10 @@ describe('createEditableBlazorInterop', () => {
   });
 
   it('should ignore events for an unknown root name', async () => {
-    const custom = renderTestEditable({ rootName: 'other' }, { interactive: false });
+    const custom = renderTestEditable({
+      rootName: 'other',
+      interactive: false,
+    });
 
     const interop = createEditableBlazorInterop(custom, dotnetInterop);
     const editor = await waitForTestEditor();

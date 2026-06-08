@@ -176,6 +176,13 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
     public EditorRootAttributes? RootAttributes { get; set; }
 
     /// <summary>
+    /// Optional name of the root element. Setting it to '$inlineRoot' enables you to
+    /// use the editor in paragraph-like editing mode.
+    /// </summary>
+    [Parameter]
+    public string RootModelElement { get; set; } = "$root";
+
+    /// <summary>
     /// Event callback invoked when the editor gains focus.
     /// The JS object reference for the editor is provided as the callback argument.
     /// </summary>

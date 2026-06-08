@@ -30,6 +30,9 @@ export function renderTestEditor(
     'data-cke-save-debounce-ms': fullSnapshot.saveDebounceMs,
     'data-cke-language': JSON.stringify(fullSnapshot.language),
     'data-cke-content': JSON.stringify(fullSnapshot.content),
+    ...fullSnapshot.rootModelElementName && {
+      'data-cke-root-model-element-name': fullSnapshot.rootModelElementName,
+    },
     ...!isEmptyObject(fullSnapshot.rootAttributes) && {
       'data-cke-root-attributes': JSON.stringify(fullSnapshot.rootAttributes),
     },

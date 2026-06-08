@@ -21,6 +21,7 @@ export function createEditorSnapshot(): EditorSnapshot {
     },
     saveDebounceMs: 500,
     rootAttributes: {},
+    rootModelElementName: null,
     watchdog: false,
   };
 }
@@ -58,6 +59,11 @@ export type EditorSnapshot = {
    * The attributes that should be applied to the root element.
    */
   rootAttributes: Record<string, string>;
+
+  /**
+   * The name of the root model element.
+   */
+  rootModelElementName: string | null;
 
   /**
    * The content of the editor, mapped by ID of root elements.

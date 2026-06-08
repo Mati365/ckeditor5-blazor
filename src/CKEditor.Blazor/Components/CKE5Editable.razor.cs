@@ -133,6 +133,13 @@ public partial class CKE5Editable : ComponentBase, IAsyncDisposable, ICKE5Intera
     [Parameter]
     public EditorRootAttributes? RootAttributes { get; set; }
 
+    /// <summary>
+    /// Optional name of the root element. Setting it to '$inlineRoot' enables you to
+    /// use the editor in paragraph-like editing mode.
+    /// </summary>
+    [Parameter]
+    public string RootModelElement { get; set; } = "$root";
+
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
 
