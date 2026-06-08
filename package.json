@@ -23,7 +23,7 @@
     "dotnet:test": "dotnet test src/CKEditor.Blazor.Tests/CKEditor.Blazor.Tests.csproj --results-directory ./TestResults /p:CollectCoverage=true; EXIT=$?; dotnet reportgenerator -reports:\"TestResults/**/coverage.cobertura.xml\" -targetdir:\"coveragereport\" -reporttypes:Html; exit $EXIT",
     "dotnet:e2e": "dotnet test demos/CKEditor.Demo.Tests/CKEditor.Demo.Tests.csproj",
     "dotnet:e2e:headed": "PLAYWRIGHT_HEADLESS=false dotnet test demos/CKEditor.Demo.Tests/CKEditor.Demo.Tests.csproj",
-    "dotnet:e2e:install": "npx playwright@1.58.0 install chromium",
+    "dotnet:e2e:install": "npx playwright@1.60.0 install chromium",
     "pkg:base": "pnpm -F ckeditor5-blazor-playground run pkg:base",
     "pkg:premium": "pnpm -F ckeditor5-blazor-playground run pkg:premium"
   },
