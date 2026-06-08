@@ -19,7 +19,7 @@ internal static class BuildMetadataReader
     /// Falls back to the default version if metadata is not found.
     /// </summary>
     /// <returns>The CKEditor version string.</returns>
-    public static string ResolveCKEditorVersion() => ResolveValue(_ckeditorVersionKey) ?? "48.1.0";
+    public static string ResolveCKEditorVersion() => ResolveValue(_ckeditorVersionKey) ?? "48.2.0";
 
     /// <summary>
     /// Resolves the CKBox version from assembly metadata.

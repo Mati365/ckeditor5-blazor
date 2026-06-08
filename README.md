@@ -109,7 +109,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
 
    ```xml
    <PropertyGroup>
-     <CKEditorVersion>48.1.0</CKEditorVersion>
+     <CKEditorVersion>48.2.0</CKEditorVersion>
      <CKEditorIncludePremiumAssets>false</CKEditorIncludePremiumAssets>
      <CKBoxVersion>2.8.0</CKBoxVersion>
      <CKBoxIncludeAssets>true</CKBoxIncludeAssets>
@@ -211,7 +211,7 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
         .ExtendDefaultPreset(preset => preset
             .WithCloud(new CloudConfig
             {
-                EditorVersion = "48.1.0",
+                EditorVersion = "48.2.0",
                 Premium = false
             })));
    ```
@@ -404,7 +404,7 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
 
 > [!TIP]
 > You rarely need every parameter at once. Most editors only need `@bind-Value` and optionally `EditorType`, `EditableHeight`, and `Preset`. All other parameters have sensible defaults.
-  
+
 ### Static rendering with `Interactive=true` 🧱
 
 By default, components initialize through Blazor .NET interop callbacks.
