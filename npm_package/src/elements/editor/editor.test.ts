@@ -211,11 +211,11 @@ describe('editor component', () => {
         });
       });
 
-      it('should use default `$root` if editable root name is not specified', async () => {
+      it('should use `main` root element name if editable root name is not specified', async () => {
         renderTestEditor({
           preset: createEditorPreset('decoupled'),
           content: {},
-          rootModelElementName: '$miamia',
+          rootModelElementName: '$inlineRoot',
         });
 
         renderTestEditable();
@@ -223,7 +223,7 @@ describe('editor component', () => {
         const editor = await waitForTestEditor<DecoupledEditor>();
 
         await vi.waitFor(() => {
-          expect(editor.model.document.getRoot()?.name).toEqual('$root');
+          expect(editor.model.document.getRoot()?.name).toEqual('$inlineRoot');
         });
       });
     });

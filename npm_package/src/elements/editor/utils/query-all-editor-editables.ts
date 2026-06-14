@@ -40,7 +40,10 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
   const classicMainElement = document.querySelector<HTMLElement>(`#${editorId}_editor`);
   const rootEditorModelElement = rootEditorElement.getAttribute('data-cke-root-model-element-name');
 
-  if (classicMainElement && !acc['main']) {
+  if ('main' in acc) {
+    acc['main'].modelElement ??= rootEditorModelElement;
+  }
+  else if (classicMainElement) {
     acc['main'] = {
       element: classicMainElement,
       content: editorContent['main'] || '',
