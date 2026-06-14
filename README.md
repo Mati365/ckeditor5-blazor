@@ -24,6 +24,7 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
 - [ckeditor5-blazor](#ckeditor5-blazor)
   - [Table of Contents](#table-of-contents)
   - [Installation 🚀](#installation-)
+    - [🔗 Compatibility](#-compatibility)
     - [🏠 Self-hosted via MSBuild](#-self-hosted-via-msbuild)
     - [📡 CDN Distribution](#-cdn-distribution)
   - [Basic Usage 🏁](#basic-usage-)
@@ -49,6 +50,10 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
     - [Balloon editor 🎈](#balloon-editor-)
     - [Decoupled editor 🌐](#decoupled-editor-)
     - [Multiroot editor 🌳](#multiroot-editor-)
+    - [Paragraph-like editing 📄](#paragraph-like-editing-)
+      - [Classic / Balloon / Inline editor](#classic--balloon--inline-editor)
+      - [Decoupled editor](#decoupled-editor)
+      - [Multiroot editor](#multiroot-editor)
   - [Advanced configuration ⚙️](#advanced-configuration-️)
     - [Blazor Data Binding 🔄](#blazor-data-binding-)
       - [Two way binding using `@bind-Value` ⛓️](#two-way-binding-using-bind-value-️)
@@ -184,7 +189,7 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
    dotnet add package CKEditor.Blazor
    ```
 
-2. (Optional) **Override MSBuild asset options** in your `.csproj`:
+2. **(Optional) Override MSBuild asset options** in your `.csproj`:
 
    ```xml
    <PropertyGroup>
@@ -287,7 +292,6 @@ Create a basic editor with default toolbar and plugins.
 All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and remove what you don't need.
 
 <details>
-
 <summary>Expand code snippet</summary>
 
 ```razor
@@ -312,6 +316,9 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
     Preset="default"
     Config="editorConfig"
     MergeConfig="editorMergeConfig"
+
+    @* --- Root model element (use "$inlineRoot" for paragraph-like editing) --- *@
+    RootModelElement="$root"
 
     @* --- Localization --- *@
     Language="en"
@@ -429,7 +436,7 @@ You can configure editor presets in `AddCKEditor(...)`. The default preset is `d
 
 ### Override default preset configuration 🧑‍💻
 
-You can pass initial content and merge additional configuration. In scenario below, the `MergeConfig` will extend the `default` preset configuration to make the menu bar visible. It's only shallow merge, so nested arrays will be replaced, not merged.
+You can pass initial content and merge additional configuration. In the scenario below, the `MergeConfig` will extend the `default` preset configuration to make the menu bar visible. It's only shallow merge, so nested arrays will be replaced, not merged.
 
 ```razor
 <CKE5Editor
@@ -459,7 +466,7 @@ builder.Services.AddCKEditor(options =>
 
 ### Define your configuration directly in the view 💻
 
-Override the default configuration with custom plugins and toolbar items. In this example, the editor will only have `Essentials`, `Paragraph`, `Bold`, `Italic`, `Link`, and `Undo` plugins, and the toolbar will contain only bold, italic, link, undo, and redo buttons. The editor locale is set to Polish (`pl`), and a custom translation for the "Bold" label is provided.
+Override the default configuration with custom plugins and toolbar items.
 
 ```razor
 <CKE5Editor
@@ -526,7 +533,7 @@ Use it in Razor:
 
 ### Dynamic presets 🎯
 
-You can also create dynamic presets that can be modified at runtime. This is useful if you want to change the editor configuration based on user input or other conditions.
+You can also create dynamic presets that can be modified at runtime:
 
 ```razor
 @using CKEditor.Blazor.Model
@@ -542,9 +549,7 @@ You can also create dynamic presets that can be modified at runtime. This is use
 
 ### Element references using `$element` 🎯
 
-Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use `PresetConfig.ElementSelector` anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization (serializes to `{ "$element": "selector" }`).
-
-This is useful, for example, when pointing a plugin to an external container element:
+Use `PresetConfig.ElementSelector` anywhere in your editor configuration where CKEditor expects an `HTMLElement`:
 
 ```csharp
 using CKEditor.Blazor.Model;
@@ -557,8 +562,6 @@ builder.Services.AddCKEditor(options => options
             ["container"] = PresetConfig.ElementSelector("#my-container")
         })));
 ```
-
-If no element matching the selector is found in the DOM, a warning is printed and `null` is used instead.
 
 ## Providing the License Key 🗝️
 
@@ -581,7 +584,7 @@ If you use CKEditor 5 under GPL, use `GPL` as your key value.
 
 ## Localization 🌍
 
-Support multiple languages in the editor UI and content. Configure translation loading, custom dictionaries, and reuse translation keys or DOM element references across your configuration.
+Support multiple languages in the editor UI and content.
 
 ### Translation Loading 🌐
 
@@ -609,7 +612,6 @@ builder.Services.AddCKEditor(options => options
         {
             ["Bold"] = "Pogrubienie",
             ["Italic"] = "Kursywa",
-            ["Link"] = "Link",
             ["Undo"] = "Cofnij",
             ["Redo"] = "Ponów"
         })));
@@ -635,7 +637,7 @@ You can override translations per editor instance via `CustomTranslations`:
 
 ### Translation references using `$translation` ✨
 
-In addition to supplying full translation maps, configuration objects may contain reference helpers that point to existing translation keys. This is particularly handy when you want to reuse an existing label or avoid repeating the same string in multiple places. Use `PresetConfig.TranslationReference` in any part of your editor or context configuration, and the package will automatically replace it with the correct localized string during initialization (serializes to `{ "$translation": "key" }`).
+Use `PresetConfig.TranslationReference` in any part of your editor or context configuration:
 
 ```csharp
 using CKEditor.Blazor.Model;
@@ -652,8 +654,6 @@ builder.Services.AddCKEditor(options => options
             ["buttonLabel"] = PresetConfig.TranslationReference("Bold")
         })));
 ```
-
-When the editor or context is created, the helper will be resolved against the loaded translations (including any custom translations you provided). If the key is not found, a warning is printed and `null` will be used instead.
 
 ## Editor Types 🖊️
 
@@ -726,7 +726,7 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 ```
 
 > [!NOTE]
-> `EditorId` is passed down automatically to `CKE5Editable` and `CKE5UIPart` components via cascading parameters if they are placed inside the `<CKE5Editor>`. If placed outside, you must manually set `EditorId` on each of them to link them to the specific editor. Otherwise, all editables will bind to the first editor instance found in the DOM.
+> `EditorId` is passed down automatically to `CKE5Editable` and `CKE5UIPart` components via cascading parameters if they are placed inside the `<CKE5Editor>`. If placed outside, you must manually set `EditorId` on each of them to link them to the specific editor.
 
 ### Multiroot editor 🌳
 
@@ -734,7 +734,7 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
 
 ![CKEditor 5 Multiroot Editor in Blazor application](docs/multiroot-editor.png)
 
-You can set the content for all roots at once via the `<CKE5Editor>` component using a dictionary. Both `Value` and `@bind-Value` are supported (see [Blazor Data Binding](#blazor-data-binding-)).
+You can set the content for all roots at once via the `<CKE5Editor>` component using a dictionary:
 
 ```razor
 @using CKEditor.Blazor.Model
@@ -743,9 +743,9 @@ You can set the content for all roots at once via the `<CKE5Editor>` component u
     EditorType="EditorType.Multiroot"
     Value="@(new Dictionary<string, string>
     {
-        ["header"] = "<p>Header content</p>",
+        ["header"]  = "<p>Header content</p>",
         ["content"] = "<p>Main content</p>",
-        ["footer"] = "<p>Footer content</p>"
+        ["footer"]  = "<p>Footer content</p>"
     })">
 
     <CKE5UIPart Name="toolbar" Class="mb-4" />
@@ -756,7 +756,7 @@ You can set the content for all roots at once via the `<CKE5Editor>` component u
 </CKE5Editor>
 ```
 
-Alternatively, you can provide the initial `Value` or use two-way binding (`@bind-Value`) directly on the individual editable components (see [Multiroot Editables binding](#multiroot-editables-️)):
+Alternatively, provide `Value` or `@bind-Value` directly on each `CKE5Editable`:
 
 ```razor
 @using CKEditor.Blazor.Model
@@ -764,14 +764,158 @@ Alternatively, you can provide the initial `Value` or use two-way binding (`@bin
 <CKE5Editor EditorType="EditorType.Multiroot">
     <CKE5UIPart Name="toolbar" Class="mb-4" />
 
-    <CKE5Editable RootName="header" Value="<p>Header content</p>" />
+    <CKE5Editable RootName="header"  Value="<p>Header content</p>" />
     <CKE5Editable RootName="content" Value="<p>Main content</p>" />
-    <CKE5Editable RootName="footer" Value="<p>Footer content</p>" />
+    <CKE5Editable RootName="footer"  Value="<p>Footer content</p>" />
 </CKE5Editor>
 ```
 
+### Paragraph-like editing 📄
+
+Paragraph-like editing mode restricts the editor's root to a single block element — by default a `<p>` — preventing users from inserting multiple top-level block elements (headings, lists, etc.). This is ideal for short-text fields such as article titles, captions, or descriptions: places where you want the richness of inline formatting (bold, italic, links) but a single-paragraph constraint.
+
+The feature is enabled by setting `RootModelElement="$inlineRoot"` on the `CKE5Editor` or `CKE5Editable` component. This maps the CKEditor 5 model root to the `$inlineRoot` schema element, which allows only inline content.
+
 > [!NOTE]
-> `EditorId` is passed down automatically to `CKE5Editable` and `CKE5UIPart` components via cascading parameters if they are placed inside the `<CKE5Editor>`. If placed outside, you must manually set `EditorId` on each of them to link them to the specific editor. Otherwise, all editables will bind to the first editor instance found in the DOM.
+> Make sure your preset's toolbar and plugin list does not include block-level items (`Heading`, `List`, `BlockQuote`, etc.) when using `RootModelElement="$inlineRoot"`, as those commands require block-level schema support that is absent in inline roots.
+
+#### Classic / Balloon / Inline editor
+
+For single-root editor types, set `RootModelElement` directly on the `<CKE5Editor>` component. It maps the implicit `main` root to `$inlineRoot`:
+
+```razor
+@using CKEditor.Blazor.Components
+@using CKEditor.Blazor.Model
+
+@* Paragraph-like classic editor — single <p>, inline formatting only *@
+<CKE5Editor
+    Id="title-editor"
+    EditorType="EditorType.Classic"
+    RootModelElement="$inlineRoot"
+    @bind-Value="title" />
+
+@code {
+    private EditorValue title = "<p>Article title goes here</p>";
+}
+```
+
+The same parameter works with `EditorType.Balloon` and `EditorType.Inline`:
+
+```razor
+@using CKEditor.Blazor.Model
+
+@* Paragraph-like balloon editor — ideal for image captions *@
+<CKE5Editor
+    EditorType="EditorType.Balloon"
+    RootModelElement="$inlineRoot"
+    @bind-Value="caption" />
+
+@code {
+    private EditorValue caption = "<p>Image caption</p>";
+}
+```
+
+If you reuse the inline-text pattern in many places, define a dedicated preset without block-level plugins and reference it by name:
+
+```csharp
+// Program.cs
+using CKEditor.Blazor.Model;
+using CKEditor.Blazor.Services;
+
+builder.Services.AddCKEditor(options => options
+    .AddPreset("inline_text", preset => preset
+        .WithEditorType(EditorType.Classic)
+        .WithPlugins("Essentials", "Bold", "Italic", "Link")
+        .WithToolbar("bold", "italic", "link")));
+```
+
+```razor
+@* No need to repeat RootModelElement — just use the preset *@
+<CKE5Editor
+    Preset="@("inline_text")"
+    RootModelElement="$inlineRoot"
+    @bind-Value="title" />
+```
+
+#### Decoupled editor
+
+For the decoupled editor, set `RootModelElement` on the `CKE5Editable` child component rather than on `CKE5Editor`:
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Editor EditorType="EditorType.Decoupled">
+    <CKE5UIPart Name="toolbar" Class="mb-4" />
+
+    @* Single editable in paragraph-like mode *@
+    <CKE5Editable
+        RootName="main"
+        RootModelElement="$inlineRoot"
+        @bind-Value="caption"
+        InnerClass="p-2 border border-gray-300" />
+</CKE5Editor>
+
+@code {
+    private string caption = "<p>Caption text here</p>";
+}
+```
+
+#### Multiroot editor
+
+In a multiroot setup each `CKE5Editable` can independently opt in to paragraph-like mode. Set `RootModelElement="$inlineRoot"` only on the roots that should be restricted; leave the others without it (they default to the standard `$root`):
+
+```razor
+@using CKEditor.Blazor.Model
+
+<CKE5Editor EditorType="EditorType.Multiroot">
+    <CKE5UIPart Name="toolbar" Class="mb-4" />
+
+    @* Title root: paragraph-like, only inline content allowed *@
+    <CKE5Editable
+        RootName="title"
+        RootModelElement="$inlineRoot"
+        @bind-Value="title"
+        Class="p-2 text-2xl font-bold border border-gray-300" />
+
+    @* Lead root: paragraph-like, only inline content allowed *@
+    <CKE5Editable
+        RootName="lead"
+        RootModelElement="$inlineRoot"
+        @bind-Value="lead"
+        Class="p-2 italic border border-gray-300" />
+
+    @* Body root: normal editing, full block content allowed *@
+    <CKE5Editable
+        RootName="body"
+        @bind-Value="body"
+        Class="p-2 border border-gray-300" />
+</CKE5Editor>
+
+@code {
+    private string title = "<p>Page Title</p>";
+    private string lead  = "<p>Short introductory sentence.</p>";
+    private string body  = "<p>Full article content with headings, lists, etc.</p>";
+
+    private void Save()
+    {
+        // title and lead contain single-paragraph HTML only
+        // body may contain full block-level HTML
+    }
+}
+```
+
+When the editor initialises, each root whose `RootModelElement` is set to `"$inlineRoot"` is registered with that model element name. You can verify this at runtime via the JavaScript `EditorsRegistry`:
+
+```javascript
+import { EditorsRegistry } from 'ckeditor5-blazor';
+
+EditorsRegistry.the.waitFor('my-editor').then((editor) => {
+  // '$inlineRoot' for restricted roots, '$root' for unrestricted ones
+  console.log(editor.model.document.getRoot('title')?.name); // '$inlineRoot'
+  console.log(editor.model.document.getRoot('lead')?.name);  // '$inlineRoot'
+  console.log(editor.model.document.getRoot('body')?.name);  // '$root'
+});
+```
 
 ## Advanced configuration ⚙️
 
@@ -783,7 +927,7 @@ Use native Blazor binding and callbacks for full client ⇄ server synchronizati
 
 #### Two way binding using `@bind-Value` ⛓️
 
-Bind editor content to your component state. After each typed character, the editor updates the bound value with the current content. The `SaveDebounceMs` parameter allows you to control the debounce delay for content updates, preventing excessive updates on every keystroke. Keep in mind that `SaveDebounceMs` only affects the frequency of updates when editor is focused and typing is happening. If you programmatically update the bound value from .NET (e.g. loading a template), the changes will be pushed to the editor immediately without any debounce.
+Bind editor content to your component state. The `SaveDebounceMs` parameter allows you to control the debounce delay for content updates.
 
 ```razor
 <CKE5Editor
@@ -800,17 +944,17 @@ Bind editor content to your component state. After each typed character, the edi
 For multiroot/decoupled layouts, you can bind each editable separately by placing `@bind-Value` on the individual `CKE5Editable` components.
 
 ```razor
-<CKE5Editable RootName="header" @bind-Value="header" />
+<CKE5Editable RootName="header"  @bind-Value="header" />
 <CKE5Editable RootName="content" @bind-Value="content" />
 
 @code {
-    private string header = "<p>Header</p>";
+    private string header  = "<p>Header</p>";
     private string content = "<p>Main</p>";
 }
 ```
 
 > [!NOTE]
-> `EditorId` is passed down automatically to `CKE5Editable` and `CKE5UIPart` components via cascading parameters if they are placed inside the `<CKE5Editor>`. If placed outside, you must manually set `EditorId` on each of them to link them to the specific editor. Otherwise, all editables will bind to the first editor instance found in the DOM.
+> `EditorId` is passed down automatically to `CKE5Editable` and `CKE5UIPart` components via cascading parameters if they are placed inside the `<CKE5Editor>`. If placed outside, you must manually set `EditorId` on each of them to link them to the specific editor.
 
 #### Bidirectional Communication using Events 🔄
 
@@ -852,8 +996,6 @@ Update bound value from C# and editor content is pushed automatically:
 ### Editor Ready Event ✅
 
 An event is fired when the editor has finished initializing and is fully ready.
-This can be useful for triggering UI updates, focusing related components, or
-performing any logic that must wait until the editor is available.
 
 ```razor
 @using Microsoft.JSInterop
@@ -870,7 +1012,7 @@ performing any logic that must wait until the editor is available.
 
 ### Focus Tracking 👁️
 
-You can track editor focus state using `OnFocus` and `OnBlur` events. This is useful for UI adjustments or validation logic based on whether the editor is active.
+Track editor focus state using `OnFocus` and `OnBlur` events:
 
 ```razor
 <CKE5Editor
@@ -899,7 +1041,7 @@ Example of setting root attributes on a single-root editor:
     })" />
 ```
 
-In multiroot/decoupled layouts each `CKE5Editable` can carry its own set of root attributes, allowing you to annotate every root independently:
+In multiroot/decoupled layouts each `CKE5Editable` can carry its own set of root attributes:
 
 ```razor
 @using CKEditor.Blazor.Model
@@ -920,22 +1062,10 @@ In multiroot/decoupled layouts each `CKE5Editable` can carry its own set of root
         Value="<p>Main content</p>"
         RootAttributes="@(new EditorRootAttributes
         {
-            ["custom-model-attribute"] = "content-root",
-            ["other-attribute"] = "another-value"
-        })" />
-
-    <CKE5Editable
-        RootName="footer"
-        Value="<p>Footer</p>"
-        RootAttributes="@(new EditorRootAttributes
-        {
-            ["custom-model-attribute"] = "footer-root",
-            ["other-attribute"] = "another-value"
+            ["custom-model-attribute"] = "content-root"
         })" />
 </CKE5Editor>
 ```
-
-Attributes are reactive - updating `RootAttributes` from .NET after initialization will push the changes to the live editor root without a full re-render.
 
 > [!NOTE]
 > `RootAttributes` serializes to JSON and is passed to the CKEditor 5 root via the `data-cke-root-attributes` HTML attribute. Empty dictionaries are treated as absent — no attribute is emitted.
@@ -963,22 +1093,15 @@ Behavior depends on whether the `OnImageUpload` callback is set:
 
     private async Task<string?> HandleImageUpload(CKE5ImageUploadEventArgs args)
     {
-        // args.FileName  — original file name, e.g. "photo.jpg"
-        // args.MimeType  — MIME type, e.g. "image/jpeg"
-        // args.Payload   — Base64-encoded file content
-
         var bytes = Convert.FromBase64String(args.Payload);
-
-        // Save to your storage and return the public URL:
         var url = await MyStorageService.SaveAsync(args.FileName, args.MimeType, bytes);
-
-        return url; // CKEditor 5 embeds this URL in the document
+        return url;
     }
 }
 ```
 
 > [!NOTE]
-> The `OnImageUpload` callback must be set on a server-interactive component (`@rendermode InteractiveServer` or `InteractiveWebAssembly`). It will not be invoked in static rendering mode.
+> The `OnImageUpload` callback must be set on a server-interactive component. It will not be invoked in static rendering mode.
 
 ### Watchdog 🐶
 
@@ -1024,7 +1147,6 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 @using CKEditor.Blazor.Model.License
 
 <HeadContent>
-    @* Declared once globally. No stylesheets, no preload hints. *@
     <CKE5Importmap Distribution="DistributionChannel.SH" />
 </HeadContent>
 ```
@@ -1036,7 +1158,6 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 @using CKEditor.Blazor.Components.Assets
 @using CKEditor.Blazor.Model.License
 
-@* Load stylesheets only on this page. *@
 <CKE5Assets Distribution="DistributionChannel.SH" EmitImportMap="false" />
 
 <CKE5Editor Value="@("<p>Hello!</p>")" />
@@ -1051,7 +1172,6 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 @using CKEditor.Blazor.Model.License
 
 <HeadContent>
-    @* Declared once globally. No stylesheets, no preload hints. *@
     <CKE5Importmap Distribution="DistributionChannel.Cloud" />
 </HeadContent>
 ```
@@ -1063,13 +1183,10 @@ Place `<CKE5Importmap Distribution="..." />` in your shared layout `<head>`, as 
 @using CKEditor.Blazor.Components.Assets
 @using CKEditor.Blazor.Model.License
 
-@* Load stylesheets only on this page. *@
 <CKE5Assets Distribution="DistributionChannel.Cloud" EmitImportMap="false" />
 
 <CKE5Editor Value="@("<p>Hello!</p>")" />
 ```
-
-Both `CKE5Importmap` and `CKE5Assets` accept the same `Preset`, `Nonce`, and `CustomImportMap` parameters.
 
 #### Disabling module preload hints ⏳
 
@@ -1077,8 +1194,6 @@ By default the per-page component still emits `<link rel="modulepreload">` hints
 
 ```razor
 <CKE5Assets Distribution="DistributionChannel.Cloud" EmitImportMap="false" EmitModulePreload="false" />
-@* or *@
-<CKE5Assets Distribution="DistributionChannel.SH" EmitImportMap="false" EmitModulePreload="false" />
 ```
 
 ## Context 🤝
@@ -1091,18 +1206,14 @@ The **context** feature is designed to group multiple editor instances together,
 
 ```razor
 <CKE5Context Id="shared-context">
-    @* ContextId is inferred automatically for nested editors *@
     <CKE5Editor Value="<p>Editor 1 content</p>" />
     <CKE5Editor Value="<p>Editor 2 content</p>" />
 </CKE5Context>
 
-@* Editors outside the context can reference it by Id to share the same context *@
 <CKE5Editor ContextId="shared-context" Value="<p>Editor 3 content</p>" />
 ```
 
 ### Custom context config 🌐
-
-Pass a context config object directly using `ContextPreset`:
 
 ```razor
 @using CKEditor.Blazor.Model
@@ -1122,8 +1233,6 @@ Pass a context config object directly using `ContextPreset`:
 
 ### Context config DSL 🛠️
 
-`ContextConfig` exposes the same fluent builder API as `PresetConfig`, so you can compose context configuration without working directly with raw collections:
-
 ```csharp
 using CKEditor.Blazor.Model;
 using CKEditor.Blazor.Services;
@@ -1138,7 +1247,7 @@ builder.Services.AddCKEditor(options => options
         .WithConfigEntry("toolbar", new[] { "bold" })));
 ```
 
-You can also build a context inline in Razor using the same API:
+You can also build a context inline in Razor:
 
 ```razor
 @using CKEditor.Blazor.Model
@@ -1156,8 +1265,6 @@ You can also build a context inline in Razor using the same API:
 
 ![Custom plugin demo](docs/custom-highlight-plugin.png)
 
-There are two ways to register a custom plugin, depending on whether you have a JavaScript bundle in your app.
-
 ### Import from a JS module 📦
 
 If you don't have a custom JavaScript bundle, point the editor directly at your plugin file using `Plugin.Import` in Blazor. No extra JavaScript setup is needed — the editor will load the module on demand.
@@ -1173,7 +1280,7 @@ builder.Services.AddCKEditor(options => options
 
 The module at `./my-custom-plugin.js` must export the plugin class as its default export:
 
-```ts
+```javascript
 // my-custom-plugin.js
 import { Plugin } from 'ckeditor5';
 
@@ -1192,7 +1299,7 @@ export default class MyCustomPlugin extends Plugin {
 
 If your app already has a JavaScript bundle that runs before the editor, you can register plugins there using `CustomEditorPluginsRegistry`. The plugin must be registered **before** the editor initializes.
 
-```ts
+```js
 import { CustomEditorPluginsRegistry as Registry } from 'ckeditor5-blazor';
 
 const unregister = Registry.the.register('MyCustomPlugin', async () => {
@@ -1222,75 +1329,67 @@ builder.Services.AddCKEditor(options => options
 
 ## Editors and Contexts registry 👀
 
-The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. They allow you to watch for changes in registered editors and contexts, get instances directly, or execute logic when a specific editor or context appears.
+The package provides two registries: `EditorsRegistry` and `ContextsRegistry`.
 
-- **`mountEffect(id, callback)`** — executes logic whenever the editor is initialized or restarted. This is the recommended way to implement integrations that must be re-initialized throughout the editor's lifecycle.
+- **`mountEffect(id, callback)`** — executes logic whenever the editor is initialized or restarted.
 
-    ```javascript
-    import { EditorsRegistry } from 'ckeditor5-blazor';
+  ```javascript
+  import { EditorsRegistry } from 'ckeditor5-blazor';
 
-    EditorsRegistry.the.mountEffect('editor1', (editor) => {
-        const watcher = () => {
-            console.info('Changed data:', editor.getData());
-        };
+  EditorsRegistry.the.mountEffect('editor1', (editor) => {
+      const watcher = () => {
+          console.info('Changed data:', editor.getData());
+      };
 
-        editor.model.document.on('change:data', watcher);
+      editor.model.document.on('change:data', watcher);
 
-        // Cleanup: This will be executed when the editor is unmounted.
-        return () => {
-            editor.model.document.off('change:data', watcher);
-        };
-    });
-    ```
+      return () => {
+          editor.model.document.off('change:data', watcher);
+      };
+  });
+  ```
 
 - **`watch(callback)`** — react whenever registry state changes.
 
-    ```javascript
-    import { EditorsRegistry } from 'ckeditor5-blazor';
+  ```javascript
+  import { EditorsRegistry } from 'ckeditor5-blazor';
 
-    const unregisterWatcher = EditorsRegistry.the.watch((editors) => {
-      console.log('Registered editors changed:', editors);
-    });
+  const unregisterWatcher = EditorsRegistry.the.watch((editors) => {
+    console.log('Registered editors changed:', editors);
+  });
 
-    // Later, you can unregister the watcher
-    unregisterWatcher();
-    ```
+  unregisterWatcher();
+  ```
 
-- **`waitFor(id)`** — get the instance directly. If it is already registered, the promise resolves immediately.
+- **`waitFor(id)`** — get the instance directly. Resolves immediately if already registered.
 
-    ```javascript
-    import { EditorsRegistry } from 'ckeditor5-blazor';
+  ```javascript
+  import { EditorsRegistry } from 'ckeditor5-blazor';
 
-    EditorsRegistry.the.waitFor('editor1').then((editor) => {
-      console.log('Editor "editor1" is registered:', editor);
-    });
-
-    // ... init editor somewhere later
-    ```
+  EditorsRegistry.the.waitFor('editor1').then((editor) => {
+    console.log('Editor "editor1" is registered:', editor);
+  });
+  ```
 
 - **`execute(id, callback)`** — run logic immediately if the instance already exists, or later when it appears.
 
-    ```javascript
-    import { EditorsRegistry } from 'ckeditor5-blazor';
+  ```javascript
+  import { EditorsRegistry } from 'ckeditor5-blazor';
 
-    EditorsRegistry.the.execute('editor1', (editor) => {
-      console.log('Current data:', editor.getData());
-    });
-    ```
+  EditorsRegistry.the.execute('editor1', (editor) => {
+    console.log('Current data:', editor.getData());
+  });
+  ```
 
 - The same methods are available on `ContextsRegistry` for shared contexts:
 
-    ```javascript
-    import { ContextsRegistry } from 'ckeditor5-blazor';
+  ```javascript
+  import { ContextsRegistry } from 'ckeditor5-blazor';
 
-    ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
-      console.log('Context is ready:', watchdog.context);
-    });
-
-    ContextsRegistry.the.execute('shared-context', (watchdog) => {
-      console.log('Context state:', watchdog.state);
-    });
-    ```
+  ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
+    console.log('Context is ready:', watchdog.context);
+  });
+  ```
 
 ## Development ⚙️
 
@@ -1302,7 +1401,7 @@ pnpm run dotnet:install-local-package # It'll fetch CKEditor 5 package
 pnpm run dev
 ```
 
-The playground app will be available at [http://localhost:5175](http://localhost:5175).
+The playground app will be available at <http://localhost:5175>.
 
 ### Running Tests 🧪
 
@@ -1337,7 +1436,7 @@ If you're looking for similar stuff, check these out:
   Smooth CKEditor 5 integration for Ruby on Rails. Works with standard forms, Turbo, and Hotwire. Easy setup, custom builds, and localization support.
 
 - [ckeditor5-symfony](https://github.com/Mati365/ckeditor5-symfony)
-  Native CKEditor 5 integration for Symfony. Works with Symfony 6.x+, standard forms and Twig. Supports custom builds, multiple editor configurations, asset management, and localization. Designed to be simple, predictable, and framework-native.
+  Native CKEditor 5 integration for Symfony. Works with Symfony 6.x+, standard forms and Twig. Supports custom builds, multiple editor configurations, asset management, and localization.
 
 - [ckeditor5-livewire](https://github.com/Mati365/ckeditor5-livewire)
   CKEditor 5 integration for Laravel Livewire. Real-time syncing, custom builds, localization, and easy setup.
