@@ -258,7 +258,6 @@ Create a basic editor with default toolbar and plugins.
 
 <CKE5Editor
     EditorType="EditorType.Classic"
-    Value="@("<p>Initial content</p>")"
     EditableHeight="300"
     @bind-Value="content" />
 
