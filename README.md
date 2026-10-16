@@ -65,9 +65,6 @@ CKEditor 5 for Blazor - a lightweight multiplatform WYSIWYG editor integration f
     - [Focus Tracking 👁️](#focus-tracking-️)
     - [Root Attributes 🏷️](#root-attributes-️)
     - [Image Upload 🖼️](#image-upload-️)
-    - [Watchdog 🐶](#watchdog-)
-      - [Configuring the watchdog ⚙️](#configuring-the-watchdog-️)
-      - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
     - [Splitting Assets: Global Import Map with Per-page Styles 🗺️](#splitting-assets-global-import-map-with-per-page-styles-️)
       - [Self-hosted variant 🏠](#self-hosted-variant-)
       - [CDN variant 📡](#cdn-variant-)
@@ -96,7 +93,8 @@ Choose between two installation methods based on your needs. Both approaches pro
 | CKEditor 5 Version | Integration Version |
 |--------------------|---------------------|
 | 43.x – 47.x        | `<= 1.10.x`         |
-| >= 48.0            | `>= 1.11.x`         |
+| 48.x               | `1.11.x - 1.12.x`   |
+| >= 49.x            | `>= 1.13.x`         |
 
 ### 🏠 Self-hosted via MSBuild
 
@@ -114,7 +112,7 @@ Bundle CKEditor 5 with your application for full control over assets, versioning
 
    ```xml
    <PropertyGroup>
-     <CKEditorVersion>48.2.0</CKEditorVersion>
+     <CKEditorVersion>49.0.0</CKEditorVersion>
      <CKEditorIncludePremiumAssets>false</CKEditorIncludePremiumAssets>
      <CKBoxVersion>2.8.0</CKBoxVersion>
      <CKBoxIncludeAssets>true</CKBoxIncludeAssets>
@@ -216,7 +214,7 @@ Load CKEditor 5 from CKSource CDN using import maps. This method avoids local as
         .ExtendDefaultPreset(preset => preset
             .WithCloud(new CloudConfig
             {
-                EditorVersion = "48.2.0",
+                EditorVersion = "49.0.0",
                 Premium = false
             })));
    ```
@@ -330,7 +328,6 @@ All parameters accepted by `<CKE5Editor>` with short inline comments. Copy and r
 
     @* --- Behavior & Performance --- *@
     SaveDebounceMs="300"
-    Watchdog="true"
     Interactive="false"
     RootAttributes="editorRootAttributes"
 
@@ -1102,33 +1099,6 @@ Behavior depends on whether the `OnImageUpload` callback is set:
 > [!NOTE]
 > The `OnImageUpload` callback must be set on a server-interactive component. It will not be invoked in static rendering mode.
 
-### Watchdog 🐶
-
-By default, the editor is wrapped in a watchdog that automatically tries to recover from crashes by reinitializing the editor instance. This ensures a more resilient user experience, especially in cases where custom plugins or configurations might cause instability.
-
-#### Configuring the watchdog ⚙️
-
-You can customize the watchdog's behavior—such as the maximum number of restarts before it stops trying to recover—by passing a dictionary to the `WithWatchdogConfig` method in your preset configuration.
-
-Here is an example of how to configure the watchdog to limit the number of restarts to `2`, alongside loading custom plugins and adjusting self-hosted assets:
-
-```csharp
-builder.Services.AddCKEditor(options => options
-    .ExtendDefaultPreset(p => p
-        .WithWatchdogConfig(new Dictionary<string, object>
-        {
-            ["crashNumberLimit"] = 2
-        })));
-```
-
-#### Disabling the watchdog 🚫
-
-In some scenarios, such as when using a highly customized editor setup or when you want to handle errors manually, you might want to disable the watchdog. You can do this by setting the `Watchdog` parameter to `false` on the `CKE5Editor` component:
-
-```razor
-<CKE5Editor Watchdog="false" />
-```
-
 ### Splitting Assets: Global Import Map with Per-page Styles 🗺️
 
 The typical setup places `<CKE5Assets Distribution="..." />` in the shared `<head>` of your layout. This works perfectly when most routes use the editor.
@@ -1385,8 +1355,8 @@ The package provides two registries: `EditorsRegistry` and `ContextsRegistry`.
   ```javascript
   import { ContextsRegistry } from 'ckeditor5-blazor';
 
-  ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
-    console.log('Context is ready:', watchdog.context);
+  ContextsRegistry.the.waitFor('shared-context').then((context) => {
+    console.log('Context is ready:', context);
   });
   ```
 

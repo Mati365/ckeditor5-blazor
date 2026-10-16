@@ -1,9 +1,9 @@
 import type { WaitForInteractiveResult } from '../../shared';
 import type { EditorLanguage } from '../editor';
 import type { ContextConfig } from './typings';
-import type { Context, ContextWatchdog } from 'ckeditor5';
+import type { Context } from 'ckeditor5';
 
-import { isEmptyObject, waitForDOMReady, waitForInteractiveAttribute } from '../../shared';
+import { isEmptyObject, makeDestroyIdempotent, waitForDOMReady, waitForInteractiveAttribute } from '../../shared';
 import {
   loadAllEditorTranslations,
   loadEditorPlugins,
@@ -19,9 +19,9 @@ import { ContextsRegistry } from './contexts-registry';
  */
 export class ContextComponentElement extends HTMLElement {
   /**
-   * The promise that resolves to the context instance.
+   * The promise that resolves to the context instance created for the current connection.
    */
-  private contextPromise: Promise<ContextWatchdog<Context>> | null = null;
+  private contextPromise: Promise<Context> | null = null;
 
   /**
    * Wait result for the interactive attribute.
@@ -29,10 +29,20 @@ export class ContextComponentElement extends HTMLElement {
   private interactiveWait?: WaitForInteractiveResult;
 
   /**
+   * Unregisters the error callback of the current context instance.
+   */
+  private offEditorError: VoidFunction | null = null;
+
+  /**
    * Mounts the context component.
    */
   async connectedCallback() {
     await waitForDOMReady();
+
+    // Removed while waiting for the DOM.
+    if (!this.isConnected) {
+      return;
+    }
 
     // By default, components do not bootstrap from web components.
     // They bootstrap only when they receive the data-cke-interactive flag, which the interop sets.
@@ -47,10 +57,99 @@ export class ContextComponentElement extends HTMLElement {
    * Initializes the context component.
    */
   private async initializeContext(): Promise<void> {
-    const contextConfig = JSON.parse(this.getAttribute('data-cke-context')!) as ContextConfig;
-    const { customTranslations, watchdogConfig, config: { plugins, ...config } } = contextConfig;
-
     const contextId = this.getAttribute('data-cke-context-id')!;
+
+    ContextsRegistry.the.resetErrors(contextId);
+
+    // Assigned synchronously, so `disconnectedCallback()` always has something to destroy,
+    // even if the element is disconnected while plugins or translations are still loading.
+    const contextPromise = this.createContext();
+
+    this.contextPromise = contextPromise;
+
+    try {
+      const context = await contextPromise;
+      const { onEditorError } = await import('ckeditor5');
+
+      // Removed in the meantime. `disconnectedCallback()` awaits `contextPromise` and destroys the context.
+      if (!this.isConnected) {
+        return;
+      }
+
+      // Nothing restarts the context after a crash anymore. Its state may be inconsistent, so lock
+      // its editors in read-only mode. Errors attributed to editors are handled by editor components.
+      this.offEditorError = onEditorError(({ error, source }) => {
+        if (source !== context) {
+          return;
+        }
+
+        console.error(`CKEditor5 context with ID "${contextId}" failed.`, error);
+
+        for (const editor of context.editors) {
+          editor.enableReadOnlyMode('error-handling');
+        }
+      });
+
+      ContextsRegistry.the.register(contextId, context);
+    }
+    catch (error: any) {
+      // Without this, editors waiting for this context would hang forever.
+      console.error(`Error initializing CKEditor5 context with ID "${contextId}":`, error);
+      ContextsRegistry.the.error(contextId, error);
+    }
+  }
+
+  /**
+   * Destroys the context component. Destroying the context destroys all its editors too.
+   */
+  async disconnectedCallback() {
+    // Disconnect the observer if present.
+    this.interactiveWait?.disconnect();
+
+    // Let's hide the element during destruction to prevent flickering.
+    this.style.display = 'none';
+
+    this.offEditorError?.();
+    this.offEditorError = null;
+
+    const { contextPromise } = this;
+
+    this.contextPromise = null;
+
+    if (!contextPromise) {
+      return;
+    }
+
+    // Creation errors are already reported in `initializeContext()`.
+    const context = await contextPromise.catch(() => null);
+
+    if (!context) {
+      return;
+    }
+
+    // Unregister before destroying, so newly mounted editors don't pick up a context that is going down.
+    // Don't touch the registry if another element with the same ID has already registered its own context.
+    const contextId = this.getAttribute('data-cke-context-id');
+
+    if (contextId && ContextsRegistry.the.getItem(contextId) === context) {
+      ContextsRegistry.the.unregister(contextId);
+    }
+
+    try {
+      await context.destroy();
+    }
+    catch (error) {
+      console.error(`Failed to destroy CKEditor5 context with ID "${contextId}".`, error);
+    }
+  }
+
+  /**
+   * Loads plugins and translations and creates the context instance.
+   */
+  private async createContext(): Promise<Context> {
+    const contextConfig = JSON.parse(this.getAttribute('data-cke-context')!) as ContextConfig;
+    const { customTranslations, config: { plugins, ...config } } = contextConfig;
+
     const language = (
       this.getAttribute('data-cke-language')
         ? JSON.parse(this.getAttribute('data-cke-language')!)
@@ -67,68 +166,24 @@ export class ContextComponentElement extends HTMLElement {
     ]
       .filter(translations => !isEmptyObject(translations));
 
-    // Initialize context with watchdog.
-    this.contextPromise = (async () => {
-      const { ContextWatchdog, Context } = await import('ckeditor5');
+    // Construct parsed config. First resolve DOM element references in the provided configuration.
+    let resolvedConfig = resolveEditorConfigElementReferences(config);
 
-      const instance = new ContextWatchdog(Context, {
-        crashNumberLimit: 10,
-        ...watchdogConfig,
-      });
+    // Then resolve translation references in the provided configuration, using the mixed translations.
+    resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
 
-      // Construct parsed config. First resolve DOM element references in the provided configuration.
-      let resolvedConfig = resolveEditorConfigElementReferences(config);
+    const { Context } = await import('ckeditor5');
 
-      // Then resolve translation references in the provided configuration, using the mixed translations.
-      resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
+    const context = await Context.create({
+      ...resolvedConfig,
+      language,
+      plugins: loadedPlugins,
+      ...mixedTranslations.length && {
+        translations: mixedTranslations,
+      },
+    });
 
-      await instance.create({
-        ...resolvedConfig,
-        language,
-        plugins: loadedPlugins,
-        ...mixedTranslations.length && {
-          translations: mixedTranslations,
-        },
-      });
-
-      instance.on('itemError', (...args) => {
-        console.error('Context item error:', ...args);
-      });
-
-      return instance;
-    })();
-
-    const context = await this.contextPromise;
-
-    if (this.isConnected) {
-      ContextsRegistry.the.register(contextId, context);
-    }
-  }
-
-  /**
-   * Destroys the context component. Unmounts root from the editor.
-   */
-  async disconnectedCallback() {
-    // Disconnect the observer if present.
-    this.interactiveWait?.disconnect();
-
-    const contextId = this.getAttribute('data-cke-context-id');
-
-    // Let's hide the element during destruction to prevent flickering.
-    this.style.display = 'none';
-
-    // Let's wait for the mounted promise to resolve before proceeding with destruction.
-    try {
-      const context = await this.contextPromise;
-
-      await context?.destroy();
-    }
-    finally {
-      this.contextPromise = null;
-
-      if (contextId && ContextsRegistry.the.hasItem(contextId)) {
-        ContextsRegistry.the.unregister(contextId);
-      }
-    }
+    // The context may be destroyed both by this component and by `ContextsRegistry#destroyAll()`.
+    return makeDestroyIdempotent(context);
   }
 }

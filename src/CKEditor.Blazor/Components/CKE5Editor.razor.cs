@@ -64,12 +64,6 @@ public partial class CKE5Editor : ComponentBase, IAsyncDisposable, ICKE5Interact
     public object? Preset { get; set; } = "default";
 
     /// <summary>
-    /// Whether to enable the watchdog feature (default: <see langword="true"/>).
-    /// </summary>
-    [Parameter]
-    public bool Watchdog { get; set; } = true;
-
-    /// <summary>
     /// Optional name for the hidden input field used in form submissions.
     /// </summary>
     [Parameter]

@@ -27,7 +27,6 @@ public class CKE5EditorTests : BunitContext
         Assert.Equal("test-editor", editor.GetAttribute("data-cke-editor-id"));
         Assert.Equal("250", editor.GetAttribute("data-cke-save-debounce-ms"));
         Assert.Null(editor.GetAttribute("data-cke-interactive"));
-        Assert.Equal("true", editor.GetAttribute("data-cke-watchdog"));
     }
 
     [Fact]
@@ -112,24 +111,6 @@ public class CKE5EditorTests : BunitContext
             .Add(p => p.Interactive, false));
 
         Assert.Null(cut.Find("cke5-editor").GetAttribute("data-cke-interactive"));
-    }
-
-    [Fact]
-    public void RendersEditor_WithWatchdogTrue_ByDefault()
-    {
-        var cut = Render<CKE5Editor>(p => p.Add(p => p.Id, "test-editor"));
-
-        Assert.Equal("true", cut.Find("cke5-editor").GetAttribute("data-cke-watchdog"));
-    }
-
-    [Fact]
-    public void RendersEditor_WithoutWatchdogAttr_WhenWatchdogDisabled()
-    {
-        var cut = Render<CKE5Editor>(p => p
-            .Add(p => p.Id, "test-editor")
-            .Add(p => p.Watchdog, false));
-
-        Assert.Null(cut.Find("cke5-editor").GetAttribute("data-cke-watchdog"));
     }
 
     [Fact]

@@ -87,15 +87,6 @@ public class PresetConfigTests
     }
 
     [Fact]
-    public void WithLanguage_String_ShouldSetWatchdogConfig()
-    {
-        var watchdogConfig = new Dictionary<string, object> { { "key1", "val1" } };
-        var preset = new PresetConfig().WithWatchdogConfig(watchdogConfig);
-
-        Assert.Equal(watchdogConfig, preset.WatchdogConfig);
-    }
-
-    [Fact]
     public void WithLanguage_String_ShouldSetLanguageInConfig()
     {
         var preset = new PresetConfig().WithLanguage("pl");
