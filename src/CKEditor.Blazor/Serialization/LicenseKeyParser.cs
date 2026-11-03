@@ -44,15 +44,7 @@ public static class LicenseKeyParser
 
         if (payload.TryGetValue("distributionChannel", out var channelElement))
         {
-            var channelStr = channelElement.GetString();
-
-            distributionChannel = channelStr?.ToLowerInvariant() switch
-            {
-                "sh" => DistributionChannel.SH,
-                "cloud" => DistributionChannel.Cloud,
-                null => null,
-                _ => throw new ArgumentException("Invalid distributionChannel in JWT payload")
-            };
+            distributionChannel = DistributionChannelParser.Parse(channelElement);
         }
 
         long? expiresAt = null;
