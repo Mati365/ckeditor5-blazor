@@ -129,6 +129,72 @@ public class LicenseKeyParserTests
     }
 
     [Fact]
+    public void Parse_JWT_WithChannelArrayContainingCloud_ShouldReturnCloud()
+    {
+        var jwt = BuildWithChannelClaim(new[] { "cloud" });
+
+        var result = LicenseKeyParser.Parse(jwt);
+
+        Assert.Equal(DistributionChannel.Cloud, result.DistributionChannel);
+    }
+
+    [Fact]
+    public void Parse_JWT_WithChannelArrayContainingSH_ShouldReturnSH()
+    {
+        var jwt = BuildWithChannelClaim(new[] { "sh" });
+
+        var result = LicenseKeyParser.Parse(jwt);
+
+        Assert.Equal(DistributionChannel.SH, result.DistributionChannel);
+    }
+
+    [Fact]
+    public void Parse_JWT_WithChannelArrayContainingOtherValues_ShouldPickKnownChannel()
+    {
+        var jwt = BuildWithChannelClaim(new[] { "drupal", "SH", "something-else" });
+
+        var result = LicenseKeyParser.Parse(jwt);
+
+        Assert.Equal(DistributionChannel.SH, result.DistributionChannel);
+    }
+
+    [Fact]
+    public void Parse_JWT_WithChannelArrayContainingBoth_ShouldAllowEveryChannel()
+    {
+        var jwt = BuildWithChannelClaim(new[] { "sh", "cloud" });
+
+        var result = LicenseKeyParser.Parse(jwt);
+
+        Assert.Null(result.DistributionChannel);
+        Assert.True(result.IsCompatibleWithCloud());
+        Assert.True(result.IsCompatibleWithSelfHosted());
+    }
+
+    [Fact]
+    public void Parse_JWT_WithChannelArrayWithoutKnownChannel_ShouldThrow()
+    {
+        var jwt = BuildWithChannelClaim(new[] { "drupal", "unknown" });
+
+        Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse(jwt));
+    }
+
+    [Fact]
+    public void Parse_JWT_WithEmptyChannelArray_ShouldThrow()
+    {
+        var jwt = BuildWithChannelClaim(Array.Empty<string>());
+
+        Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse(jwt));
+    }
+
+    [Fact]
+    public void Parse_JWT_WithNonStringNonArrayChannel_ShouldThrow()
+    {
+        var jwt = BuildWithChannelClaim(42);
+
+        Assert.Throws<ArgumentException>(() => LicenseKeyParser.Parse(jwt));
+    }
+
+    [Fact]
     public void Parse_EmptyString_ShouldThrow()
     {
         Assert.Throws<ArgumentException>(static () => LicenseKeyParser.Parse(string.Empty));
@@ -152,4 +218,9 @@ public class LicenseKeyParserTests
         var ex = Assert.Throws<ArgumentException>(static () => LicenseKeyParser.Parse("header.bnVsbA.sig"));
         Assert.Equal("Invalid JSON in JWT payload", ex.Message);
     }
+
+    private static string BuildWithChannelClaim(object value)
+        => JwtTestHelper.Build(
+            exp: DateTimeOffset.UtcNow.AddDays(30).ToUnixTimeSeconds(),
+            extraClaims: new Dictionary<string, object?> { ["distributionChannel"] = value });
 }

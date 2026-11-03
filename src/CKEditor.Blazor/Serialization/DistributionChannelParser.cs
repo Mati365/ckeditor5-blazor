@@ -12,8 +12,8 @@ public static class DistributionChannelParser
     /// Parses the <c>distributionChannel</c> claim, which can be <c>null</c>, a single string or an array of strings.
     /// </summary>
     /// <param name="element">The claim value.</param>
-    /// <returns>The resolved <see cref="DistributionChannel"/>, or <c>null</c> when none applies.</returns>
-    /// <exception cref="ArgumentException">When the claim is a string with an unknown value or has an unsupported JSON type.</exception>
+    /// <returns>The resolved <see cref="DistributionChannel"/>, or <c>null</c> when every channel is allowed.</returns>
+    /// <exception cref="ArgumentException">When the claim has an unknown value, contains no known channel or has an unsupported JSON type.</exception>
     public static DistributionChannel? Parse(JsonElement element) => element.ValueKind switch
     {
         JsonValueKind.Null => null,
@@ -25,10 +25,13 @@ public static class DistributionChannelParser
 
     /// <summary>
     /// Resolves an array of channel names. Unknown entries are ignored.
-    /// When the array contains both <c>cloud</c> and <c>sh</c>, <see cref="DistributionChannel.Cloud"/> takes precedence.
     /// </summary>
     /// <param name="array">JSON array of channel names.</param>
-    /// <returns>The resolved <see cref="DistributionChannel"/>, or <c>null</c> if the array contains no known channel.</returns>
+    /// <returns>
+    /// The single listed <see cref="DistributionChannel"/>, or <c>null</c> (every channel allowed)
+    /// when the array contains both <c>cloud</c> and <c>sh</c>.
+    /// </returns>
+    /// <exception cref="ArgumentException">When the array contains no known channel.</exception>
     private static DistributionChannel? ParseArray(JsonElement array)
     {
         var hasCloud = false;
@@ -52,12 +55,13 @@ public static class DistributionChannelParser
             }
         }
 
-        if (hasCloud)
+        return (hasCloud, hasSH) switch
         {
-            return DistributionChannel.Cloud;
-        }
-
-        return hasSH ? DistributionChannel.SH : null;
+            (true, true) => null,
+            (true, false) => DistributionChannel.Cloud,
+            (false, true) => DistributionChannel.SH,
+            (false, false) => throw new ArgumentException("Invalid distributionChannel in JWT payload")
+        };
     }
 
     /// <summary>

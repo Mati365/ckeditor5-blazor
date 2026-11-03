@@ -32,7 +32,6 @@ public class DistributionChannelParserTests
     [InlineData("[\"cloud\"]", DistributionChannel.Cloud)]
     [InlineData("[\"sh\"]", DistributionChannel.SH)]
     [InlineData("[\"drupal\", \"SH\", \"something-else\"]", DistributionChannel.SH)]
-    [InlineData("[\"sh\", \"cloud\"]", DistributionChannel.Cloud)]
     [InlineData("[42, \"cloud\", null]", DistributionChannel.Cloud)]
     public void Parse_Array_ShouldReturnKnownChannel(string json, DistributionChannel expected)
     {
@@ -40,11 +39,19 @@ public class DistributionChannelParserTests
     }
 
     [Theory]
-    [InlineData("[]")]
-    [InlineData("[\"drupal\", \"unknown\"]")]
-    public void Parse_ArrayWithoutKnownChannel_ShouldReturnNull(string json)
+    [InlineData("[\"sh\", \"cloud\"]")]
+    [InlineData("[\"Cloud\", \"drupal\", \"SH\"]")]
+    public void Parse_ArrayWithBothChannels_ShouldReturnNull(string json)
     {
         Assert.Null(Parse(json));
+    }
+
+    [Theory]
+    [InlineData("[]")]
+    [InlineData("[\"drupal\", \"unknown\"]")]
+    public void Parse_ArrayWithoutKnownChannel_ShouldThrow(string json)
+    {
+        Assert.Throws<ArgumentException>(() => Parse(json));
     }
 
     [Theory]
